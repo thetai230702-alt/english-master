@@ -142,7 +142,7 @@ function UnitPractice({ unit, onBack }: UnitPracticeProps) {
       if (currentRunId !== runIdRef.current) return;
 
       const utterance = new SpeechSynthesisUtterance(
-        `${sentence.english.trim()}`
+        `,${sentence.english.trim()}`
       );
 
       const language = voiceType === "US" ? "en-US" : "en-GB";

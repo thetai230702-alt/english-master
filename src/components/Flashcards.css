@@ -567,3 +567,20 @@
     align-items: flex-start;
   }
 }
+
+/* ===== PREMIUM BLUE THEME: FLASHCARDS ===== */
+.flashcard-stat-card,.flashcards-progress,.flashcard { border:1px solid #e2ebf7; border-radius:18px; box-shadow:0 9px 25px rgba(30,73,130,.06); }
+.flashcard-stat-card { background:linear-gradient(145deg,#fff,#fbfdff); }
+.flashcard-stat-icon { border-radius:13px; box-shadow:0 4px 0 rgba(42,103,190,.11),0 7px 13px rgba(42,103,190,.08); }
+.flashcards-toolbar select { border:1px solid #dce7f5; border-radius:11px; background:#fbfdff; }
+.flashcards-toolbar select:focus { outline:none; border-color:#70a9f1; box-shadow:0 0 0 3px #e8f2ff; }
+.flashcards-progress-track { background:#eaf1fb; }
+.flashcards-progress-fill { background:linear-gradient(90deg,#438cf0,#245bb5); }
+.flashcard { background:linear-gradient(145deg,#fff,#f6faff); }
+.flashcard-front { background:radial-gradient(circle at top right,#e8f2ff 0,transparent 48%),linear-gradient(145deg,#fff,#f7faff); }
+.flashcard-back { background:radial-gradient(circle at top right,#dcecff 0,transparent 48%),linear-gradient(145deg,#f6faff,#edf5ff); }
+.flashcard-face h2 { color:#17365f; }
+.flashcard-speak { background:#e8f2ff; color:#245fb9; border-radius:50%; box-shadow:0 3px 0 #d2e3fb; }
+.flashcard-navigation button,.flashcard-answer-actions button,.flashcards-bottom button { border-radius:11px; }
+.flashcard-nav-button,.flashcard-shuffle-button { box-shadow:0 3px 0 rgba(35,87,160,.12); }
+.flashcard-remembered-button { background:linear-gradient(135deg,#438cf0,#245bb5); box-shadow:0 4px 0 #1e4d9a; }

@@ -327,3 +327,16 @@
     padding: 15px;
   }
 }
+
+/* ===== PREMIUM BLUE THEME: CHECKLIST ===== */
+.checklist-heading h2,.table-heading h3,.progress-top h3 { color:#17365f; letter-spacing:-.025em; }
+.progress-card,.stat-card,.checklist-table-card { background:linear-gradient(145deg,#fff,#fbfdff); border:1px solid #e4edf9; border-radius:18px; box-shadow:0 9px 26px rgba(30,73,130,.055); }
+.progress-icon,.stat-icon { border-radius:14px; box-shadow:0 4px 0 rgba(42,103,190,.10),0 7px 14px rgba(42,103,190,.08); }
+.progress-track { background:#eaf1fb; }
+.progress-value,.progress-track > span { background:linear-gradient(90deg,#438cf0,#2460bf); }
+.checklist-search input,.date-input,.note-input,.status-select { border:1px solid #dfe8f5; border-radius:10px; background:#fbfdff; }
+.checklist-search input:focus,.date-input:focus,.note-input:focus { outline:none; border-color:#6ca5f2; box-shadow:0 0 0 3px #e7f1ff; }
+.filter-buttons button { border-radius:999px; }
+.filter-buttons button.active { background:linear-gradient(135deg,#347de0,#245bb5); box-shadow:0 4px 10px rgba(38,99,186,.2); }
+.checklist-table th { color:#5d7392; background:#f4f8fe; }
+.checklist-table tbody tr:hover { background:#f6faff; }

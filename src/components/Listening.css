@@ -478,3 +478,16 @@
     font-size: 11px;
   }
 }
+
+/* ===== PREMIUM BLUE THEME: LISTENING ===== */
+.listening-heading h2 { color:#17365f; letter-spacing:-.025em; }
+.listening-settings-card,.listening-progress-card,.listening-sentence-card,.listening-player-card { background:linear-gradient(145deg,#fff,#fbfdff); border:1px solid #e2ebf7; border-radius:18px; box-shadow:0 9px 25px rgba(30,73,130,.055); }
+.listening-heading-icon { background:linear-gradient(145deg,#6eb3ff,#2a60bd); color:#fff; border-radius:14px; box-shadow:0 4px 0 #214f9d,0 8px 14px rgba(37,99,190,.15); }
+.listening-select-wrap select { border:1px solid #dce7f5; border-radius:11px; background:#fbfdff; }
+.listening-select-wrap select:focus { outline:none; border-color:#70a9f1; box-shadow:0 0 0 3px #e8f2ff; }
+.listening-progress-track { background:#eaf1fb; }
+.listening-progress-fill { background:linear-gradient(90deg,#438cf0,#245bb5); }
+.listening-sentence-number { background:#eaf3ff; color:#245fb9; border-radius:9px; }
+.listening-english p { color:#17365f; }
+.listening-control-button.primary { background:linear-gradient(135deg,#438cf0,#245bb5); box-shadow:0 4px 0 #1e4d9a,0 8px 14px rgba(37,99,190,.16); border-radius:13px; }
+.listening-control-button.secondary { border:1px solid #dce8f8; background:#f4f8ff; color:#285b9e; border-radius:12px; }

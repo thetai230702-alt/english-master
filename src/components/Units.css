@@ -222,3 +222,16 @@
     width: 100%;
   }
 }
+
+/* ===== PREMIUM BLUE THEME: UNITS ===== */
+.units-overview,.units-summary-card,.unit-card { background:linear-gradient(145deg,#fff,#fafdff); border:1px solid #e3ecf8; border-radius:18px; box-shadow:0 9px 25px rgba(30,73,130,.055); }
+.units-overview-icon { background:linear-gradient(145deg,#69adff,#2c65c5); color:#fff; border-radius:16px; box-shadow:0 5px 0 #2455a3,0 9px 15px rgba(37,99,190,.18); }
+.units-overview h2,.units-toolbar h2,.unit-card h3 { color:#17365f; letter-spacing:-.025em; }
+.units-summary-card strong { color:#245fb9; }
+.units-search input { border:1px solid #dfe8f5; border-radius:12px; background:#fff; }
+.units-search input:focus { outline:none; border-color:#70a9f1; box-shadow:0 0 0 3px #e8f2ff; }
+.unit-card { transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease; }
+.unit-card:hover { transform:translateY(-4px); border-color:#cfe1fb; box-shadow:0 16px 30px rgba(34,91,166,.11); }
+.unit-number { background:linear-gradient(145deg,#69adff,#2a60bd); color:#fff; box-shadow:0 4px 0 #214f9d,0 7px 12px rgba(37,99,190,.18); }
+.unit-open-button { background:linear-gradient(135deg,#438cf0,#245bb5); border-radius:10px; box-shadow:0 4px 0 #1e4d9a,0 7px 12px rgba(37,99,190,.16); }
+.unit-open-button:hover { transform:translateY(-2px); }

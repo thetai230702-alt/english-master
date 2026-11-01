@@ -6,6 +6,7 @@ import {
   GraduationCap,
   Layers,
   Award,
+  Info,
 } from "lucide-react";
 
 import "./Sidebar.css";
@@ -15,7 +16,8 @@ export type TabType =
   | "units"
   | "listening"
   | "flashcards"
-  | "cefr";
+  | "cefr"
+  | "information";
 
 interface SidebarProps {
   activeTab: TabType;
@@ -52,6 +54,12 @@ const menuItems = [
     label: "Flashcard CEFR",
     description: "Từ vựng A1 đến C2",
     icon: Award,
+  },
+  {
+    id: "information" as TabType,
+    label: "Information",
+    description: "Thông tin ứng dụng",
+    icon: Info,
   },
 ];
 

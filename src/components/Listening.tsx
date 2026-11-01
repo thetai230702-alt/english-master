@@ -21,15 +21,17 @@ import "./Listening.css";
 type RepeatMode = "1" | "2" | "3" | "infinite";
 type VoiceType = "US" | "UK";
 
-const START_DELAY = 250;
-const SENTENCE_DELAY = 400;
+// Tăng thời gian chờ để Chrome giải phóng bộ đọc trước khi phát.
+const START_DELAY = 700;
+const SENTENCE_DELAY = 600;
+const RETRY_DELAY = 150;
 
 function Listening() {
   const [units, setUnits] = useState<Unit[]>([]);
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [speed, setSpeed] = useState(1);
-  const [voiceType, setVoiceType] = useState<VoiceType>("US");
+  const [voiceType, setVoiceType] = useState<VoiceType>("UK");
   const [repeatMode, setRepeatMode] = useState<RepeatMode>("1");
   const [playing, setPlaying] = useState(false);
   const [paused, setPaused] = useState(false);
@@ -44,7 +46,7 @@ function Listening() {
   const selectedUnitRef = useRef<Unit | null>(null);
   const repeatModeRef = useRef<RepeatMode>("1");
   const speedRef = useRef(1);
-  const voiceTypeRef = useRef<VoiceType>("US");
+  const voiceTypeRef = useRef<VoiceType>("UK");
   const runIdRef = useRef(0);
   const delayTimerRef = useRef<number | null>(null);
 
@@ -66,7 +68,9 @@ function Listening() {
         }
       })
       .catch(() => {
-        setError("Không thể tải dữ liệu Unit. Vui lòng kiểm tra file units.json.");
+        setError(
+          "Không thể tải dữ liệu Unit. Vui lòng kiểm tra file units.json."
+        );
       })
       .finally(() => setLoading(false));
 
@@ -107,11 +111,13 @@ function Listening() {
   }, [voiceType]);
 
   const getSelectedVoice = () => {
-    const language = voiceTypeRef.current === "US" ? "en-US" : "en-GB";
+    const language =
+      voiceTypeRef.current === "UK" ? "en-GB" : "en-US";
 
     return (
       voicesRef.current.find(
-        (voice) => voice.lang.toLowerCase() === language.toLowerCase()
+        (voice) =>
+          voice.lang.toLowerCase() === language.toLowerCase()
       ) ||
       voicesRef.current.find((voice) =>
         voice.lang.toLowerCase().startsWith(language.slice(0, 2))
@@ -129,13 +135,19 @@ function Listening() {
     setPaused(false);
   };
 
-  const scheduleSentence = (index: number, runId: number, delay: number) => {
+  const scheduleSentence = (
+    index: number,
+    runId: number,
+    delay: number
+  ) => {
     clearDelay();
 
     delayTimerRef.current = window.setTimeout(() => {
       delayTimerRef.current = null;
 
-      if (runId !== runIdRef.current || !playingRef.current) return;
+      if (runId !== runIdRef.current || !playingRef.current) {
+        return;
+      }
 
       speakSentence(index, runId);
     }, delay);
@@ -144,7 +156,9 @@ function Listening() {
   const speakSentence = (index: number, runId: number) => {
     const unit = selectedUnitRef.current;
 
-    if (!unit || runId !== runIdRef.current || !playingRef.current) return;
+    if (!unit || runId !== runIdRef.current || !playingRef.current) {
+      return;
+    }
 
     if (index >= unit.sentences.length) {
       const nextRound = completedRoundsRef.current + 1;
@@ -153,12 +167,13 @@ function Listening() {
       completedRoundsRef.current = nextRound;
       setCompletedRounds(nextRound);
 
-      const shouldRepeat = mode === "infinite" || nextRound < Number(mode);
+      const shouldRepeat =
+        mode === "infinite" || nextRound < Number(mode);
 
       if (shouldRepeat) {
         currentIndexRef.current = 0;
         setCurrentIndex(0);
-        scheduleSentence(0, runId, 700);
+        scheduleSentence(0, runId, 800);
       } else {
         playingRef.current = false;
         setPlaying(false);
@@ -176,37 +191,61 @@ function Listening() {
       return;
     }
 
+    // Không phát câu mới khi Chrome vẫn đang xử lý câu trước.
+    if (
+      window.speechSynthesis.speaking ||
+      window.speechSynthesis.pending
+    ) {
+      scheduleSentence(index, runId, RETRY_DELAY);
+      return;
+    }
+
     currentIndexRef.current = index;
     setCurrentIndex(index);
 
-    const utterance = new SpeechSynthesisUtterance(sentence.english.trim());
+    const utterance = new SpeechSynthesisUtterance(
+      sentence.english.trim()
+    );
 
-    utterance.lang = voiceTypeRef.current === "US" ? "en-US" : "en-GB";
+    utterance.lang =
+      voiceTypeRef.current === "UK" ? "en-GB" : "en-US";
     utterance.rate = speedRef.current;
     utterance.pitch = 1;
     utterance.volume = 1;
 
     const voice = getSelectedVoice();
-    if (voice) utterance.voice = voice;
+
+    if (voice) {
+      utterance.voice = voice;
+    }
 
     utterance.onend = () => {
-      if (runId !== runIdRef.current || !playingRef.current) return;
+      if (runId !== runIdRef.current || !playingRef.current) {
+        return;
+      }
 
-      // Nghỉ giữa hai câu để Chrome xử lý giọng đọc hoàn tất.
       scheduleSentence(index + 1, runId, SENTENCE_DELAY);
     };
 
     utterance.onerror = (event) => {
       if (runId !== runIdRef.current) return;
-      if (event.error === "canceled" || event.error === "interrupted") return;
 
-      setError("Không thể phát câu này. Bạn hãy thử nhấn Nghe lại.");
+      if (
+        event.error === "canceled" ||
+        event.error === "interrupted"
+      ) {
+        return;
+      }
+
+      setError(
+        "Không thể phát câu này. Bạn hãy thử nhấn Nghe lại."
+      );
       playingRef.current = false;
       setPlaying(false);
       setPaused(false);
     };
 
-    // Chỉ đọc khi bộ đọc không còn bận.
+    // Phát câu sau khi đã kiểm tra bộ đọc sẵn sàng.
     window.speechSynthesis.speak(utterance);
   };
 
@@ -216,13 +255,15 @@ function Listening() {
   ) => {
     if (!selectedUnitRef.current) return;
 
-    // Hủy câu đọc cũ và xóa lịch phát cũ.
     runIdRef.current += 1;
     const runId = runIdRef.current;
 
     clearDelay();
     playingRef.current = false;
+
+    // Hủy hàng đợi cũ và yêu cầu Chrome tiếp tục trạng thái đọc bình thường.
     window.speechSynthesis.cancel();
+    window.speechSynthesis.resume();
 
     if (resetRounds) {
       completedRoundsRef.current = 0;
@@ -234,7 +275,7 @@ function Listening() {
     setPaused(false);
     setError("");
 
-    // Chờ Chrome giải phóng hàng đợi trước khi phát câu mới.
+    // Chờ Chrome giải phóng hoàn toàn bộ đọc.
     scheduleSentence(fromIndex, runId, START_DELAY);
   };
 
@@ -274,7 +315,10 @@ function Listening() {
   };
 
   const handleSelectUnit = (unitNumber: number) => {
-    const unit = units.find((item) => item.unitNumber === unitNumber);
+    const unit = units.find(
+      (item) => item.unitNumber === unitNumber
+    );
+
     if (!unit) return;
 
     stopAudio();
@@ -304,7 +348,11 @@ function Listening() {
   };
 
   if (loading) {
-    return <div className="listening-loading">Đang tải dữ liệu...</div>;
+    return (
+      <div className="listening-loading">
+        Đang tải dữ liệu...
+      </div>
+    );
   }
 
   if (error && units.length === 0) {
@@ -312,11 +360,16 @@ function Listening() {
   }
 
   if (!selectedUnit) {
-    return <div className="listening-loading">Không có dữ liệu Unit.</div>;
+    return (
+      <div className="listening-loading">
+        Không có dữ liệu Unit.
+      </div>
+    );
   }
 
   const currentSentence = selectedUnit.sentences[currentIndex];
   const totalSentences = selectedUnit.sentences.length;
+
   const progress = totalSentences
     ? ((currentIndex + 1) / totalSentences) * 100
     : 0;
@@ -334,9 +387,12 @@ function Listening() {
         <div className="listening-heading-icon">
           <Headphones size={25} />
         </div>
+
         <div>
           <h2>Luyện nghe theo Unit</h2>
-          <p>Nghe tự động toàn bộ câu trong Unit và luyện phát âm.</p>
+          <p>
+            Nghe tự động toàn bộ câu trong Unit và luyện phát âm.
+          </p>
         </div>
       </div>
 
@@ -346,6 +402,7 @@ function Listening() {
             <BookOpen size={16} />
             <span>NỘI DUNG HỌC</span>
           </label>
+
           <div className="listening-select-wrap">
             <select
               id="listening-unit"
@@ -355,13 +412,21 @@ function Listening() {
               }
             >
               {units.map((unit) => (
-                <option key={unit.unitNumber} value={unit.unitNumber}>
+                <option
+                  key={unit.unitNumber}
+                  value={unit.unitNumber}
+                >
                   Unit {unit.unitNumber} - {unit.title}
                 </option>
               ))}
             </select>
-            <ChevronDown className="select-chevron" size={17} />
+
+            <ChevronDown
+              className="select-chevron"
+              size={17}
+            />
           </div>
+
           <small>Chọn bài học muốn luyện nghe</small>
         </div>
 
@@ -370,12 +435,15 @@ function Listening() {
             <Repeat size={16} />
             <span>CHẾ ĐỘ LẶP LẠI</span>
           </label>
+
           <div className="listening-select-wrap">
             <select
               id="listening-repeat"
               value={repeatMode}
               onChange={(event) =>
-                handleRepeatChange(event.target.value as RepeatMode)
+                handleRepeatChange(
+                  event.target.value as RepeatMode
+                )
               }
             >
               <option value="1">Nghe 1 lần</option>
@@ -383,8 +451,13 @@ function Listening() {
               <option value="3">Lặp lại 3 lần</option>
               <option value="infinite">Lặp vô hạn</option>
             </select>
-            <ChevronDown className="select-chevron" size={17} />
+
+            <ChevronDown
+              className="select-chevron"
+              size={17}
+            />
           </div>
+
           <small>Tự động phát lại toàn bộ Unit</small>
         </div>
 
@@ -393,20 +466,32 @@ function Listening() {
             <Languages size={16} />
             <span>GIỌNG ĐỌC</span>
           </label>
+
           <div className="listening-select-wrap">
             <select
               id="listening-voice"
               value={voiceType}
               onChange={(event) =>
-                handleVoiceChange(event.target.value as VoiceType)
+                handleVoiceChange(
+                  event.target.value as VoiceType
+                )
               }
             >
-              <option value="US">English - United States</option>
-              <option value="UK">English - United Kingdom</option>
+              <option value="UK">
+                English - United Kingdom
+              </option>
+              <option value="US">
+                English - United States
+              </option>
             </select>
-            <ChevronDown className="select-chevron" size={17} />
+
+            <ChevronDown
+              className="select-chevron"
+              size={17}
+            />
           </div>
-          <small>Chọn giọng Anh - Mỹ hoặc Anh - Anh</small>
+
+          <small>Chọn giọng Anh - Anh hoặc Anh - Mỹ</small>
         </div>
 
         <div className="listening-setting">
@@ -414,12 +499,15 @@ function Listening() {
             <Gauge size={16} />
             <span>TỐC ĐỘ ĐỌC</span>
           </label>
+
           <div className="listening-select-wrap">
             <select
               id="listening-speed"
               value={speed}
               onChange={(event) =>
-                handleSpeedChange(Number(event.target.value))
+                handleSpeedChange(
+                  Number(event.target.value)
+                )
               }
             >
               <option value="0.5">0.5x - Rất chậm</option>
@@ -429,8 +517,13 @@ function Listening() {
               <option value="1.5">1.5x - Rất nhanh</option>
               <option value="2">2.0x - Cực nhanh</option>
             </select>
-            <ChevronDown className="select-chevron" size={17} />
+
+            <ChevronDown
+              className="select-chevron"
+              size={17}
+            />
           </div>
+
           <small>Điều chỉnh tốc độ phát âm</small>
         </div>
       </div>
@@ -445,7 +538,8 @@ function Listening() {
           </div>
 
           <div className="listening-progress-count">
-            Câu <strong>{currentIndex + 1}</strong> / {totalSentences}
+            Câu <strong>{currentIndex + 1}</strong> /{" "}
+            {totalSentences}
           </div>
         </div>
 
@@ -457,7 +551,9 @@ function Listening() {
         </div>
 
         <div className="listening-progress-bottom">
-          <span>{Math.round(progress)}% hoàn thành lượt hiện tại</span>
+          <span>
+            {Math.round(progress)}% hoàn thành lượt hiện tại
+          </span>
           <span>Đã hoàn thành: {completedRounds} lượt</span>
         </div>
       </div>
@@ -477,7 +573,9 @@ function Listening() {
             )}
 
             {paused && (
-              <span className="listening-paused">Đang tạm dừng</span>
+              <span className="listening-paused">
+                Đang tạm dừng
+              </span>
             )}
           </div>
 
@@ -488,7 +586,9 @@ function Listening() {
 
           <div className="listening-ipa">
             <span>IPA</span>
-            <p>{currentSentence.ipa || "Chưa có phiên âm"}</p>
+            <p>
+              {currentSentence.ipa || "Chưa có phiên âm"}
+            </p>
           </div>
 
           <div className="listening-vietnamese">
@@ -532,9 +632,15 @@ function Listening() {
           <button
             className="listening-control-button primary"
             onClick={handlePlayPause}
-            title={playing && !paused ? "Tạm dừng" : "Phát"}
+            title={
+              playing && !paused ? "Tạm dừng" : "Phát"
+            }
           >
-            {playing && !paused ? <Pause size={23} /> : <Play size={23} />}
+            {playing && !paused ? (
+              <Pause size={23} />
+            ) : (
+              <Play size={23} />
+            )}
           </button>
 
           <button
@@ -557,10 +663,13 @@ function Listening() {
               : "Nhấn nút Phát để nghe toàn bộ Unit"}
         </div>
 
-        {error && <p className="listening-inline-error">{error}</p>}
+        {error && (
+          <p className="listening-inline-error">{error}</p>
+        )}
 
         <p className="listening-repeat-note">
-          Chế độ hiện tại: <strong>{repeatLabel[repeatMode]}</strong>
+          Chế độ hiện tại:{" "}
+          <strong>{repeatLabel[repeatMode]}</strong>
         </p>
       </div>
     </div>

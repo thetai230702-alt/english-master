@@ -142,7 +142,7 @@ function UnitPractice({ unit, onBack }: UnitPracticeProps) {
       if (currentRunId !== runIdRef.current) return;
 
       const utterance = new SpeechSynthesisUtterance(
-        `,${sentence.english.trim()}`
+        `.....${sentence.english.trim()}`
       );
 
       const language = voiceType === "US" ? "en-US" : "en-GB";
@@ -179,7 +179,7 @@ function UnitPractice({ unit, onBack }: UnitPracticeProps) {
         playingRef.current = false;
         setPlaying(false);
         setPaused(false);
-        setAudioMessage("Đã phát 1 xong.");
+        setAudioMessage("Đã phát 2 xong.");
       };
 
       utterance.onerror = (event) => {

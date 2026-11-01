@@ -1,5 +1,12 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  onAuthStateChanged,
+  signOut,
+  type User,
+} from "firebase/auth";
+
+import { auth, authPersistence } from "./firebase";
 
 import Checklist from "./components/Checklist";
 import Units from "./components/Units";
@@ -8,12 +15,59 @@ import Flashcards from "./components/Flashcards";
 import CefrFlashcards from "./components/CefrFlashcards";
 import Information from "./components/Information";
 
+import Login from "./components/Login";
+import Register from "./components/Register";
+
 import Sidebar, { type TabType } from "./components/Sidebar";
 import "./App.css";
 
 function App() {
+  const [user, setUser] = useState<User | null>(null);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [showRegister, setShowRegister] = useState(false);
+
   const [activeTab, setActiveTab] = useState<TabType>("checklist");
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+    let cancelled = false;
+
+    authPersistence
+      .then(() => {
+        if (cancelled) return;
+
+        unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+          setUser(currentUser);
+          setCheckingAuth(false);
+        });
+      })
+      .catch((error) => {
+        console.error("Firebase Authentication error:", error);
+        if (!cancelled) {
+          setCheckingAuth(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+      unsubscribe?.();
+    };
+  }, []);
+
+  const handleLogout = async () => {
+    const confirmed = window.confirm("Bạn có chắc chắn muốn đăng xuất?");
+
+    if (!confirmed) return;
+
+    try {
+      await signOut(auth);
+      setActiveTab("checklist");
+    } catch (error) {
+      console.error("Logout error:", error);
+      alert("Đăng xuất thất bại. Vui lòng thử lại.");
+    }
+  };
 
   const pageTitles: Record<TabType, string> = {
     checklist: "Checklist học tập",
@@ -36,6 +90,18 @@ function App() {
   const toggleSidebar = () => {
     setSidebarCollapsed((previous) => !previous);
   };
+
+  if (checkingAuth) {
+    return <div className="auth-loading">Đang tải English Master...</div>;
+  }
+
+  if (!user) {
+    return showRegister ? (
+      <Register onSwitch={() => setShowRegister(false)} />
+    ) : (
+      <Login onSwitch={() => setShowRegister(true)} />
+    );
+  }
 
   return (
     <div
@@ -79,11 +145,25 @@ function App() {
             </div>
 
             <div className="topbar-user">
-              <div className="topbar-avatar">T</div>
-              <div className="topbar-user-info">
-                <strong>Thế Tài</strong>
-                <span>English Master</span>
+              <div className="topbar-avatar">
+                {(user.displayName || user.email || "U")
+                  .charAt(0)
+                  .toUpperCase()}
               </div>
+
+              <div className="topbar-user-info">
+                <strong>{user.displayName || "Học viên"}</strong>
+                <span>{user.email}</span>
+              </div>
+
+              <button
+                className="auth-logout"
+                onClick={handleLogout}
+                title="Đăng xuất"
+                aria-label="Đăng xuất"
+              >
+                Đăng xuất
+              </button>
             </div>
           </div>
         </header>

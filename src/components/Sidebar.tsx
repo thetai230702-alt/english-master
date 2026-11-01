@@ -22,6 +22,8 @@ export type TabType =
 interface SidebarProps {
   activeTab: TabType;
   onTabChange: (tab: TabType) => void;
+  collapsed: boolean;
+  onToggle: () => void;
 }
 
 const menuItems = [
@@ -63,10 +65,20 @@ const menuItems = [
   },
 ];
 
-function Sidebar({ activeTab, onTabChange }: SidebarProps) {
+function Sidebar({
+  activeTab,
+  onTabChange,
+  collapsed,
+  onToggle,
+}: SidebarProps) {
   return (
-    <aside className="sidebar">
-      <div className="sidebar-logo">
+    <aside className={`sidebar ${collapsed ? "collapsed" : ""}`}>
+      <button
+        className="sidebar-logo"
+        onClick={onToggle}
+        title={collapsed ? "Mở rộng Sidebar" : "Thu gọn Sidebar"}
+        aria-label={collapsed ? "Mở rộng Sidebar" : "Thu gọn Sidebar"}
+      >
         <div className="logo-icon">
           <GraduationCap size={28} />
         </div>
@@ -75,10 +87,10 @@ function Sidebar({ activeTab, onTabChange }: SidebarProps) {
           <h2>English Master</h2>
           <span>LEARN ENGLISH EVERY DAY</span>
         </div>
-      </div>
+      </button>
 
       <div className="sidebar-menu">
-        <p className="menu-heading">HỌC TẬP</p>
+        {!collapsed && <p className="menu-heading">HỌC TẬP</p>}
 
         {menuItems.map((item) => {
           const Icon = item.icon;
@@ -89,28 +101,33 @@ function Sidebar({ activeTab, onTabChange }: SidebarProps) {
               key={item.id}
               className={`menu-item ${isActive ? "active" : ""}`}
               onClick={() => onTabChange(item.id)}
+              title={collapsed ? item.label : undefined}
             >
               <Icon size={21} />
 
-              <div className="menu-item-text">
-                <span>{item.label}</span>
-                <small>{item.description}</small>
-              </div>
+              {!collapsed && (
+                <div className="menu-item-text">
+                  <span>{item.label}</span>
+                  <small>{item.description}</small>
+                </div>
+              )}
             </button>
           );
         })}
       </div>
 
-      <div className="sidebar-footer">
-        <div className="footer-icon">
-          <GraduationCap size={23} />
-        </div>
+      {!collapsed && (
+        <div className="sidebar-footer">
+          <div className="footer-icon">
+            <GraduationCap size={23} />
+          </div>
 
-        <div>
-          <strong>Keep learning!</strong>
-          <p>Mỗi ngày tiến bộ một chút.</p>
+          <div>
+            <strong>Keep learning!</strong>
+            <p>Mỗi ngày tiến bộ một chút.</p>
+          </div>
         </div>
-      </div>
+      )}
     </aside>
   );
 }

@@ -1,118 +1,281 @@
 
-import {
-  ClipboardCheck,
-  BookOpen,
-  Headphones,
-  GraduationCap,
-  Layers,
-  Award,
-  Info,
-} from "lucide-react";
+/* SIDEBAR */
 
-import "./Sidebar.css";
+.sidebar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
 
-export type TabType =
-  | "checklist"
-  | "units"
-  | "listening"
-  | "flashcards"
-  | "cefr"
-  | "information";
+  display: flex;
+  flex: 0 0 270px;
+  flex-direction: column;
 
-interface SidebarProps {
-  activeTab: TabType;
-  onTabChange: (tab: TabType) => void;
+  width: 270px;
+  min-width: 270px;
+  height: 100vh;
+  min-height: 100vh;
+
+  padding: 28px 18px 20px;
+
+  background: #ffffff;
+  border-right: 1px solid #e8edf4;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  transition:
+    width 0.25s ease,
+    min-width 0.25s ease,
+    flex-basis 0.25s ease,
+    padding 0.25s ease;
 }
 
-const menuItems = [
-  {
-    id: "checklist" as TabType,
-    label: "Checklist",
-    description: "Theo dõi tiến độ học tập",
-    icon: ClipboardCheck,
-  },
-  {
-    id: "units" as TabType,
-    label: "Các Unit",
-    description: "Luyện tập 1.500 câu",
-    icon: BookOpen,
-  },
-  {
-    id: "listening" as TabType,
-    label: "Luyện nghe",
-    description: "Listening practice",
-    icon: Headphones,
-  },
-  {
-    id: "flashcards" as TabType,
-    label: "Flashcard",
-    description: "Từ vựng theo 50 Unit",
-    icon: Layers,
-  },
-  {
-    id: "cefr" as TabType,
-    label: "Flashcard CEFR",
-    description: "Từ vựng A1 đến C2",
-    icon: Award,
-  },
-  {
-    id: "information" as TabType,
-    label: "Information",
-    description: "Thông tin ứng dụng",
-    icon: Info,
-  },
-];
+/* COLLAPSED SIDEBAR */
 
-function Sidebar({ activeTab, onTabChange }: SidebarProps) {
-  return (
-    <aside className="sidebar">
-      <div className="sidebar-logo">
-        <div className="logo-icon">
-          <GraduationCap size={28} />
-        </div>
-
-        <div className="logo-text">
-          <h2>English Master</h2>
-          <span>LEARN ENGLISH EVERY DAY</span>
-        </div>
-      </div>
-
-      <div className="sidebar-menu">
-        <p className="menu-heading">HỌC TẬP</p>
-
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = activeTab === item.id;
-
-          return (
-            <button
-              key={item.id}
-              className={`menu-item ${isActive ? "active" : ""}`}
-              onClick={() => onTabChange(item.id)}
-            >
-              <Icon size={21} />
-
-              <div className="menu-item-text">
-                <span>{item.label}</span>
-                <small>{item.description}</small>
-              </div>
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="sidebar-footer">
-        <div className="footer-icon">
-          <GraduationCap size={23} />
-        </div>
-
-        <div>
-          <strong>Keep learning!</strong>
-          <p>Mỗi ngày tiến bộ một chút.</p>
-        </div>
-      </div>
-    </aside>
-  );
+.sidebar.collapsed {
+  flex-basis: 76px;
+  width: 76px;
+  min-width: 76px;
+  padding: 28px 10px 20px;
 }
 
-export default Sidebar;
+/* LOGO */
+
+.sidebar-logo {
+  width: 100%;
+  min-height: 46px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 4px 8px 32px;
+
+  border: none;
+  background: transparent;
+  text-align: left;
+
+  cursor: pointer;
+}
+
+.sidebar-logo:hover .logo-icon {
+  transform: scale(1.06);
+  box-shadow: 0 5px 15px rgba(99, 102, 241, 0.25);
+}
+
+.logo-icon {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #ffffff;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border-radius: 13px;
+
+  transition: all 0.2s ease;
+}
+
+.logo-text {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.logo-text h2 {
+  margin: 0;
+  color: #1e293b;
+  font-size: 18px;
+  font-weight: 750;
+  letter-spacing: -0.5px;
+}
+
+.logo-text span {
+  display: block;
+  margin-top: 4px;
+  color: #94a3b8;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* COLLAPSED LOGO */
+
+.sidebar.collapsed .sidebar-logo {
+  justify-content: center;
+  padding: 4px 0 32px;
+}
+
+/* MENU */
+
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.menu-heading {
+  margin: 0 0 10px;
+  padding: 0 12px;
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: 1px;
+}
+
+.menu-item {
+  width: 100%;
+  min-height: 66px;
+  flex-shrink: 0;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 13px;
+
+  padding: 11px 13px;
+
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+
+  color: #64748b;
+  text-align: left;
+  font-family: inherit;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.menu-item:hover {
+  color: #4f46e5;
+  background: #f5f6ff;
+}
+
+.menu-item.active {
+  color: #4f46e5;
+  background: #eef2ff;
+}
+
+.menu-item > svg {
+  width: 21px;
+  height: 21px;
+  flex-shrink: 0;
+}
+
+.menu-item-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.menu-item-text span {
+  color: inherit;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.menu-item-text small {
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 400;
+}
+
+/* COLLAPSED MENU */
+
+.sidebar.collapsed .menu-item {
+  justify-content: center;
+  padding: 10px;
+}
+
+.sidebar.collapsed .menu-item > svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* FOOTER */
+
+.sidebar-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  margin-top: auto;
+  padding: 15px 12px;
+
+  background: #f8fafc;
+  border: 1px solid #eef2f7;
+  border-radius: 12px;
+}
+
+.footer-icon {
+  width: 39px;
+  height: 39px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #6366f1;
+  background: #eef2ff;
+  border-radius: 10px;
+}
+
+.sidebar-footer strong {
+  display: block;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.sidebar-footer p {
+  margin: 5px 0 0;
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 768px) {
+  .sidebar {
+    flex-basis: 64px;
+    width: 64px;
+    min-width: 64px;
+    padding: 20px 7px;
+  }
+
+  .sidebar.collapsed {
+    flex-basis: 64px;
+    width: 64px;
+    min-width: 64px;
+    padding: 20px 7px;
+  }
+
+  .sidebar-logo {
+    justify-content: center;
+    padding: 4px 0 30px;
+  }
+
+  .sidebar .logo-text,
+  .sidebar .menu-heading,
+  .sidebar .menu-item-text,
+  .sidebar .sidebar-footer {
+    display: none;
+  }
+
+  .sidebar .menu-item {
+    justify-content: center;
+    min-height: 48px;
+    padding: 10px 5px;
+  }
+}

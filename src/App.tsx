@@ -13,6 +13,7 @@ import "./App.css";
 
 function App() {
   const [activeTab, setActiveTab] = useState<TabType>("checklist");
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const pageTitles: Record<TabType, string> = {
     checklist: "Checklist học tập",
@@ -32,23 +33,58 @@ function App() {
     information: "Thông tin về ứng dụng và người phát triển.",
   };
 
+  const toggleSidebar = () => {
+    setSidebarCollapsed((previous) => !previous);
+  };
+
   return (
-    <div className="app-container">
+    <div
+      className={`app-container ${
+        sidebarCollapsed ? "sidebar-collapsed" : ""
+      }`}
+    >
       <Sidebar
         activeTab={activeTab}
         onTabChange={setActiveTab}
+        collapsed={sidebarCollapsed}
+        onToggle={toggleSidebar}
       />
 
       <main className="main-content">
-        <header className="main-header">
-          <div>
-            <h1>{pageTitles[activeTab]}</h1>
-            <p>{pageDescriptions[activeTab]}</p>
+        <header className="topbar">
+          <div className="topbar-left">
+            <button
+              className="topbar-menu-button"
+              onClick={toggleSidebar}
+              aria-label="Đóng hoặc mở Sidebar"
+              title="Đóng hoặc mở Sidebar"
+            >
+              <span className="topbar-menu-lines">
+                <span />
+                <span />
+                <span />
+              </span>
+            </button>
+
+            <div className="topbar-page-info">
+              <h1>{pageTitles[activeTab]}</h1>
+              <p>{pageDescriptions[activeTab]}</p>
+            </div>
           </div>
 
-          <div className="user-profile">
-            <div className="user-avatar">M</div>
-            <span>My Learning</span>
+          <div className="topbar-right">
+            <div className="topbar-version">
+              <span className="version-dot" />
+              <span>Version 1.0.0</span>
+            </div>
+
+            <div className="topbar-user">
+              <div className="topbar-avatar">T</div>
+              <div className="topbar-user-info">
+                <strong>Thế Tài</strong>
+                <span>English Master</span>
+              </div>
+            </div>
           </div>
         </header>
 

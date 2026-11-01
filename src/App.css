@@ -1,10 +1,9 @@
-
-@import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap");
 
 :root {
-  font-family: 'Be Vietnam Pro', sans-serif;
-  color: #20243a;
-  background: #f6f7fb;
+  font-family: "Be Vietnam Pro", sans-serif;
+  color: #172554;
+  background: #f4f7fc;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -16,16 +15,19 @@
 }
 
 html,
-body {
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  min-width: 320px;
+  min-height: 100%;
   margin: 0;
   padding: 0;
-  width: 100%;
-  min-width: 320px;
-  min-height: 100vh;
 }
 
 body {
-  font-family: 'Be Vietnam Pro', sans-serif;
+  overflow: hidden;
+  font-family: "Be Vietnam Pro", sans-serif;
 }
 
 button,
@@ -38,57 +40,47 @@ button {
   cursor: pointer;
 }
 
-#root {
-  width: 100%;
-  min-height: 100vh;
-  max-width: none;
-  margin: 0;
-  padding: 0;
-  text-align: left;
-}
-
-/* MAIN LAYOUT */
-
 .app-container {
   display: flex;
   flex-direction: row;
   align-items: stretch;
   width: 100%;
-  min-height: 100vh;
-  background: #f6f7fb;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 85% 0%, rgba(219, 234, 254, 0.5), transparent 32%),
+    #f4f7fc;
 }
 
-/* MAIN CONTENT */
-
+/* Main area: topbar remains fixed; only page-content scrolls */
 .main-content {
+  display: flex;
   flex: 1 1 0;
+  flex-direction: column;
   width: 0;
   min-width: 0;
-  min-height: 100vh;
-  padding: 0 32px 32px;
-  overflow-x: hidden;
-  transition: padding 0.25s ease;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  background: #f4f7fc;
 }
 
-/* TOPBAR */
-
 .topbar {
-  position: sticky;
-  top: 0;
-  z-index: 8;
-
+  position: relative;
+  z-index: 20;
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-
   width: 100%;
-  min-height: 88px;
-  margin-bottom: 28px;
-  padding: 15px 0;
-
-  background: #f6f7fb;
-  border-bottom: 1px solid #e9edf4;
+  min-height: 82px;
+  padding: 12px 30px;
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom: 1px solid #e7edf7;
+  box-shadow: 0 5px 20px rgba(30, 64, 175, 0.045);
+  backdrop-filter: blur(16px);
 }
 
 .topbar-left,
@@ -100,36 +92,35 @@ button {
 .topbar-left {
   flex: 1;
   min-width: 0;
-  gap: 17px;
+  gap: 16px;
 }
 
 .topbar-menu-button {
-  width: 42px;
-  height: 42px;
-  flex-shrink: 0;
-
   display: flex;
+  flex: 0 0 42px;
   align-items: center;
   justify-content: center;
-
-  border: 1px solid #e5eaf2;
-  border-radius: 12px;
-  background: #ffffff;
-  color: #475569;
-
-  transition: all 0.2s ease;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  color: #1e3a8a;
+  background: #f4f7ff;
+  border: 1px solid #e2eaff;
+  border-radius: 13px;
+  transition: 0.2s ease;
 }
 
 .topbar-menu-button:hover {
-  color: #4f46e5;
-  background: #eef2ff;
-  border-color: #d9ddff;
+  color: #fff;
+  background: #2563eb;
+  border-color: #2563eb;
+  box-shadow: 0 6px 15px rgba(37, 99, 235, 0.2);
 }
 
 .topbar-menu-lines {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
   width: 18px;
 }
 
@@ -137,8 +128,26 @@ button {
   display: block;
   width: 18px;
   height: 2px;
-  border-radius: 5px;
   background: currentColor;
+  border-radius: 5px;
+}
+
+.topbar-divider {
+  width: 1px;
+  height: 36px;
+  background: #e6ebf4;
+}
+
+.topbar-page-icon {
+  display: grid;
+  flex: 0 0 44px;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  color: #fff;
+  background: linear-gradient(145deg, #2563eb, #6366f1);
+  border-radius: 14px;
+  box-shadow: 0 7px 16px rgba(37, 99, 235, 0.2);
 }
 
 .topbar-page-info {
@@ -146,45 +155,50 @@ button {
 }
 
 .topbar-page-info h1 {
+  overflow: hidden;
   margin: 0;
-  color: #20243a;
-  font-size: 23px;
+  color: #14265b;
+  font-size: 19px;
   font-weight: 800;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.45px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .topbar-page-info p {
-  margin: 5px 0 0;
-  color: #858ba3;
-  font-size: 12px;
-  line-height: 1.5;
+  overflow: hidden;
+  margin: 4px 0 0;
+  color: #71809f;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .topbar-right {
-  flex-shrink: 0;
-  gap: 22px;
+  flex: 0 0 auto;
+  gap: 20px;
 }
 
 .topbar-version {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 9px 13px;
-  border: 1px solid #e5eaf2;
+  gap: 9px;
+  padding: 9px 14px;
+  color: #33466f;
+  background: #f7f9fd;
+  border: 1px solid #e8edf6;
   border-radius: 30px;
-  background: #ffffff;
-  color: #64748b;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
 }
 
 .version-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
+  width: 8px;
+  height: 8px;
   background: #22c55e;
-  box-shadow: 0 0 0 3px #dcfce7;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px #dcfce7;
 }
 
 .topbar-user {
@@ -194,21 +208,17 @@ button {
 }
 
 .topbar-avatar {
+  display: grid;
+  flex: 0 0 42px;
+  place-items: center;
   width: 42px;
   height: 42px;
-  flex-shrink: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border: 2px solid #ffffff;
+  color: #fff;
+  background: linear-gradient(145deg, #0ea5e9, #4f46e5 75%);
+  border: 3px solid #fff;
   border-radius: 50%;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.18);
-
-  color: #ffffff;
-  font-size: 16px;
+  box-shadow: 0 3px 12px rgba(37, 99, 235, 0.2);
+  font-size: 15px;
   font-weight: 800;
 }
 
@@ -219,42 +229,62 @@ button {
 }
 
 .topbar-user-info strong {
-  color: #334155;
+  color: #24365e;
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .topbar-user-info span {
-  color: #94a3b8;
+  color: #8995ad;
   font-size: 10px;
 }
 
-/* PAGE CONTENT */
-
+/* This is the only vertically scrollable region */
 .page-content {
+  flex: 1 1 auto;
   width: 100%;
-  max-width: none;
   min-width: 0;
-  margin: 0;
+  min-height: 0;
+  padding: 26px 30px 36px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-width: thin;
+  scrollbar-color: #c5d5f1 transparent;
+}
+
+.page-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.page-content::-webkit-scrollbar-thumb {
+  background: #c5d5f1;
+  border: 2px solid #f4f7fc;
+  border-radius: 20px;
+}
+
+.page-content::-webkit-scrollbar-thumb:hover {
+  background: #8eabe0;
 }
 
 .welcome-card {
   padding: 32px;
-  border: 1px solid #eceef5;
+  background: #fff;
+  border: 1px solid #e9eef7;
   border-radius: 20px;
-  background: #ffffff;
-  box-shadow: 0 5px 24px rgba(30, 40, 80, 0.04);
+  box-shadow: 0 8px 28px rgba(30, 64, 175, 0.05);
 }
 
 .welcome-card h2 {
   margin: 0 0 12px;
-  color: #252a43;
+  color: #1e2b55;
   font-size: 22px;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .welcome-card p {
-  color: #777e95;
+  color: #71809f;
   font-size: 15px;
   line-height: 1.7;
 }
@@ -262,38 +292,49 @@ button {
 .placeholder-message {
   margin-top: 24px;
   padding: 22px;
-  border: 1px dashed #c9c7ff;
-  border-radius: 14px;
-  color: #7068d9;
-  background: #f8f7ff;
+  color: #4263a8;
   text-align: center;
+  background: #f3f7ff;
+  border: 1px dashed #b9cdf4;
+  border-radius: 14px;
   font-size: 14px;
 }
 
-/* RESPONSIVE */
-
 @media (max-width: 768px) {
-  .main-content {
-    padding: 0 15px 22px;
-  }
-
   .topbar {
-    min-height: 76px;
-    gap: 8px;
-    margin-bottom: 20px;
+    min-height: 70px;
+    gap: 9px;
+    padding: 10px 14px;
   }
 
   .topbar-left {
-    gap: 10px;
+    gap: 9px;
   }
 
   .topbar-menu-button {
+    flex-basis: 38px;
     width: 38px;
     height: 38px;
   }
 
+  .topbar-divider {
+    height: 30px;
+  }
+
+  .topbar-page-icon {
+    flex-basis: 36px;
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+  }
+
+  .topbar-page-icon svg {
+    width: 19px;
+    height: 19px;
+  }
+
   .topbar-page-info h1 {
-    font-size: 17px;
+    font-size: 14px;
   }
 
   .topbar-page-info p {
@@ -301,20 +342,22 @@ button {
   }
 
   .topbar-right {
-    gap: 10px;
+    gap: 8px;
   }
 
-  .topbar-version {
+  .topbar-version,
+  .topbar-user-info {
     display: none;
   }
 
   .topbar-avatar {
+    flex-basis: 36px;
     width: 36px;
     height: 36px;
   }
 
-  .topbar-user-info {
-    display: none;
+  .page-content {
+    padding: 18px 14px 26px;
   }
 
   .welcome-card {
@@ -327,12 +370,17 @@ button {
 }
 
 @media (max-width: 380px) {
-  .main-content {
-    padding-right: 10px;
-    padding-left: 10px;
+  .topbar {
+    padding-right: 9px;
+    padding-left: 9px;
   }
 
   .topbar-page-info h1 {
-    font-size: 15px;
+    font-size: 12px;
+  }
+
+  .page-content {
+    padding-right: 10px;
+    padding-left: 10px;
   }
 }

@@ -1,12 +1,11 @@
-
 import {
   ClipboardCheck,
   BookOpen,
   Headphones,
-  GraduationCap,
   Layers,
   Award,
   Info,
+  GraduationCap,
 } from "lucide-react";
 
 import "./Sidebar.css";
@@ -32,36 +31,42 @@ const menuItems = [
     label: "Checklist",
     description: "Theo dõi tiến độ học tập",
     icon: ClipboardCheck,
+    color: "blue",
   },
   {
     id: "units" as TabType,
     label: "Các Unit",
     description: "Luyện tập 1.500 câu",
     icon: BookOpen,
+    color: "sky",
   },
   {
     id: "listening" as TabType,
     label: "Luyện nghe",
-    description: "Listening practice",
+    description: "Nghe & luyện phát âm",
     icon: Headphones,
+    color: "violet",
   },
   {
     id: "flashcards" as TabType,
     label: "Flashcard",
     description: "Từ vựng theo 50 Unit",
     icon: Layers,
+    color: "orange",
   },
   {
     id: "cefr" as TabType,
     label: "Flashcard CEFR",
     description: "Từ vựng A1 đến C2",
     icon: Award,
+    color: "indigo",
   },
   {
     id: "information" as TabType,
     label: "Information",
     description: "Thông tin ứng dụng",
     icon: Info,
+    color: "cyan",
   },
 ];
 
@@ -76,21 +81,25 @@ function Sidebar({
       <button
         className="sidebar-logo"
         onClick={onToggle}
-        title={collapsed ? "Mở rộng Sidebar" : "Thu gọn Sidebar"}
-        aria-label={collapsed ? "Mở rộng Sidebar" : "Thu gọn Sidebar"}
+        title={collapsed ? "Mở rộng thanh bên" : "Thu gọn thanh bên"}
+        aria-label={collapsed ? "Mở rộng thanh bên" : "Thu gọn thanh bên"}
+        type="button"
       >
-        <div className="logo-icon">
-          <GraduationCap size={28} />
-        </div>
+        <span className="logo-icon">
+          <GraduationCap size={29} strokeWidth={2.1} />
+          <span className="logo-sparkle">✦</span>
+        </span>
 
-        <div className="logo-text">
-          <h2>English Master</h2>
-          <span>LEARN ENGLISH EVERY DAY</span>
-        </div>
+        {!collapsed && (
+          <span className="logo-text">
+            <strong>English Master</strong>
+            <small>LEARN ENGLISH EVERY DAY</small>
+          </span>
+        )}
       </button>
 
       <div className="sidebar-menu">
-        {!collapsed && <p className="menu-heading">HỌC TẬP</p>}
+        {!collapsed && <p className="menu-heading">KHÔNG GIAN HỌC TẬP</p>}
 
         {menuItems.map((item) => {
           const Icon = item.icon;
@@ -99,18 +108,23 @@ function Sidebar({
           return (
             <button
               key={item.id}
-              className={`menu-item ${isActive ? "active" : ""}`}
+              className={`menu-item ${isActive ? "active" : ""} icon-${item.color}`}
               onClick={() => onTabChange(item.id)}
               title={collapsed ? item.label : undefined}
+              aria-current={isActive ? "page" : undefined}
+              type="button"
             >
-              <Icon size={21} />
+              <span className="menu-icon">
+                <Icon size={21} strokeWidth={2.15} />
+              </span>
 
               {!collapsed && (
-                <div className="menu-item-text">
+                <span className="menu-item-text">
                   <span>{item.label}</span>
                   <small>{item.description}</small>
-                </div>
+                </span>
               )}
+              {isActive && <span className="active-indicator" />}
             </button>
           );
         })}
@@ -118,11 +132,11 @@ function Sidebar({
 
       {!collapsed && (
         <div className="sidebar-footer">
-          <div className="footer-icon">
-            <GraduationCap size={23} />
+          <div className="footer-art">
+            <BookOpen size={23} />
+            <span>✦</span>
           </div>
-
-          <div>
+          <div className="sidebar-footer-text">
             <strong>Keep learning!</strong>
             <p>Mỗi ngày tiến bộ một chút.</p>
           </div>

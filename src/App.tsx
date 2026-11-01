@@ -1,5 +1,12 @@
-
 import { useState } from "react";
+import {
+  ClipboardCheck,
+  BookOpen,
+  Headphones,
+  Layers,
+  Award,
+  Info,
+} from "lucide-react";
 
 import Checklist from "./components/Checklist";
 import Units from "./components/Units";
@@ -33,16 +40,23 @@ function App() {
     information: "Thông tin về ứng dụng và người phát triển.",
   };
 
+  const pageIcons = {
+    checklist: ClipboardCheck,
+    units: BookOpen,
+    listening: Headphones,
+    flashcards: Layers,
+    cefr: Award,
+    information: Info,
+  };
+
   const toggleSidebar = () => {
     setSidebarCollapsed((previous) => !previous);
   };
 
+  const ActivePageIcon = pageIcons[activeTab];
+
   return (
-    <div
-      className={`app-container ${
-        sidebarCollapsed ? "sidebar-collapsed" : ""
-      }`}
-    >
+    <div className={`app-container ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}>
       <Sidebar
         activeTab={activeTab}
         onTabChange={setActiveTab}
@@ -56,8 +70,9 @@ function App() {
             <button
               className="topbar-menu-button"
               onClick={toggleSidebar}
-              aria-label="Đóng hoặc mở Sidebar"
-              title="Đóng hoặc mở Sidebar"
+              aria-label={sidebarCollapsed ? "Mở rộng thanh bên" : "Thu gọn thanh bên"}
+              title={sidebarCollapsed ? "Mở rộng thanh bên" : "Thu gọn thanh bên"}
+              type="button"
             >
               <span className="topbar-menu-lines">
                 <span />
@@ -65,6 +80,12 @@ function App() {
                 <span />
               </span>
             </button>
+
+            <div className="topbar-divider" />
+
+            <div className="topbar-page-icon">
+              <ActivePageIcon size={22} strokeWidth={2.2} />
+            </div>
 
             <div className="topbar-page-info">
               <h1>{pageTitles[activeTab]}</h1>
@@ -79,7 +100,9 @@ function App() {
             </div>
 
             <div className="topbar-user">
-              <div className="topbar-avatar">T</div>
+              <div className="topbar-avatar" aria-label="Avatar Thế Tài">
+                T
+              </div>
               <div className="topbar-user-info">
                 <strong>Thế Tài</strong>
                 <span>English Master</span>
@@ -88,7 +111,7 @@ function App() {
           </div>
         </header>
 
-        <section className="page-content">
+        <section className="page-content" key={activeTab}>
           {activeTab === "checklist" && <Checklist />}
           {activeTab === "units" && <Units />}
           {activeTab === "listening" && <Listening />}

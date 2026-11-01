@@ -1,10 +1,13 @@
 
 import { useState } from "react";
+
 import Checklist from "./components/Checklist";
 import Units from "./components/Units";
 import Listening from "./components/Listening";
 import Flashcards from "./components/Flashcards";
 import CefrFlashcards from "./components/CefrFlashcards";
+import Information from "./components/Information";
+
 import Sidebar, { type TabType } from "./components/Sidebar";
 import "./App.css";
 
@@ -17,6 +20,7 @@ function App() {
     listening: "Luyện nghe",
     flashcards: "Flashcard từ vựng",
     cefr: "Flashcard CEFR",
+    information: "Information",
   };
 
   const pageDescriptions: Record<TabType, string> = {
@@ -25,6 +29,7 @@ function App() {
     listening: "Nghe và luyện phát âm theo từng câu trong mỗi Unit.",
     flashcards: "Học và ghi nhớ từ vựng theo 50 Unit.",
     cefr: "Học từ vựng theo sáu cấp độ A1, A2, B1, B2, C1 và C2.",
+    information: "Thông tin về ứng dụng và người phát triển.",
   };
 
   return (
@@ -53,6 +58,7 @@ function App() {
           {activeTab === "listening" && <Listening />}
           {activeTab === "flashcards" && <Flashcards />}
           {activeTab === "cefr" && <CefrFlashcards />}
+          {activeTab === "information" && <Information />}
         </section>
       </main>
     </div>

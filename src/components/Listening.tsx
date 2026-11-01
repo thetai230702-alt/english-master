@@ -204,7 +204,7 @@ function Listening() {
     setCurrentIndex(index);
 
     const utterance = new SpeechSynthesisUtterance(
-    `"A" ${sentence.english.trim()}`
+    `${sentence.english.trim()}`
     );
 
     utterance.lang =

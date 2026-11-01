@@ -170,7 +170,7 @@ function UnitPractice({ unit, onBack }: UnitPracticeProps) {
         playingRef.current = true;
         setPlaying(true);
         setPaused(false);
-        setAudioMessage("Đang phát5 âm thanh...");
+        setAudioMessage("Đang phát âm thanh...");
       };
 
       utterance.onend = () => {

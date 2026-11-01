@@ -4,20 +4,22 @@ import {
   BookOpen,
   Headphones,
   GraduationCap,
+  Layers,
 } from "lucide-react";
 
 import "./Sidebar.css";
 
-// Các trang trong website
-export type TabType = "checklist" | "units" | "listening";
+export type TabType =
+  | "checklist"
+  | "units"
+  | "listening"
+  | "flashcards";
 
-// Dữ liệu truyền từ App.tsx vào Sidebar
 interface SidebarProps {
   activeTab: TabType;
   onTabChange: (tab: TabType) => void;
 }
 
-// Danh sách menu
 const menuItems = [
   {
     id: "checklist" as TabType,
@@ -37,13 +39,17 @@ const menuItems = [
     description: "Listening practice",
     icon: Headphones,
   },
+  {
+    id: "flashcards" as TabType,
+    label: "Flashcard",
+    description: "Học từ vựng theo chủ đề",
+    icon: Layers,
+  },
 ];
 
 function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   return (
     <aside className="sidebar">
-
-      {/* Logo */}
       <div className="sidebar-logo">
         <div className="logo-icon">
           <GraduationCap size={28} />
@@ -55,7 +61,6 @@ function Sidebar({ activeTab, onTabChange }: SidebarProps) {
         </div>
       </div>
 
-      {/* Menu */}
       <div className="sidebar-menu">
         <p className="menu-heading">HỌC TẬP</p>
 
@@ -80,7 +85,6 @@ function Sidebar({ activeTab, onTabChange }: SidebarProps) {
         })}
       </div>
 
-      {/* Footer */}
       <div className="sidebar-footer">
         <div className="footer-icon">
           <GraduationCap size={23} />
@@ -91,7 +95,6 @@ function Sidebar({ activeTab, onTabChange }: SidebarProps) {
           <p>Mỗi ngày tiến bộ một chút.</p>
         </div>
       </div>
-
     </aside>
   );
 }

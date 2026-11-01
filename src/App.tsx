@@ -4,6 +4,7 @@ import Checklist from "./components/Checklist";
 import Units from "./components/Units";
 import Listening from "./components/Listening";
 import Flashcards from "./components/Flashcards";
+import CefrFlashcards from "./components/CefrFlashcards";
 import Sidebar, { type TabType } from "./components/Sidebar";
 import "./App.css";
 
@@ -15,13 +16,15 @@ function App() {
     units: "Luyện tập 1.500 câu",
     listening: "Luyện nghe",
     flashcards: "Flashcard từ vựng",
+    cefr: "Flashcard CEFR",
   };
 
   const pageDescriptions: Record<TabType, string> = {
     checklist: "Theo dõi tiến độ học tiếng Anh của bạn.",
     units: "Luyện dịch câu tiếng Việt sang tiếng Anh theo từng Unit.",
     listening: "Nghe và luyện phát âm theo từng câu trong mỗi Unit.",
-    flashcards: "Học và ghi nhớ từ vựng theo từng chủ đề.",
+    flashcards: "Học và ghi nhớ từ vựng theo 50 Unit.",
+    cefr: "Học từ vựng theo sáu cấp độ A1, A2, B1, B2, C1 và C2.",
   };
 
   return (
@@ -49,6 +52,7 @@ function App() {
           {activeTab === "units" && <Units />}
           {activeTab === "listening" && <Listening />}
           {activeTab === "flashcards" && <Flashcards />}
+          {activeTab === "cefr" && <CefrFlashcards />}
         </section>
       </main>
     </div>

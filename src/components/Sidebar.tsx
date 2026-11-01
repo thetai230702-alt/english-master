@@ -5,6 +5,7 @@ import {
   Headphones,
   GraduationCap,
   Layers,
+  Award,
 } from "lucide-react";
 
 import "./Sidebar.css";
@@ -13,7 +14,8 @@ export type TabType =
   | "checklist"
   | "units"
   | "listening"
-  | "flashcards";
+  | "flashcards"
+  | "cefr";
 
 interface SidebarProps {
   activeTab: TabType;
@@ -42,8 +44,14 @@ const menuItems = [
   {
     id: "flashcards" as TabType,
     label: "Flashcard",
-    description: "Học từ vựng theo chủ đề",
+    description: "Từ vựng theo 50 Unit",
     icon: Layers,
+  },
+  {
+    id: "cefr" as TabType,
+    label: "Flashcard CEFR",
+    description: "Từ vựng A1 đến C2",
+    icon: Award,
   },
 ];
 

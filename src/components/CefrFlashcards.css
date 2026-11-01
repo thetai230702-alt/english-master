@@ -1,0 +1,699 @@
+/* CEFR Oxford 3000 Flashcards */
+.cefr-container {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  color: #20243a;
+  animation: cefr-fade-in 0.25s ease;
+}
+
+@keyframes cefr-fade-in {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.cefr-container button,
+.cefr-container input {
+  font: inherit;
+}
+
+.cefr-container button {
+  cursor: pointer;
+}
+
+.cefr-container button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.cefr-intro {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 22px 24px;
+  margin-bottom: 20px;
+  border: 1px solid #e8e7f5;
+  border-radius: 18px;
+  background: linear-gradient(115deg, #f5f3ff 0%, #fbfaff 58%, #f0f7ff 100%);
+}
+
+.cefr-intro-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 52px;
+  width: 52px;
+  height: 52px;
+  border-radius: 15px;
+  color: #6754d9;
+  background: #e8e3ff;
+}
+
+.cefr-eyebrow {
+  display: block;
+  margin-bottom: 5px;
+  color: #8175c7;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.35px;
+}
+
+.cefr-intro-copy h2 {
+  margin: 0;
+  color: #252344;
+  font-size: 21px;
+  font-weight: 800;
+}
+
+.cefr-intro-copy p {
+  margin: 6px 0 0;
+  color: #77778e;
+  font-size: 13px;
+}
+
+.cefr-level-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.cefr-level-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 72px;
+  padding: 14px 19px;
+  border: 1px solid #e8e8f0;
+  border-radius: 15px;
+  color: #55566d;
+  background: #fff;
+  text-align: left;
+  transition: 0.18s ease;
+}
+
+.cefr-level-button:hover {
+  border-color: #bdb3f5;
+  transform: translateY(-1px);
+}
+
+.cefr-level-button strong {
+  color: #44415f;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.cefr-level-button span {
+  color: #89899d;
+  font-size: 12px;
+}
+
+.cefr-level-button.active {
+  border-color: #7965e8;
+  background: #f4f1ff;
+  box-shadow: 0 0 0 2px rgba(121, 101, 232, 0.08);
+}
+
+.cefr-level-button.active strong,
+.cefr-level-button.active span {
+  color: #6552d1;
+}
+
+.cefr-filter-panel,
+.cefr-progress-card {
+  padding: 20px;
+  margin-bottom: 17px;
+  border: 1px solid #e9e9f1;
+  border-radius: 17px;
+  background: #fff;
+}
+
+.cefr-filter-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.cefr-filter-heading h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: #292842;
+  font-size: 16px;
+}
+
+.cefr-filter-heading h3 svg {
+  color: #7965e8;
+}
+
+.cefr-total-count {
+  padding: 6px 10px;
+  border-radius: 20px;
+  color: #6d5bd3;
+  background: #f2efff;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.cefr-topic-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.cefr-topic-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+  padding: 10px 11px;
+  border: 1px solid #ededf3;
+  border-radius: 10px;
+  color: #55566d;
+  background: #fff;
+  text-align: left;
+  transition: 0.16s ease;
+}
+
+.cefr-topic-button:hover {
+  border-color: #c9c1f5;
+  background: #faf9ff;
+}
+
+.cefr-topic-button.active {
+  border-color: #8a78e9;
+  color: #5d4acb;
+  background: #f4f1ff;
+}
+
+.cefr-topic-button span {
+  overflow: hidden;
+  font-size: 12px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cefr-topic-button small {
+  flex: 0 0 auto;
+  color: #9695a8;
+  font-size: 10px;
+}
+
+.cefr-topic-button.active small {
+  color: #7868d6;
+}
+
+.cefr-toolbar {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.cefr-search {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  gap: 9px;
+  padding: 0 12px;
+  border: 1px solid #e7e7ef;
+  border-radius: 11px;
+  color: #9998aa;
+  background: #fbfbfd;
+}
+
+.cefr-search:focus-within {
+  border-color: #9a8bed;
+  box-shadow: 0 0 0 3px rgba(121, 101, 232, 0.08);
+}
+
+.cefr-search input {
+  width: 100%;
+  min-width: 0;
+  height: 42px;
+  border: 0;
+  outline: 0;
+  color: #33334a;
+  background: transparent;
+  font-size: 12px;
+}
+
+.cefr-search input::placeholder {
+  color: #aaa9b8;
+}
+
+.cefr-search button {
+  display: grid;
+  place-items: center;
+  padding: 4px;
+  border: 0;
+  color: #89889a;
+  background: transparent;
+}
+
+.cefr-shuffle-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 112px;
+  padding: 0 14px;
+  border: 1px solid #dedaf7;
+  border-radius: 11px;
+  color: #6654d1;
+  background: #f7f5ff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cefr-shuffle-button.active {
+  border-color: #7663e0;
+  color: #fff;
+  background: #7663e0;
+}
+
+.cefr-progress-card {
+  padding: 17px 20px;
+}
+
+.cefr-progress-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cefr-progress-info > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cefr-progress-info strong {
+  color: #33324d;
+  font-size: 13px;
+}
+
+.cefr-progress-info span,
+.cefr-progress-card > small {
+  color: #9291a4;
+  font-size: 11px;
+}
+
+.cefr-progress-percent {
+  color: #6c58d6 !important;
+  font-size: 19px !important;
+}
+
+.cefr-progress-track {
+  height: 7px;
+  margin: 12px 0 8px;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #efedf7;
+}
+
+.cefr-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #8b78ec, #5e9ce9);
+  transition: width 0.25s ease;
+}
+
+.cefr-card-counter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 22px 2px 10px;
+  color: #8c8ba0;
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.8px;
+}
+
+.cefr-card-counter span:last-child {
+  overflow: hidden;
+  max-width: 60%;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cefr-flashcard {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 330px;
+  padding: 34px 25px;
+  overflow: hidden;
+  border: 1px solid #e5e1fa;
+  border-radius: 22px;
+  color: #292642;
+  background:
+    radial-gradient(circle at 12% 15%, rgba(171, 153, 255, 0.13), transparent 28%),
+    radial-gradient(circle at 90% 85%, rgba(111, 173, 238, 0.12), transparent 30%),
+    linear-gradient(135deg, #fff 0%, #faf9ff 100%);
+  box-shadow: 0 12px 35px rgba(48, 39, 105, 0.07);
+  text-align: center;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cefr-flashcard:hover {
+  border-color: #c7bdf4;
+  box-shadow: 0 15px 38px rgba(48, 39, 105, 0.11);
+}
+
+.cefr-card-front,
+.cefr-card-back {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  width: 100%;
+  max-width: 650px;
+}
+
+.cefr-card-level {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 43px;
+  height: 25px;
+  padding: 0 10px;
+  border-radius: 20px;
+  color: #6855d1;
+  background: #eeeaff;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.cefr-card-topic {
+  margin-top: 12px;
+  color: #9290a5;
+  font-size: 11px;
+}
+
+.cefr-card-front h2 {
+  margin: 24px 0 8px;
+  color: #282541;
+  font-size: clamp(34px, 5vw, 52px);
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  overflow-wrap: anywhere;
+}
+
+.cefr-card-ipa {
+  margin: 0;
+  color: #7665d6;
+  font-size: 19px;
+  letter-spacing: 0.3px;
+}
+
+.cefr-card-hint {
+  margin-top: 37px;
+  color: #aaa8b9;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.cefr-card-back h2 {
+  margin: 22px 0 8px;
+  color: #302b55;
+  font-size: clamp(22px, 3vw, 30px);
+  font-weight: 800;
+}
+
+.cefr-part-of-speech {
+  margin: 0;
+  padding: 5px 10px;
+  border-radius: 20px;
+  color: #6d5bd1;
+  background: #f0edff;
+  font-size: 11px;
+}
+
+.cefr-example {
+  width: 100%;
+  max-width: 500px;
+  margin-top: 18px;
+  padding: 13px 16px;
+  border-radius: 12px;
+  color: #55536e;
+  background: rgba(239, 237, 250, 0.75);
+  text-align: left;
+}
+
+.cefr-example strong {
+  color: #6150c2;
+  font-size: 11px;
+}
+
+.cefr-example p {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.cefr-example small {
+  display: block;
+  margin-top: 5px;
+  color: #89879d;
+  font-size: 11px;
+}
+
+.cefr-example-empty {
+  color: #9997a9;
+  font-size: 11px;
+  text-align: center;
+}
+
+.cefr-card-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.cefr-card-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid #e7e6ef;
+  border-radius: 11px;
+  color: #65647b;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 650;
+  transition: 0.16s ease;
+}
+
+.cefr-card-actions button:hover {
+  border-color: #c9c1f3;
+  color: #6754d2;
+  background: #faf9ff;
+}
+
+.cefr-card-actions button.remembered {
+  border-color: #b8e5d0;
+  color: #20865b;
+  background: #effaf4;
+}
+
+.cefr-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.cefr-navigation button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid #e7e6ef;
+  border-radius: 10px;
+  color: #5f5e76;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cefr-navigation button:hover:not(:disabled) {
+  border-color: #bdb2f0;
+  color: #6552d1;
+}
+
+.cefr-navigation > span {
+  color: #77758e;
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.cefr-empty,
+.cefr-state,
+.cefr-error {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 220px;
+  padding: 30px;
+  border: 1px dashed #dcd9ec;
+  border-radius: 17px;
+  color: #858398;
+  background: #fbfaff;
+  text-align: center;
+}
+
+.cefr-empty svg {
+  margin-bottom: 12px;
+  color: #8a78e8;
+}
+
+.cefr-empty strong,
+.cefr-error strong {
+  color: #37344f;
+  font-size: 15px;
+}
+
+.cefr-empty p,
+.cefr-error p {
+  margin: 7px 0 15px;
+  font-size: 12px;
+}
+
+.cefr-empty button {
+  padding: 9px 14px;
+  border: 0;
+  border-radius: 9px;
+  color: #fff;
+  background: #7663df;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.cefr-error {
+  border-color: #f0cccc;
+  color: #a34c4c;
+  background: #fffafa;
+}
+
+.cefr-error small {
+  font-size: 11px;
+}
+
+.cefr-data-note {
+  margin: 17px 2px 0;
+  color: #9694a7;
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+@media (max-width: 760px) {
+  .cefr-intro {
+    align-items: flex-start;
+    padding: 17px;
+  }
+
+  .cefr-intro-copy h2 {
+    font-size: 17px;
+  }
+
+  .cefr-intro-copy p {
+    font-size: 11px;
+    line-height: 1.5;
+  }
+
+  .cefr-level-button {
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 66px;
+    gap: 3px;
+    padding: 11px;
+  }
+
+  .cefr-level-button strong {
+    font-size: 19px;
+  }
+
+  .cefr-topic-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .cefr-filter-panel,
+  .cefr-progress-card {
+    padding: 15px;
+  }
+
+  .cefr-flashcard {
+    min-height: 300px;
+    padding: 27px 17px;
+  }
+
+  .cefr-card-front h2 {
+    font-size: 39px;
+  }
+
+  .cefr-card-ipa {
+    font-size: 17px;
+  }
+}
+
+@media (max-width: 430px) {
+  .cefr-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .cefr-search {
+    min-height: 42px;
+  }
+
+  .cefr-shuffle-button {
+    min-height: 40px;
+  }
+
+  .cefr-topic-button {
+    padding: 9px;
+  }
+
+  .cefr-topic-button span {
+    font-size: 11px;
+  }
+
+  .cefr-topic-button small {
+    font-size: 9px;
+  }
+
+  .cefr-card-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .cefr-card-actions button {
+    flex-direction: column;
+    gap: 4px;
+    min-height: 56px;
+    padding: 7px 4px;
+    font-size: 10px;
+  }
+}

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft, ArrowRight, Volume2, Pause, Play, Eye, EyeOff,
-  CheckCircle2, XCircle, RotateCcw, SkipForward, Languages,
+  CheckCircle2, XCircle, RotateCcw, SkipForward,
 } from "lucide-react";
 import type { Unit } from "../types/unit";
 import "./UnitPractice.css";

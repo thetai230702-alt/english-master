@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import {
   onAuthStateChanged,
@@ -21,14 +20,31 @@ import Register from "./components/Register";
 import Sidebar, { type TabType } from "./components/Sidebar";
 import "./App.css";
 
+const VALID_TABS: TabType[] = [
+  "checklist",
+  "units",
+  "listening",
+  "flashcards",
+  "cefr",
+  "information",
+];
+
+function getTabFromUrl(): TabType {
+  const tabFromHash = window.location.hash.replace(/^#\/?/, "") as TabType;
+
+  return VALID_TABS.includes(tabFromHash) ? tabFromHash : "checklist";
+}
+
 function App() {
   const [user, setUser] = useState<User | null>(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [showRegister, setShowRegister] = useState(false);
 
-  const [activeTab, setActiveTab] = useState<TabType>("checklist");
+  // Đọc tab từ URL ngay khi mở hoặc tải lại trang.
+  const [activeTab, setActiveTab] = useState<TabType>(() => getTabFromUrl());
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
+  // Firebase Authentication
   useEffect(() => {
     let unsubscribe: (() => void) | undefined;
     let cancelled = false;
@@ -54,6 +70,37 @@ function App() {
       unsubscribe?.();
     };
   }, []);
+
+  // Đồng bộ URL khi người dùng chuyển tab hoặc dùng Back/Forward.
+  useEffect(() => {
+    const syncTabFromUrl = () => {
+      setActiveTab(getTabFromUrl());
+    };
+
+    window.addEventListener("popstate", syncTabFromUrl);
+    window.addEventListener("hashchange", syncTabFromUrl);
+
+    return () => {
+      window.removeEventListener("popstate", syncTabFromUrl);
+      window.removeEventListener("hashchange", syncTabFromUrl);
+    };
+  }, []);
+
+  // Mỗi lần đổi tab, cập nhật hash mà không tải lại website.
+  useEffect(() => {
+    const nextHash = `#${activeTab}`;
+
+    if (window.location.hash !== nextHash) {
+      const hasExistingHash = window.location.hash.length > 0;
+
+      if (hasExistingHash) {
+        window.history.pushState(null, "", nextHash);
+      } else {
+        // Lần đầu mở trang: thêm URL mặc định nhưng không tạo mục lịch sử thừa.
+        window.history.replaceState(null, "", nextHash);
+      }
+    }
+  }, [activeTab]);
 
   const handleLogout = async () => {
     const confirmed = window.confirm("Bạn có chắc chắn muốn đăng xuất?");

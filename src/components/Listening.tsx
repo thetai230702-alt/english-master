@@ -6,13 +6,14 @@ import {
   RotateCcw,
   SkipBack,
   SkipForward,
-  Volume2,
   Headphones,
   Repeat,
   BookOpen,
   Languages,
   Gauge,
   ChevronDown,
+  ListMusic,
+  ChevronRight,
 } from "lucide-react";
 import { getUnits } from "../services/unitService";
 import type { Unit } from "../types/unit";
@@ -31,7 +32,8 @@ function Listening() {
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [speed, setSpeed] = useState(1);
-  const [voiceType, setVoiceType] = useState<VoiceType>("UK");
+  const [voiceType, setVoiceType] = useState<VoiceType>("US");
+  const [showSentenceList, setShowSentenceList] = useState(false);
   const [repeatMode, setRepeatMode] = useState<RepeatMode>("1");
   const [playing, setPlaying] = useState(false);
   const [paused, setPaused] = useState(false);
@@ -46,7 +48,7 @@ function Listening() {
   const selectedUnitRef = useRef<Unit | null>(null);
   const repeatModeRef = useRef<RepeatMode>("1");
   const speedRef = useRef(1);
-  const voiceTypeRef = useRef<VoiceType>("UK");
+  const voiceTypeRef = useRef<VoiceType>("US");
   const runIdRef = useRef(0);
   const delayTimerRef = useRef<number | null>(null);
 
@@ -374,12 +376,7 @@ function Listening() {
     ? ((currentIndex + 1) / totalSentences) * 100
     : 0;
 
-  const repeatLabel: Record<RepeatMode, string> = {
-    "1": "1 lần",
-    "2": "2 lần",
-    "3": "3 lần",
-    infinite: "Vô hạn",
-  };
+
 
   return (
     <div className="listening-page">
@@ -396,169 +393,240 @@ function Listening() {
         </div>
       </div>
 
-      <div className="listening-settings-card">
-        <div className="listening-setting">
-          <label htmlFor="listening-unit">
-            <BookOpen size={16} />
-            <span>NỘI DUNG HỌC</span>
-          </label>
+      <section className="listening-toolbar-panel">
+        {/* Dòng 1: Chọn Unit và tiến độ */}
+        <div className="listening-unit-progress-row">
+          <div className="listening-setting listening-unit-setting">
+            <label htmlFor="listening-unit">
+              <BookOpen size={16} />
+              <span>UNIT ĐANG HỌC</span>
+            </label>
+            <div className="listening-select-wrap">
+              <select
+                id="listening-unit"
+                value={selectedUnit.unitNumber}
+                onChange={(event) =>
+                  handleSelectUnit(Number(event.target.value))
+                }
+              >
+                {units.map((unit) => (
+                  <option key={unit.unitNumber} value={unit.unitNumber}>
+                    Unit {unit.unitNumber} - {unit.title}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="select-chevron" size={17} />
+            </div>
+          </div>
 
-          <div className="listening-select-wrap">
-            <select
-              id="listening-unit"
-              value={selectedUnit.unitNumber}
-              onChange={(event) =>
-                handleSelectUnit(Number(event.target.value))
-              }
+          <div className="listening-compact-progress">
+            <div className="listening-compact-progress-heading">
+              <div>
+                <span>UNIT {selectedUnit.unitNumber}</span>
+                <strong>{selectedUnit.title}</strong>
+              </div>
+              <small>
+                Câu <b>{currentIndex + 1}</b> / {totalSentences}
+              </small>
+            </div>
+            <div className="listening-progress-track">
+              <div
+                className="listening-progress-fill"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <div className="listening-compact-progress-footer">
+              <span>{Math.round(progress)}% hoàn thành</span>
+              <span>Đã hoàn thành: {completedRounds} lượt</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Dòng 2: Nghe nhanh bên trái, cài đặt gọn bên phải */}
+        <div className="listening-actions-row">
+          <div className="listening-quick-play">
+            <button
+              type="button"
+              className="listening-quick-nav"
+              onClick={handlePrevious}
+              disabled={currentIndex === 0}
+              title="Câu trước"
+              aria-label="Câu trước"
             >
-              {units.map((unit) => (
-                <option
-                  key={unit.unitNumber}
-                  value={unit.unitNumber}
+              <SkipBack size={16} />
+            </button>
+            <button
+              type="button"
+              className="listening-quick-play-button"
+              onClick={handlePlayPause}
+              title={playing && !paused ? "Tạm dừng" : "Nghe toàn bộ Unit"}
+              aria-label={playing && !paused ? "Tạm dừng" : "Nghe toàn bộ Unit"}
+            >
+              {playing && !paused ? <Pause size={19} /> : <Play size={19} />}
+            </button>
+            <div className="listening-quick-play-text">
+              <strong>
+                {playing ? (paused ? "Đang tạm dừng" : "Đang phát") : "Nghe bài học"}
+              </strong>
+              <span>
+                {playing
+                  ? "Phát lần lượt các câu trong Unit"
+                  : "Nhấn để nghe toàn bộ Unit"}
+              </span>
+            </div>
+            <button
+              type="button"
+              className="listening-quick-nav"
+              onClick={handleNext}
+              disabled={currentIndex >= totalSentences - 1}
+              title="Câu tiếp theo"
+              aria-label="Câu tiếp theo"
+            >
+              <SkipForward size={16} />
+            </button>
+            <button
+              type="button"
+              className="listening-quick-replay"
+              onClick={handleReplay}
+              title="Nghe lại từ câu hiện tại"
+              aria-label="Nghe lại"
+            >
+              <RotateCcw size={16} />
+            </button>
+          </div>
+
+          <div className="listening-compact-settings">
+            <div className="listening-setting">
+              <label htmlFor="listening-repeat">
+                <Repeat size={14} />
+                <span>LẶP</span>
+              </label>
+              <div className="listening-select-wrap">
+                <select
+                  id="listening-repeat"
+                  value={repeatMode}
+                  onChange={(event) =>
+                    handleRepeatChange(event.target.value as RepeatMode)
+                  }
                 >
-                  Unit {unit.unitNumber} - {unit.title}
-                </option>
+                  <option value="1">1 lần</option>
+                  <option value="2">2 lần</option>
+                  <option value="3">3 lần</option>
+                  <option value="infinite">Vô hạn</option>
+                </select>
+                <ChevronDown className="select-chevron" size={15} />
+              </div>
+            </div>
+
+            <div className="listening-setting">
+              <label htmlFor="listening-voice">
+                <Languages size={14} />
+                <span>GIỌNG ĐỌC</span>
+              </label>
+              <div className="listening-select-wrap">
+                <select
+                  id="listening-voice"
+                  value={voiceType}
+                  onChange={(event) =>
+                    handleVoiceChange(event.target.value as VoiceType)
+                  }
+                >
+                  <option value="US">English (US)</option>
+                  <option value="UK">English (UK)</option>
+                </select>
+                <ChevronDown className="select-chevron" size={15} />
+              </div>
+            </div>
+
+            <div className="listening-setting">
+              <label htmlFor="listening-speed">
+                <Gauge size={14} />
+                <span>TỐC ĐỘ</span>
+              </label>
+              <div className="listening-select-wrap">
+                <select
+                  id="listening-speed"
+                  value={speed}
+                  onChange={(event) =>
+                    handleSpeedChange(Number(event.target.value))
+                  }
+                >
+                  <option value="0.5">0.5x</option>
+                  <option value="0.8">0.8x</option>
+                  <option value="1">1.0x</option>
+                  <option value="1.25">1.25x</option>
+                  <option value="1.5">1.5x</option>
+                  <option value="2">2.0x</option>
+                </select>
+                <ChevronDown className="select-chevron" size={15} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="listening-workspace">
+        {showSentenceList && (
+          <aside id="listening-sentence-list" className="listening-sentence-list" aria-label="Danh sách câu trong Unit">
+            <div className="listening-list-header">
+              <div>
+                <span className="listening-list-eyebrow">UNIT {selectedUnit.unitNumber}</span>
+                <h3>Danh sách câu</h3>
+                <p>{totalSentences} câu luyện nghe</p>
+              </div>
+              <button
+                type="button"
+                className="listening-list-close"
+                onClick={() => setShowSentenceList(false)}
+                aria-label="Ẩn danh sách câu"
+                title="Ẩn danh sách câu"
+              >
+                <ChevronRight size={18} />
+              </button>
+            </div>
+            <div className="listening-list-items">
+              {selectedUnit.sentences.map((sentence, index) => (
+                <button
+                  type="button"
+                  key={`${selectedUnit.unitNumber}-${index}`}
+                  className={`listening-list-item ${index === currentIndex ? "active" : ""}`}
+                  onClick={() => {
+                    stopAudio();
+                    currentIndexRef.current = index;
+                    setCurrentIndex(index);
+                    setError("");
+                  }}
+                  aria-current={index === currentIndex ? "true" : undefined}
+                >
+                  <span className="listening-list-index">{String(index + 1).padStart(2, "0")}</span>
+                  <span className="listening-list-text">
+                    <strong>{sentence.english}</strong>
+                    <small>{sentence.vietnamese}</small>
+                  </span>
+                  {index === currentIndex && <span className="listening-list-active-dot" />}
+                </button>
               ))}
-            </select>
+            </div>
+          </aside>
+        )}
 
-            <ChevronDown
-              className="select-chevron"
-              size={17}
-            />
-          </div>
-
-          <small>Chọn bài học muốn luyện nghe</small>
-        </div>
-
-        <div className="listening-setting">
-          <label htmlFor="listening-repeat">
-            <Repeat size={16} />
-            <span>CHẾ ĐỘ LẶP LẠI</span>
-          </label>
-
-          <div className="listening-select-wrap">
-            <select
-              id="listening-repeat"
-              value={repeatMode}
-              onChange={(event) =>
-                handleRepeatChange(
-                  event.target.value as RepeatMode
-                )
-              }
+        <div className="listening-main-column">
+          <div className="listening-workspace-toolbar">
+            <button
+              type="button"
+              className={`listening-list-toggle ${showSentenceList ? "is-open" : ""}`}
+              onClick={() => setShowSentenceList((visible) => !visible)}
+              aria-expanded={showSentenceList}
+              aria-controls="listening-sentence-list"
             >
-              <option value="1">Nghe 1 lần</option>
-              <option value="2">Lặp lại 2 lần</option>
-              <option value="3">Lặp lại 3 lần</option>
-              <option value="infinite">Lặp vô hạn</option>
-            </select>
-
-            <ChevronDown
-              className="select-chevron"
-              size={17}
-            />
+              <ListMusic size={17} />
+              <span>{showSentenceList ? "Ẩn danh sách câu" : "Danh sách câu"}</span>
+              <span className="listening-list-total">{totalSentences}</span>
+            </button>
+            <span className="listening-current-position">Câu {currentIndex + 1} / {totalSentences}</span>
           </div>
 
-          <small>Tự động phát lại toàn bộ Unit</small>
-        </div>
-
-        <div className="listening-setting">
-          <label htmlFor="listening-voice">
-            <Languages size={16} />
-            <span>GIỌNG ĐỌC</span>
-          </label>
-
-          <div className="listening-select-wrap">
-            <select
-              id="listening-voice"
-              value={voiceType}
-              onChange={(event) =>
-                handleVoiceChange(
-                  event.target.value as VoiceType
-                )
-              }
-            >
-              <option value="UK">
-                English - United Kingdom
-              </option>
-              <option value="US">
-                English - United States
-              </option>
-            </select>
-
-            <ChevronDown
-              className="select-chevron"
-              size={17}
-            />
-          </div>
-
-          <small>Chọn giọng Anh - Anh hoặc Anh - Mỹ</small>
-        </div>
-
-        <div className="listening-setting">
-          <label htmlFor="listening-speed">
-            <Gauge size={16} />
-            <span>TỐC ĐỘ ĐỌC</span>
-          </label>
-
-          <div className="listening-select-wrap">
-            <select
-              id="listening-speed"
-              value={speed}
-              onChange={(event) =>
-                handleSpeedChange(
-                  Number(event.target.value)
-                )
-              }
-            >
-              <option value="0.5">0.5x - Rất chậm</option>
-              <option value="0.8">0.8x - Chậm</option>
-              <option value="1">1.0x - Bình thường</option>
-              <option value="1.25">1.25x - Nhanh</option>
-              <option value="1.5">1.5x - Rất nhanh</option>
-              <option value="2">2.0x - Cực nhanh</option>
-            </select>
-
-            <ChevronDown
-              className="select-chevron"
-              size={17}
-            />
-          </div>
-
-          <small>Điều chỉnh tốc độ phát âm</small>
-        </div>
-      </div>
-
-      <div className="listening-progress-card">
-        <div className="listening-progress-top">
-          <div>
-            <span className="listening-unit-label">
-              UNIT {selectedUnit.unitNumber}
-            </span>
-            <h3>{selectedUnit.title}</h3>
-          </div>
-
-          <div className="listening-progress-count">
-            Câu <strong>{currentIndex + 1}</strong> /{" "}
-            {totalSentences}
-          </div>
-        </div>
-
-        <div className="listening-progress-track">
-          <div
-            className="listening-progress-fill"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-
-        <div className="listening-progress-bottom">
-          <span>
-            {Math.round(progress)}% hoàn thành lượt hiện tại
-          </span>
-          <span>Đã hoàn thành: {completedRounds} lượt</span>
-        </div>
-      </div>
-
-      {currentSentence && (
+          {currentSentence && (
         <div className="listening-sentence-card">
           <div className="listening-sentence-top">
             <span className="listening-sentence-number">
@@ -605,72 +673,11 @@ function Listening() {
         </div>
       )}
 
-      <div className="listening-player-card">
-        <div className="listening-player-title">
-          <Volume2 size={19} />
-          <span>Trình phát âm thanh</span>
+      {error && (
+        <p className="listening-inline-error">{error}</p>
+      )}
+
         </div>
-
-        <div className="listening-controls">
-          <button
-            className="listening-control-button secondary"
-            onClick={handlePrevious}
-            disabled={currentIndex === 0}
-            title="Câu trước"
-          >
-            <SkipBack size={20} />
-          </button>
-
-          <button
-            className="listening-control-button secondary"
-            onClick={handleReplay}
-            title="Nghe lại câu hiện tại"
-          >
-            <RotateCcw size={19} />
-          </button>
-
-          <button
-            className="listening-control-button primary"
-            onClick={handlePlayPause}
-            title={
-              playing && !paused ? "Tạm dừng" : "Phát"
-            }
-          >
-            {playing && !paused ? (
-              <Pause size={23} />
-            ) : (
-              <Play size={23} />
-            )}
-          </button>
-
-          <button
-            className="listening-control-button secondary"
-            onClick={handleNext}
-            disabled={currentIndex >= totalSentences - 1}
-            title="Câu tiếp theo"
-          >
-            <SkipForward size={20} />
-          </button>
-        </div>
-
-        <div className="listening-player-status">
-          {playing
-            ? paused
-              ? "Đang tạm dừng"
-              : "Đang phát tự động các câu trong Unit..."
-            : completedRounds > 0
-              ? `Đã hoàn thành ${completedRounds} lượt nghe`
-              : "Nhấn nút Phát để nghe toàn bộ Unit"}
-        </div>
-
-        {error && (
-          <p className="listening-inline-error">{error}</p>
-        )}
-
-        <p className="listening-repeat-note">
-          Chế độ hiện tại:{" "}
-          <strong>{repeatLabel[repeatMode]}</strong>
-        </p>
       </div>
     </div>
   );

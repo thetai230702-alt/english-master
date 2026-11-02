@@ -479,15 +479,608 @@
   }
 }
 
-/* ===== PREMIUM BLUE THEME: LISTENING ===== */
-.listening-heading h2 { color:#17365f; letter-spacing:-.025em; }
-.listening-settings-card,.listening-progress-card,.listening-sentence-card,.listening-player-card { background:linear-gradient(145deg,#fff,#fbfdff); border:1px solid #e2ebf7; border-radius:18px; box-shadow:0 9px 25px rgba(30,73,130,.055); }
-.listening-heading-icon { background:linear-gradient(145deg,#6eb3ff,#2a60bd); color:#fff; border-radius:14px; box-shadow:0 4px 0 #214f9d,0 8px 14px rgba(37,99,190,.15); }
-.listening-select-wrap select { border:1px solid #dce7f5; border-radius:11px; background:#fbfdff; }
-.listening-select-wrap select:focus { outline:none; border-color:#70a9f1; box-shadow:0 0 0 3px #e8f2ff; }
-.listening-progress-track { background:#eaf1fb; }
-.listening-progress-fill { background:linear-gradient(90deg,#438cf0,#245bb5); }
-.listening-sentence-number { background:#eaf3ff; color:#245fb9; border-radius:9px; }
-.listening-english p { color:#17365f; }
-.listening-control-button.primary { background:linear-gradient(135deg,#438cf0,#245bb5); box-shadow:0 4px 0 #1e4d9a,0 8px 14px rgba(37,99,190,.16); border-radius:13px; }
-.listening-control-button.secondary { border:1px solid #dce8f8; background:#f4f8ff; color:#285b9e; border-radius:12px; }
+
+/* =========================================
+   PREMIUM LISTENING WORKSPACE – COLLAPSIBLE SENTENCE LIST
+========================================= */
+.listening-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 16px;
+  min-width: 0;
+}
+
+.listening-workspace:has(.listening-sentence-list) {
+  grid-template-columns: minmax(245px, 300px) minmax(0, 1fr);
+}
+
+.listening-main-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.listening-workspace-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 42px;
+}
+
+.listening-list-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 40px;
+  padding: 0 14px;
+  color: #3657c8;
+  background: linear-gradient(135deg, #f1f5ff, #f5f2ff);
+  border: 1px solid #dce5ff;
+  border-radius: 12px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: .2s ease;
+}
+
+.listening-list-toggle:hover,
+.listening-list-toggle.is-open {
+  color: #fff;
+  background: linear-gradient(110deg, #3478e5, #6655e8);
+  border-color: transparent;
+  box-shadow: 0 6px 16px rgba(67, 97, 216, .2);
+}
+
+.listening-list-total {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 23px;
+  height: 23px;
+  padding: 0 6px;
+  color: #4f46e5;
+  background: #fff;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.listening-current-position {
+  color: #8190aa;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.listening-sentence-list {
+  position: sticky;
+  top: 16px;
+  display: flex;
+  flex-direction: column;
+  max-height: min(690px, calc(100vh - 180px));
+  min-width: 0;
+  overflow: hidden;
+  background: rgba(255, 255, 255, .96);
+  border: 1px solid #e2eaff;
+  border-radius: 17px;
+  box-shadow: 0 10px 28px rgba(40, 74, 145, .07);
+  animation: listening-list-in .2s ease both;
+}
+
+@keyframes listening-list-in {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.listening-list-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 17px 16px 14px;
+  background: linear-gradient(135deg, #f2f7ff, #f7f4ff);
+  border-bottom: 1px solid #e9edfa;
+}
+
+.listening-list-eyebrow {
+  color: #6478d9;
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 1.1px;
+}
+
+.listening-list-header h3 {
+  margin: 4px 0 2px;
+  color: #18345f;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.listening-list-header p {
+  margin: 0;
+  color: #8998b1;
+  font-size: 11px;
+}
+
+.listening-list-close {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  color: #64748b;
+  background: #fff;
+  border: 1px solid #e3e9f5;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.listening-list-close:hover {
+  color: #4f46e5;
+  border-color: #c7d2fe;
+}
+
+.listening-list-items {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 9px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.listening-list-item {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) 7px;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-width: 0;
+  padding: 10px 9px;
+  color: #334155;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  cursor: pointer;
+  transition: .18s ease;
+}
+
+.listening-list-item:hover {
+  background: #f5f7ff;
+  border-color: #e7eaff;
+}
+
+.listening-list-item.active {
+  color: #294fc1;
+  background: linear-gradient(110deg, #edf4ff, #f3f0ff);
+  border-color: #d7e3ff;
+}
+
+.listening-list-index {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  color: #8b9ab4;
+  background: #f2f5fa;
+  border-radius: 9px;
+  font-size: 10px;
+  font-weight: 850;
+}
+
+.listening-list-item.active .listening-list-index {
+  color: #fff;
+  background: linear-gradient(135deg, #3478e5, #6655e8);
+}
+
+.listening-list-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.listening-list-text strong,
+.listening-list-text small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.listening-list-text strong {
+  color: #304568;
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.listening-list-text small {
+  color: #91a0b7;
+  font-size: 10px;
+}
+
+.listening-list-item.active .listening-list-text strong {
+  color: #3157c4;
+}
+
+.listening-list-active-dot {
+  width: 7px;
+  height: 7px;
+  background: #5b65e8;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(91, 101, 232, .1);
+}
+
+@media (max-width: 900px) {
+  .listening-workspace:has(.listening-sentence-list) {
+    grid-template-columns: minmax(220px, 260px) minmax(0, 1fr);
+    gap: 11px;
+  }
+}
+
+@media (max-width: 680px) {
+  .listening-workspace:has(.listening-sentence-list) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .listening-sentence-list {
+    position: static;
+    max-height: 270px;
+    order: 0;
+  }
+
+  .listening-main-column {
+    order: 1;
+  }
+
+  .listening-list-items {
+    max-height: 195px;
+  }
+
+  .listening-workspace-toolbar {
+    min-height: 38px;
+  }
+
+  .listening-list-toggle {
+    min-height: 37px;
+    padding: 0 11px;
+    font-size: 12px;
+  }
+}
+
+
+
+/* =========================================
+   LISTENING PREMIUM – TWO ROW CONTROL PANEL
+   Row 1: Unit selector + progress
+   Row 2: Quick listen on left + compact settings on right
+========================================= */
+.listening-toolbar-panel {
+  width: 100%;
+  padding: 17px 20px;
+  background: #fff;
+  border: 1px solid #e4eaf5;
+  border-radius: 17px;
+  box-shadow: 0 8px 24px rgba(35, 54, 100, .055);
+}
+
+.listening-unit-progress-row {
+  display: grid;
+  grid-template-columns: minmax(240px, .8fr) minmax(0, 1.5fr);
+  align-items: center;
+  gap: 22px;
+}
+
+.listening-unit-setting {
+  min-width: 0;
+}
+
+.listening-toolbar-panel .listening-setting {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+
+.listening-toolbar-panel .listening-setting label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #344b72;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .45px;
+}
+
+.listening-toolbar-panel .listening-setting label svg {
+  color: #5965ef;
+}
+
+.listening-toolbar-panel .listening-select-wrap {
+  position: relative;
+  min-width: 0;
+}
+
+.listening-toolbar-panel .listening-select-wrap select {
+  width: 100%;
+  height: 39px;
+  padding: 0 32px 0 11px;
+  color: #294064;
+  background: #f8faff;
+  border: 1px solid #dce5f5;
+  border-radius: 9px;
+  outline: none;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  appearance: none;
+  cursor: pointer;
+}
+
+.listening-toolbar-panel .listening-select-wrap select:focus {
+  border-color: #8294f7;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, .09);
+}
+
+.listening-toolbar-panel .select-chevron {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  color: #7485a5;
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.listening-compact-progress {
+  min-width: 0;
+}
+
+.listening-compact-progress-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.listening-compact-progress-heading > div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.listening-compact-progress-heading > div span {
+  color: #6877e9;
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: .8px;
+}
+
+.listening-compact-progress-heading > div strong {
+  overflow: hidden;
+  color: #21395f;
+  font-size: 12px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.listening-compact-progress-heading > small {
+  flex: 0 0 auto;
+  color: #8492aa;
+  font-size: 11px;
+}
+
+.listening-compact-progress-heading > small b {
+  color: #4e5fe0;
+  font-size: 14px;
+}
+
+.listening-compact-progress .listening-progress-track {
+  height: 6px;
+  margin: 0 0 6px;
+  overflow: hidden;
+  background: #edf1f8;
+  border-radius: 20px;
+}
+
+.listening-compact-progress-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: #91a0b8;
+  font-size: 9px;
+}
+
+.listening-actions-row {
+  display: grid;
+  grid-template-columns: minmax(210px, .8fr) minmax(0, 1.5fr);
+  align-items: center;
+  gap: 22px;
+  margin-top: 14px;
+  padding-top: 13px;
+  border-top: 1px solid #edf1f8;
+}
+
+.listening-quick-play {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.listening-quick-play-button {
+  display: grid;
+  place-items: center;
+  width: 39px;
+  height: 39px;
+  flex: 0 0 auto;
+  color: #fff;
+  background: linear-gradient(135deg, #3478e5, #6557e9);
+  border: 0;
+  border-radius: 12px;
+  box-shadow: 0 5px 12px rgba(73, 100, 220, .22);
+  cursor: pointer;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.listening-quick-play-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 7px 16px rgba(73, 100, 220, .28);
+}
+
+.listening-quick-play-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.listening-quick-play-text strong {
+  color: #263e66;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.listening-quick-play-text span {
+  overflow: hidden;
+  color: #91a0b8;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.listening-quick-replay {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin-left: auto;
+  flex: 0 0 auto;
+  color: #6877c9;
+  background: #f4f6ff;
+  border: 1px solid #e1e7ff;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.listening-quick-replay:hover {
+  color: #fff;
+  background: #5965e8;
+}
+
+.listening-compact-settings {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  min-width: 0;
+}
+
+.listening-compact-settings .listening-setting {
+  gap: 5px;
+}
+
+.listening-compact-settings .listening-setting label {
+  font-size: 9px;
+}
+
+.listening-compact-settings .listening-select-wrap select {
+  height: 35px;
+  padding-left: 9px;
+  font-size: 11px;
+}
+
+@media (max-width: 900px) {
+  .listening-unit-progress-row,
+  .listening-actions-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .listening-actions-row {
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+
+  .listening-quick-play {
+    padding-bottom: 2px;
+  }
+}
+
+@media (max-width: 560px) {
+  .listening-toolbar-panel {
+    padding: 13px;
+    border-radius: 14px;
+  }
+
+  .listening-unit-progress-row {
+    gap: 12px;
+  }
+
+  .listening-compact-progress-heading > div strong {
+    font-size: 11px;
+  }
+
+  .listening-compact-settings {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .listening-compact-settings .listening-setting label {
+    gap: 4px;
+    font-size: 8px;
+  }
+
+  .listening-compact-settings .listening-select-wrap select {
+    height: 34px;
+    padding: 0 22px 0 7px;
+    font-size: 10px;
+  }
+
+  .listening-compact-settings .select-chevron {
+    right: 5px;
+    width: 12px;
+  }
+
+  .listening-quick-play-text span {
+    font-size: 9px;
+  }
+}
+
+
+/* Compact navigation controls now live in the toolbar.
+   The old standalone audio-player card has been removed. */
+.listening-quick-nav {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  color: #536786;
+  background: #f1f5fb;
+  border: 1px solid #e4ebf5;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all .18s ease;
+}
+
+.listening-quick-nav:hover:not(:disabled) {
+  color: #fff;
+  background: #5965e8;
+  border-color: #5965e8;
+}
+
+.listening-quick-nav:disabled {
+  opacity: .38;
+  cursor: not-allowed;
+}
+
+.listening-inline-error {
+  margin: 10px 0 0;
+  color: #d14343;
+  font-size: 11px;
+}

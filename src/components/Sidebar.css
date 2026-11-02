@@ -377,3 +377,40 @@
 .menu-item-text small { color:#8a9ab0; }
 .active-indicator { background:#347de0; }
 .sidebar-footer { border-top:1px solid #e8eef7; }
+
+
+/* ===== FIXED SIDEBAR ===== */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 100;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Keep the original desktop widths and visual styles. */
+.sidebar.collapsed {
+  width: 78px;
+  min-width: 78px;
+}
+
+/* Existing responsive rules turn the sidebar into a 62px icon rail. */
+@media (max-width: 768px) {
+  .sidebar,
+  .sidebar.collapsed {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 62px;
+    min-width: 62px;
+    height: 100vh;
+    height: 100dvh;
+  }
+}

@@ -1,16 +1,7 @@
-
 import { useEffect, useRef, useState } from "react";
 import {
-  ArrowLeft,
-  ArrowRight,
-  Volume2,
-  Pause,
-  Play,
-  Eye,
-  EyeOff,
-  CheckCircle2,
-  XCircle,
-  RotateCcw,
+  ArrowLeft, ArrowRight, Volume2, Pause, Play, Eye, EyeOff,
+  CheckCircle2, XCircle, RotateCcw, SkipForward, Languages,
 } from "lucide-react";
 import type { Unit } from "../types/unit";
 import "./UnitPractice.css";
@@ -21,20 +12,19 @@ interface UnitPracticeProps {
 }
 
 function normalizeText(value: string) {
-  return value
-    .trim()
-    .toLowerCase()
+  return value.trim().toLowerCase()
     .replace(/[.,!?;:'"“”‘’]/g, "")
     .replace(/\s+/g, " ");
 }
 
-const START_DELAY = 250;
+const START_DELAY = 180;
+const SPEEDS = [0.5, 0.8, 1, 1.25, 1.5, 2];
 
 function UnitPractice({ unit, onBack }: UnitPracticeProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answer, setAnswer] = useState("");
   const [showAnswer, setShowAnswer] = useState(false);
-  const [answerTouched, setAnswerTouched] = useState(false);
+  const [checked, setChecked] = useState(false);
   const [speed, setSpeed] = useState(1);
   const [voiceType, setVoiceType] = useState<"US" | "UK">("US");
   const [playing, setPlaying] = useState(false);
@@ -43,62 +33,48 @@ function UnitPractice({ unit, onBack }: UnitPracticeProps) {
 
   const runIdRef = useRef(0);
   const delayTimerRef = useRef<number | null>(null);
-  const playingRef = useRef(false);
   const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
-
   const sentence = unit.sentences[currentIndex];
-
-  const isCorrect =
-    answer.trim().length > 0 &&
+  const total = unit.sentences.length;
+  const isCorrect = answer.trim().length > 0 &&
     normalizeText(answer) === normalizeText(sentence?.english ?? "");
 
-  const clearDelay = () => {
+  function clearDelay() {
     if (delayTimerRef.current !== null) {
       window.clearTimeout(delayTimerRef.current);
       delayTimerRef.current = null;
     }
-  };
+  }
 
   useEffect(() => {
-    const loadVoices = () => {
-      voicesRef.current = window.speechSynthesis.getVoices();
-    };
-
+    if (!("speechSynthesis" in window)) return;
+    const loadVoices = () => { voicesRef.current = window.speechSynthesis.getVoices(); };
     loadVoices();
-    window.speechSynthesis.onvoiceschanged = loadVoices;
-
+    window.speechSynthesis.addEventListener?.("voiceschanged", loadVoices);
     return () => {
       runIdRef.current += 1;
-      playingRef.current = false;
       clearDelay();
       window.speechSynthesis.cancel();
-      window.speechSynthesis.onvoiceschanged = null;
+      window.speechSynthesis.removeEventListener?.("voiceschanged", loadVoices);
     };
   }, []);
 
   useEffect(() => {
     setAnswer("");
     setShowAnswer(false);
-    setAnswerTouched(false);
+    setChecked(false);
     setPlaying(false);
     setPaused(false);
     setAudioMessage("");
-
-    playingRef.current = false;
     runIdRef.current += 1;
     clearDelay();
-    window.speechSynthesis.cancel();
-  }, [currentIndex]);
+    if ("speechSynthesis" in window) window.speechSynthesis.cancel();
+  }, [currentIndex, unit.unitNumber]);
 
   function stopAudio() {
     runIdRef.current += 1;
-    playingRef.current = false;
     clearDelay();
-
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-    }
-
+    if ("speechSynthesis" in window) window.speechSynthesis.cancel();
     setPlaying(false);
     setPaused(false);
   }
@@ -108,106 +84,67 @@ function UnitPractice({ unit, onBack }: UnitPracticeProps) {
       setAudioMessage("Trình duyệt không hỗ trợ phát âm thanh.");
       return;
     }
-
     if (paused) {
       window.speechSynthesis.resume();
-      playingRef.current = true;
       setPaused(false);
       setPlaying(true);
-      setAudioMessage("Đang tiếp tục phát âm thanh...");
+      setAudioMessage("Đang tiếp tục phát...");
       return;
     }
-
     if (!sentence?.english?.trim()) {
       setAudioMessage("Câu này chưa có nội dung tiếng Anh.");
       return;
     }
 
-    // Hủy lượt đọc cũ và tạo mã mới.
     runIdRef.current += 1;
-    const currentRunId = runIdRef.current;
-
-    playingRef.current = false;
+    const runId = runIdRef.current;
     clearDelay();
     window.speechSynthesis.cancel();
-
     setPlaying(false);
     setPaused(false);
     setAudioMessage("Đang chuẩn bị phát...");
 
-    // Chờ trình duyệt giải phóng hàng đợi TTS.
     delayTimerRef.current = window.setTimeout(() => {
       delayTimerRef.current = null;
-
-      if (currentRunId !== runIdRef.current) return;
-
-      const utterance = new SpeechSynthesisUtterance(
-        `${sentence.english.trim()}`
-      );
-
+      if (runId !== runIdRef.current) return;
+      const utterance = new SpeechSynthesisUtterance(sentence.english.trim());
       const language = voiceType === "US" ? "en-US" : "en-GB";
-
-      const preferredVoice =
-        voicesRef.current.find(
-          (voice) => voice.lang.toLowerCase() === language.toLowerCase()
-        ) ||
-        voicesRef.current.find((voice) =>
-          voice.lang.toLowerCase().startsWith(language.slice(0, 2))
-        );
-
-      if (preferredVoice) {
-        utterance.voice = preferredVoice;
-      }
-
+      const exactVoice = voicesRef.current.find(
+        voice => voice.lang.toLowerCase() === language.toLowerCase()
+      );
+      const regionalVoice = voicesRef.current.find(
+        voice => voice.lang.toLowerCase().startsWith(language.slice(0, 2))
+      );
+      utterance.voice = exactVoice || regionalVoice || null;
       utterance.lang = language;
       utterance.rate = speed;
       utterance.pitch = 1;
       utterance.volume = 1;
-
       utterance.onstart = () => {
-        if (currentRunId !== runIdRef.current) return;
-
-        playingRef.current = true;
+        if (runId !== runIdRef.current) return;
         setPlaying(true);
         setPaused(false);
-        setAudioMessage("Đang phát âm thanh...");
+        setAudioMessage(`Đang phát · English (${voiceType})`);
       };
-
       utterance.onend = () => {
-        if (currentRunId !== runIdRef.current) return;
-
-        playingRef.current = false;
+        if (runId !== runIdRef.current) return;
         setPlaying(false);
         setPaused(false);
         setAudioMessage("Đã phát xong.");
       };
-
-      utterance.onerror = (event) => {
-        if (currentRunId !== runIdRef.current) return;
-
-        if (
-          event.error === "canceled" ||
-          event.error === "interrupted"
-        ) {
-          return;
-        }
-
-        playingRef.current = false;
+      utterance.onerror = event => {
+        if (runId !== runIdRef.current) return;
+        if (event.error === "canceled" || event.error === "interrupted") return;
         setPlaying(false);
         setPaused(false);
         setAudioMessage("Không thể phát âm thanh. Bạn hãy thử lại.");
       };
-
-      playingRef.current = true;
       window.speechSynthesis.speak(utterance);
     }, START_DELAY);
   }
 
   function pauseAudio() {
-    if (
-      "speechSynthesis" in window &&
-      window.speechSynthesis.speaking
-    ) {
+    if ("speechSynthesis" in window && window.speechSynthesis.speaking) {
       window.speechSynthesis.pause();
       setPaused(true);
       setPlaying(false);
@@ -215,274 +152,155 @@ function UnitPractice({ unit, onBack }: UnitPracticeProps) {
     }
   }
 
-  function handleAnswerChange(value: string) {
-    setAnswer(value);
-    setAnswerTouched(false);
-  }
-
-  function goToPrevious() {
-    if (currentIndex > 0) {
-      stopAudio();
-      setCurrentIndex((index) => index - 1);
-    }
-  }
-
-  function goToNext() {
-    if (currentIndex < unit.sentences.length - 1) {
-      stopAudio();
-      setCurrentIndex((index) => index + 1);
-    }
+  function goTo(index: number) {
+    if (index < 0 || index >= total) return;
+    stopAudio();
+    setCurrentIndex(index);
   }
 
   function resetAnswer() {
     setAnswer("");
-    setAnswerTouched(false);
+    setChecked(false);
     setShowAnswer(false);
   }
 
-  if (!sentence) {
-    return <div className="practice-message">Unit này chưa có câu hỏi.</div>;
+  function skipQuestion() {
+    if (currentIndex < total - 1) goTo(currentIndex + 1);
+    else setAudioMessage("Bạn đã đến câu cuối cùng của Unit.");
   }
+
+  if (!sentence) return <div className="practice-message">Unit này chưa có câu hỏi.</div>;
+  const progress = total > 0 ? ((currentIndex + 1) / total) * 100 : 0;
 
   return (
     <div className="practice-page">
-      {/* HEADER */}
       <div className="practice-topbar">
-        <button className="practice-back-button" onClick={() => {
+        <button className="practice-back-button" type="button" onClick={() => {
           stopAudio();
           onBack();
         }}>
-          <ArrowLeft size={18} />
-          Danh sách Unit
+          <ArrowLeft size={18} /> Danh sách Unit
         </button>
-
         <div className="practice-unit-title">
           <span>UNIT {String(unit.unitNumber).padStart(2, "0")}</span>
           <h2>{unit.title}</h2>
         </div>
       </div>
 
-      {/* PROGRESS */}
       <div className="practice-progress-card">
         <div className="practice-progress-info">
           <span>Tiến độ luyện tập</span>
-          <strong>
-            {currentIndex + 1} / {unit.sentences.length}
-          </strong>
+          <strong>{currentIndex + 1} / {total}</strong>
         </div>
-
-        <div className="practice-progress-track">
-          <div
-            className="practice-progress-fill"
-            style={{
-              width: `${
-                ((currentIndex + 1) / unit.sentences.length) * 100
-              }%`,
-            }}
-          />
+        <div className="practice-progress-track" role="progressbar"
+          aria-valuenow={currentIndex + 1} aria-valuemin={1} aria-valuemax={total}>
+          <div className="practice-progress-fill" style={{ width: `${progress}%` }} />
         </div>
       </div>
 
-      {/* 1. AUDIO */}
-      <div className="practice-audio">
-        <div className="practice-audio-heading">
-          <div className="practice-audio-icon">
-            <Volume2 size={22} />
-          </div>
-
-          <div>
-            <strong>1. Nghe đáp án tiếng Anh</strong>
-            <p>Nghe kỹ câu tiếng Anh trước khi thực hành dịch.</p>
-          </div>
+      <section className="practice-combined-card">
+        <div className="practice-combined-heading">
+          <div className="practice-vietnamese">{sentence.vietnamese}</div>
+          <span className="practice-answer-language">English</span>
         </div>
 
-        <div className="practice-audio-controls">
-          <button
-            className="practice-play-button"
+        <div className="practice-audio-row">
+          <div className="practice-audio-label">
+            <Volume2 size={18} />
+            <span>Nghe câu mẫu</span>
+          </div>
+          <button className="practice-play-button" type="button"
             onClick={playing ? pauseAudio : playAnswer}
-            title={playing ? "Tạm dừng" : "Nghe đáp án"}
-          >
-            {playing ? <Pause size={22} /> : <Play size={22} />}
+            title={playing ? "Tạm dừng" : paused ? "Tiếp tục phát" : "Nghe câu mẫu"}
+            aria-label={playing ? "Tạm dừng" : paused ? "Tiếp tục phát" : "Nghe câu mẫu"}>
+            {playing ? <Pause size={17} /> : <Play size={17} />}
           </button>
-
-          <span className="practice-audio-status">
-            {audioMessage || "Nhấn nút để nghe câu tiếng Anh"}
-          </span>
-
-          <button
-            className="practice-replay-button"
-            onClick={playAnswer}
-            title="Nghe lại từ đầu"
-          >
-            <RotateCcw size={18} />
-            Nghe lại
-          </button>
-        </div>
-
-        <div className="practice-audio-settings">
-          <div>
-            <label htmlFor="voice-type">Giọng đọc</label>
-            <select
-              id="voice-type"
-              value={voiceType}
-              onChange={(event) => {
-                stopAudio();
-                setVoiceType(event.target.value as "US" | "UK");
-              }}
-            >
+          <label className="practice-select-wrap" aria-label="Giọng đọc">
+            <select value={voiceType} onChange={event => {
+              stopAudio();
+              setVoiceType(event.target.value as "US" | "UK");
+            }}>
               <option value="US">English (US)</option>
               <option value="UK">English (UK)</option>
             </select>
-          </div>
-
-          <div>
-            <label>Tốc độ đọc</label>
-            <div className="practice-speed-options">
-              {[0.5, 0.8, 1, 1.25, 1.5, 2].map((value) => (
-                <button
-                  key={value}
-                  className={speed === value ? "active" : ""}
-                  onClick={() => {
-                    stopAudio();
-                    setSpeed(value);
-                  }}
-                >
-                  {value}x
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* 2. VIETNAMESE SENTENCE */}
-      <div className="practice-question-card">
-        <div className="practice-section-label">
-          <span>2. CÂU TIẾNG VIỆT</span>
-          <span className="practice-question-number">
-            Câu {currentIndex + 1}
-          </span>
-        </div>
-
-        <div className="practice-vietnamese">
-          {sentence.vietnamese}
-        </div>
-      </div>
-
-      {/* 3. ENGLISH ANSWER INPUT */}
-      <div className="practice-question-card">
-        <div className="practice-section-label">
-          <span>3. NHẬP CÂU TIẾNG ANH</span>
+          </label>
+          <label className="practice-select-wrap practice-speed-select" aria-label="Tốc độ đọc">
+            <select value={speed} onChange={event => {
+              stopAudio();
+              setSpeed(Number(event.target.value));
+            }}>
+              {SPEEDS.map(value => <option key={value} value={value}>{value}x</option>)}
+            </select>
+          </label>
+          <span className="practice-audio-status" aria-live="polite">{audioMessage}</span>
         </div>
 
         <div className="practice-answer-section">
-          <label htmlFor="english-answer">
-            Hãy dịch câu tiếng Việt sang tiếng Anh
-          </label>
-
-          <textarea
-            id="english-answer"
-            value={answer}
-            onChange={(event) => handleAnswerChange(event.target.value)}
-            onBlur={() => {
-              if (answer.trim()) {
-                setAnswerTouched(true);
-              }
+          <textarea id="english-answer" value={answer}
+            onChange={event => {
+              setAnswer(event.target.value);
+              setChecked(false);
             }}
-            placeholder="Type your English answer here..."
-            rows={3}
-            className={
-              isCorrect
-                ? "answer-correct"
-                : answerTouched && answer.trim()
-                  ? "answer-incorrect"
-                  : ""
-            }
-          />
+            onKeyDown={event => {
+              if ((event.ctrlKey || event.metaKey) && event.key === "Enter") setChecked(true);
+            }}
+            placeholder="Type your English answer here..." rows={3}
+            aria-label="Your English translation"
+            className={answer.trim() ? (isCorrect ? "answer-correct" : checked ? "answer-incorrect" : "") : ""} />
 
-          {answer.trim() && isCorrect && (
-            <div className="practice-result correct">
-              <CheckCircle2 size={20} />
-              Chính xác! Bạn làm rất tốt.
+          {checked && !answer.trim() && (
+            <div className="practice-result incorrect">
+              <XCircle size={19} /> Bạn hãy nhập câu trả lời trước khi kiểm tra.
             </div>
           )}
-
-          {answer.trim() && !isCorrect && answerTouched && (
+          {answer.trim() && isCorrect && (
+            <div className="practice-result correct">
+              <CheckCircle2 size={19} /> Chính xác! Bạn làm rất tốt.
+            </div>
+          )}
+          {checked && answer.trim() && !isCorrect && (
             <div className="practice-result incorrect">
-              <XCircle size={20} />
-              Chưa chính xác. Bạn hãy kiểm tra lại câu trả lời nhé.
+              <XCircle size={19} /> Chưa khớp hoàn toàn. Hãy thử lại hoặc xem đáp án mẫu.
             </div>
           )}
 
           <div className="practice-actions">
-            <button
-              className="practice-show-button"
-              onClick={() => setShowAnswer((value) => !value)}
-            >
-              {showAnswer ? <EyeOff size={18} /> : <Eye size={18} />}
+            <button className="practice-check-button" type="button" onClick={() => setChecked(true)}>
+              <CheckCircle2 size={18} /> Kiểm tra đáp án
+            </button>
+            <button className="practice-skip-button" type="button" onClick={skipQuestion}>
+              <SkipForward size={18} /> Bỏ qua
+            </button>
+            <button className="practice-reset-button" type="button" onClick={resetAnswer}>
+              <RotateCcw size={17} /> Làm lại
+            </button>
+            <button className="practice-show-button" type="button"
+              onClick={() => setShowAnswer(value => !value)}>
+              {showAnswer ? <EyeOff size={17} /> : <Eye size={17} />}
               {showAnswer ? "Ẩn đáp án" : "Xem đáp án"}
             </button>
-
-            <button
-              className="practice-reset-button"
-              onClick={resetAnswer}
-              title="Làm lại"
-            >
-              <RotateCcw size={18} />
-              Làm lại
-            </button>
           </div>
         </div>
-      </div>
 
-      {/* ANSWER DETAILS */}
-      {showAnswer && (
-        <div className="practice-detail-card">
-          <div className="practice-detail-heading">
-            <div>
-              <span>ĐÁP ÁN TIẾNG ANH</span>
-              <h3>{sentence.english}</h3>
-            </div>
+        {showAnswer && (
+          <div className="practice-inline-answer">
+            <span>ĐÁP ÁN TIẾNG ANH THAM KHẢO</span>
+            <h3>{sentence.english}</h3>
+            {sentence.ipa && <p><strong>IPA:</strong> {sentence.ipa}</p>}
+            {sentence.vocabulary && <p><strong>Từ vựng:</strong> {sentence.vocabulary}</p>}
           </div>
+        )}
+      </section>
 
-          {sentence.ipa && (
-            <div className="practice-ipa">
-              <span>PHIÊN ÂM IPA</span>
-              <p>{sentence.ipa}</p>
-            </div>
-          )}
-
-          {sentence.vocabulary && (
-            <div className="practice-vocabulary">
-              <span>TỪ VỰNG GỢI Ý</span>
-              <p>{sentence.vocabulary}</p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* NAVIGATION */}
       <div className="practice-navigation">
-        <button
-          className="practice-nav-button"
-          onClick={goToPrevious}
-          disabled={currentIndex === 0}
-        >
-          <ArrowLeft size={18} />
-          Câu trước
+        <button className="practice-nav-button" type="button"
+          onClick={() => goTo(currentIndex - 1)} disabled={currentIndex === 0}>
+          <ArrowLeft size={18} /> Câu trước
         </button>
-
-        <span>
-          {currentIndex + 1} / {unit.sentences.length}
-        </span>
-
-        <button
-          className="practice-nav-button next"
-          onClick={goToNext}
-          disabled={currentIndex === unit.sentences.length - 1}
-        >
-          Câu tiếp theo
-          <ArrowRight size={18} />
+        <span>{currentIndex + 1} / {total}</span>
+        <button className="practice-nav-button next" type="button"
+          onClick={() => goTo(currentIndex + 1)} disabled={currentIndex === total - 1}>
+          Câu tiếp theo <ArrowRight size={18} />
         </button>
       </div>
     </div>

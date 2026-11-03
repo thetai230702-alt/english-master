@@ -16,7 +16,6 @@ import {
   ListMusic,
   ChevronRight,
   Maximize2,
-  Minimize2,
   X,
 } from "lucide-react";
 import { getUnits } from "../services/unitService";
@@ -791,7 +790,15 @@ function Listening() {
               <button
                 type="button"
                 className="listening-list-toggle"
-                onClick={() => setFocusMode(true)}
+                onClick={() => {
+                  setFocusMode(true);
+                  const root = document.documentElement as HTMLElement & { requestFullscreen?: () => Promise<void> };
+                  if (root.requestFullscreen) {
+                    void root.requestFullscreen().catch(() => {
+                      // Overlay vẫn hiển thị toàn màn hình cửa sổ nếu trình duyệt từ chối fullscreen.
+                    });
+                  }
+                }}
                 title="Mở chế độ trình chiếu"
                 aria-label="Phóng to câu đang học"
               >
@@ -855,122 +862,138 @@ function Listening() {
         </div>
       </div>
 
-      {focusMode && currentSentence && (
+      {focusMode && currentSentence && selectedUnit && (
         <div
           role="dialog"
           aria-modal="true"
-          aria-label="Chế độ trình chiếu luyện nghe"
+          aria-label="Chế độ luyện nghe toàn màn hình"
           style={{
             position: "fixed",
             inset: 0,
-            zIndex: 9999,
-            background: "radial-gradient(circle at top, #202b52 0%, #0b1020 58%, #070b16 100%)",
-            color: "#ffffff",
+            zIndex: 2147483000,
+            width: "100vw",
+            height: "100dvh",
+            minHeight: "100vh",
+            boxSizing: "border-box",
+            overflow: "hidden",
+            background: "radial-gradient(ellipse at 50% 20%, #202b52 0%, #10182d 48%, #070b16 100%)",
+            color: "#fff",
+            display: "grid",
+            gridTemplateRows: "auto minmax(0, 1fr) auto",
+            padding: "clamp(16px, 3vh, 30px) clamp(18px, 5vw, 72px) 0",
+            textAlign: "center",
+          }}
+        >
+          {/* Header cố định: tiêu đề Unit và số câu luôn ở cùng một vị trí */}
+          <header style={{
+            position: "relative",
+            width: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: 54,
+            padding: "0 58px",
+            boxSizing: "border-box",
+            borderBottom: "1px solid rgba(255,255,255,.10)",
+          }}>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ color: "#a5b4fc", fontSize: "clamp(12px, 1.4vw, 15px)", fontWeight: 800, letterSpacing: ".14em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                UNIT {selectedUnit.unitNumber} · {selectedUnit.title.toUpperCase()}
+              </div>
+              <div style={{ color: "#94a3b8", fontSize: 13, marginTop: 5, fontVariantNumeric: "tabular-nums" }}>
+                CÂU {currentIndex + 1} / {totalSentences}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setFocusMode(false);
+                if (document.fullscreenElement && document.exitFullscreen) {
+                  void document.exitFullscreen().catch(() => {});
+                }
+              }}
+              aria-label="Thoát chế độ toàn màn hình"
+              title="Thoát (Esc)"
+              style={{ position: "absolute", right: 0, top: "50%", transform: "translateY(-50%)", width: 42, height: 42, borderRadius: 13, border: "1px solid rgba(255,255,255,.18)", background: "rgba(255,255,255,.08)", color: "white", display: "grid", placeItems: "center", cursor: "pointer" }}
+            >
+              <X size={20} />
+            </button>
+          </header>
+
+          {/* Vùng nội dung có kích thước ổn định, chỉ nội dung câu thay đổi */}
+          <main style={{
+            width: "min(100%, 1180px)",
+            minHeight: 0,
+            margin: "0 auto",
+            alignSelf: "stretch",
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
             alignItems: "center",
-            padding: "clamp(20px, 5vw, 64px)",
+            gap: "clamp(14px, 2.6vh, 28px)",
+            padding: "24px 0 30px",
+            boxSizing: "border-box",
             overflowY: "auto",
-            textAlign: "center",
-          }}
-        >
-          <button
-            type="button"
-            onClick={() => setFocusMode(false)}
-            aria-label="Thoát chế độ phóng to"
-            title="Thoát (Esc)"
-            style={{
-              position: "absolute",
-              top: 20,
-              right: 20,
-              width: 46,
-              height: 46,
-              borderRadius: 14,
-              border: "1px solid rgba(255,255,255,.2)",
-              background: "rgba(255,255,255,.08)",
-              color: "white",
-              display: "grid",
-              placeItems: "center",
-              cursor: "pointer",
-            }}
-          >
-            <X size={22} />
-          </button>
-
-          <div style={{ width: "min(100%, 1100px)", margin: "auto", paddingBottom: 112 }}>
-            <div style={{ color: "#a5b4fc", fontSize: 13, fontWeight: 700, letterSpacing: ".16em", marginBottom: 18 }}>
-              UNIT {selectedUnit.unitNumber} · {selectedUnit.title.toUpperCase()}
-            </div>
-            <div style={{ color: "#94a3b8", fontSize: 13, marginBottom: 24 }}>
-              SENTENCE {currentIndex + 1} / {totalSentences}
-            </div>
-
+          }}>
             <div style={{
+              width: "100%",
               fontSize: "clamp(30px, 5.2vw, 68px)",
-              lineHeight: 1.45,
+              lineHeight: 1.42,
               fontWeight: 750,
               letterSpacing: "-.035em",
               overflowWrap: "anywhere",
-              marginBottom: 28,
+              minHeight: "2.8em",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
             }}>
-              {highlightedEnglish}
+              <div>{highlightedEnglish}</div>
             </div>
-
-            <div style={{
-              color: "#a5b4fc",
-              fontSize: "clamp(17px, 2.5vw, 29px)",
-              lineHeight: 1.7,
-              margin: "0 auto 24px",
-              maxWidth: 1000,
-            }}>
+            <div style={{ color: "#a5b4fc", fontSize: "clamp(17px, 2.2vw, 27px)", lineHeight: 1.6, minHeight: "1.6em", maxWidth: 1050 }}>
               {currentSentence.ipa || "Chưa có phiên âm"}
             </div>
-
-            <div style={{
-              color: "#e2e8f0",
-              fontSize: "clamp(20px, 3vw, 36px)",
-              lineHeight: 1.5,
-              margin: "0 auto 36px",
-              maxWidth: 1000,
-            }}>
+            <div style={{ color: "#e2e8f0", fontSize: "clamp(19px, 2.8vw, 34px)", lineHeight: 1.5, minHeight: "1.5em", maxWidth: 1050 }}>
               {currentSentence.vietnamese}
             </div>
-
-            <div style={{ color: "#94a3b8", fontSize: 14, marginBottom: 24 }}>
-              {playing ? (paused ? "Đang tạm dừng" : "Đang đọc · Từ đang đọc được tô sáng") : "Nhấn phát để bắt đầu luyện nghe"}
+            <div style={{ color: "#94a3b8", fontSize: 13, minHeight: 20 }}>
+              {playing ? (paused ? "Đang tạm dừng" : "Đang phát · Từ đang đọc được tô sáng") : "Nhấn phát để bắt đầu luyện nghe"}
             </div>
+          </main>
 
-          </div>
-
-          {/* Thanh điều khiển luôn cố định ở đáy, không di chuyển khi đổi câu */}
-          <div style={{
-            position: "fixed",
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 10000,
+          {/* Bộ điều khiển cố định ở đáy như trình phát video */}
+          <footer style={{
+            position: "relative",
+            width: "100vw",
+            marginLeft: "calc(50% - 50vw)",
             display: "flex",
-            justifyContent: "center",
+            flexDirection: "column",
             alignItems: "center",
-            gap: 14,
-            padding: "16px 18px max(20px, env(safe-area-inset-bottom))",
-            background: "linear-gradient(180deg, rgba(10,15,30,0) 0%, rgba(10,15,30,.88) 35%, rgba(10,15,30,.98) 100%)",
-            backdropFilter: "blur(12px)",
+            justifyContent: "center",
+            gap: 12,
+            padding: "14px 18px max(22px, env(safe-area-inset-bottom))",
+            boxSizing: "border-box",
+            background: "linear-gradient(180deg, rgba(10,15,30,0) 0%, rgba(10,15,30,.72) 25%, rgba(10,15,30,.98) 100%)",
+            borderTop: "1px solid rgba(255,255,255,.08)",
+            backdropFilter: "blur(14px)",
           }}>
-            <button type="button" onClick={handlePrevious} disabled={currentIndex === 0} aria-label="Câu trước" style={focusControlStyle}>
-              <SkipBack size={21} />
-            </button>
-            <button type="button" onClick={handlePlayPause} aria-label={playing && !paused ? "Tạm dừng" : "Phát"} style={{ ...focusControlStyle, width: 62, height: 62, background: "linear-gradient(135deg, #6366f1, #8b5cf6)", border: 0 }}>
-              {playing && !paused ? <Pause size={25} /> : <Play size={25} />}
-            </button>
-            <button type="button" onClick={handleNext} disabled={currentIndex >= totalSentences - 1} aria-label="Câu tiếp theo" style={focusControlStyle}>
-              <SkipForward size={21} />
-            </button>
-            <button type="button" onClick={handleReplay} aria-label="Phát lại câu hiện tại" title="Phát lại" style={focusControlStyle}>
-              <RotateCcw size={20} />
-            </button>
-          </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+              <button type="button" onClick={handlePrevious} disabled={currentIndex === 0} aria-label="Câu trước" style={focusControlStyle}>
+                <SkipBack size={21} />
+              </button>
+              <button type="button" onClick={handlePlayPause} aria-label={playing && !paused ? "Tạm dừng" : "Phát"} style={{ ...focusControlStyle, width: 62, height: 62, background: "linear-gradient(135deg, #6366f1, #8b5cf6)", border: 0 }}>
+                {playing && !paused ? <Pause size={25} /> : <Play size={25} />}
+              </button>
+              <button type="button" onClick={handleNext} disabled={currentIndex >= totalSentences - 1} aria-label="Câu tiếp theo" style={focusControlStyle}>
+                <SkipForward size={21} />
+              </button>
+              <button type="button" onClick={handleReplay} aria-label="Phát lại câu hiện tại" title="Phát lại" style={focusControlStyle}>
+                <RotateCcw size={20} />
+              </button>
+            </div>
+            <div style={{ width: "min(520px, 80vw)", height: 3, borderRadius: 99, background: "rgba(255,255,255,.16)", overflow: "hidden" }}>
+              <div style={{ height: "100%", width: `${progress}%`, background: "linear-gradient(90deg, #818cf8, #c084fc)", transition: "width 220ms ease" }} />
+            </div>
+          </footer>
         </div>
       )}
     </div>

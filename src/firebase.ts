@@ -7,6 +7,8 @@ import {
   browserLocalPersistence,
 } from "firebase/auth";
 
+import { getFirestore } from "firebase/firestore";
+
 // Firebase configuration
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -20,7 +22,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Export Firebase Authentication
+// Firebase Authentication
 export const auth = getAuth(app);
 
 // Keep login state after closing the browser
@@ -28,6 +30,9 @@ export const authPersistence = setPersistence(
   auth,
   browserLocalPersistence
 );
+
+// Cloud Firestore Database
+export const db = getFirestore(app);
 
 // Export Firebase app
 export default app;

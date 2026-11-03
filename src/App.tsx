@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import {
   onAuthStateChanged,
@@ -12,6 +13,7 @@ import Units from "./components/Units";
 import Listening from "./components/Listening";
 import Flashcards from "./components/Flashcards";
 import CefrFlashcards from "./components/CefrFlashcards";
+import MyVocabulary from "./components/MyVocabulary";
 import Information from "./components/Information";
 
 import Login from "./components/Login";
@@ -26,6 +28,7 @@ const VALID_TABS: TabType[] = [
   "listening",
   "flashcards",
   "cefr",
+  "my-vocabulary",
   "information",
 ];
 
@@ -40,11 +43,9 @@ function App() {
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [showRegister, setShowRegister] = useState(false);
 
-  // Đọc tab từ URL ngay khi mở hoặc tải lại trang.
   const [activeTab, setActiveTab] = useState<TabType>(() => getTabFromUrl());
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  // Firebase Authentication
   useEffect(() => {
     let unsubscribe: (() => void) | undefined;
     let cancelled = false;
@@ -60,6 +61,7 @@ function App() {
       })
       .catch((error) => {
         console.error("Firebase Authentication error:", error);
+
         if (!cancelled) {
           setCheckingAuth(false);
         }
@@ -71,7 +73,6 @@ function App() {
     };
   }, []);
 
-  // Đồng bộ URL khi người dùng chuyển tab hoặc dùng Back/Forward.
   useEffect(() => {
     const syncTabFromUrl = () => {
       setActiveTab(getTabFromUrl());
@@ -86,7 +87,6 @@ function App() {
     };
   }, []);
 
-  // Mỗi lần đổi tab, cập nhật hash mà không tải lại website.
   useEffect(() => {
     const nextHash = `#${activeTab}`;
 
@@ -96,7 +96,6 @@ function App() {
       if (hasExistingHash) {
         window.history.pushState(null, "", nextHash);
       } else {
-        // Lần đầu mở trang: thêm URL mặc định nhưng không tạo mục lịch sử thừa.
         window.history.replaceState(null, "", nextHash);
       }
     }
@@ -122,6 +121,7 @@ function App() {
     listening: "Luyện nghe",
     flashcards: "Flashcard từ vựng",
     cefr: "Flashcard CEFR",
+    "my-vocabulary": "Từ vựng của tôi",
     information: "Information",
   };
 
@@ -131,6 +131,8 @@ function App() {
     listening: "Nghe và luyện phát âm theo từng câu trong mỗi Unit.",
     flashcards: "Học và ghi nhớ từ vựng theo 50 Unit.",
     cefr: "Học từ vựng theo sáu cấp độ A1, A2, B1, B2, C1 và C2.",
+    "my-vocabulary":
+      "Tạo bộ từ vựng riêng và luyện tập theo cách của bạn.",
     information: "Thông tin về ứng dụng và người phát triển.",
   };
 
@@ -221,6 +223,9 @@ function App() {
           {activeTab === "listening" && <Listening />}
           {activeTab === "flashcards" && <Flashcards />}
           {activeTab === "cefr" && <CefrFlashcards />}
+
+          {activeTab === "my-vocabulary" && <MyVocabulary />}
+
           {activeTab === "information" && <Information />}
         </section>
       </main>

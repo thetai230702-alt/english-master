@@ -184,7 +184,11 @@
 .icon-orange { --icon-color: #ea580c; --icon-bg: #fff0e3; --icon-border: #ffe2ca; }
 .icon-indigo { --icon-color: #4f46e5; --icon-bg: #ecebff; --icon-border: #dedcff; }
 .icon-cyan { --icon-color: #0891b2; --icon-bg: #e2f8fc; --icon-border: #c9f0f7; }
-
+.icon-green {
+  --icon-color: #16a34a;
+  --icon-bg: #e8f8ed;
+  --icon-border: #ccefd6;
+}
 .menu-item-text {
   display: flex;
   flex: 1;

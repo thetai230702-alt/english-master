@@ -1,3 +1,4 @@
+
 import {
   ClipboardCheck,
   BookOpen,
@@ -6,6 +7,7 @@ import {
   Award,
   Info,
   GraduationCap,
+  BookPlus,
 } from "lucide-react";
 
 import "./Sidebar.css";
@@ -16,6 +18,7 @@ export type TabType =
   | "listening"
   | "flashcards"
   | "cefr"
+  | "my-vocabulary"
   | "information";
 
 interface SidebarProps {
@@ -60,6 +63,13 @@ const menuItems = [
     description: "Từ vựng A1 đến C2",
     icon: Award,
     color: "indigo",
+  },
+  {
+    id: "my-vocabulary" as TabType,
+    label: "Từ vựng của tôi",
+    description: "Tạo chủ đề và bộ từ riêng",
+    icon: BookPlus,
+    color: "green",
   },
   {
     id: "information" as TabType,
@@ -124,6 +134,7 @@ function Sidebar({
                   <small>{item.description}</small>
                 </span>
               )}
+
               {isActive && <span className="active-indicator" />}
             </button>
           );
@@ -136,6 +147,7 @@ function Sidebar({
             <BookOpen size={23} />
             <span>✦</span>
           </div>
+
           <div className="sidebar-footer-text">
             <strong>Keep learning!</strong>
             <p>Mỗi ngày tiến bộ một chút.</p>

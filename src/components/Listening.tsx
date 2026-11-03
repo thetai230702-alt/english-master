@@ -22,6 +22,17 @@ import "./Listening.css";
 type RepeatMode = "1" | "2" | "3" | "infinite";
 type VoiceType = "US" | "UK";
 
+type ScreenWakeLock = {
+  release: () => Promise<void>;
+  addEventListener?: (type: "release", listener: () => void) => void;
+};
+
+type WakeLockNavigator = Navigator & {
+  wakeLock?: {
+    request: (type: "screen") => Promise<ScreenWakeLock>;
+  };
+};
+
 // Tăng thời gian chờ để Chrome giải phóng bộ đọc trước khi phát.
 const START_DELAY = 700;
 const SENTENCE_DELAY = 600;
@@ -51,6 +62,41 @@ function Listening() {
   const voiceTypeRef = useRef<VoiceType>("US");
   const runIdRef = useRef(0);
   const delayTimerRef = useRef<number | null>(null);
+  const wakeLockRef = useRef<ScreenWakeLock | null>(null);
+
+  // Giữ màn hình sáng trong lúc đang phát audio (nếu trình duyệt hỗ trợ).
+  const requestScreenWakeLock = async () => {
+    if (wakeLockRef.current || document.visibilityState !== "visible") return;
+
+    const wakeLockNavigator = navigator as WakeLockNavigator;
+    if (!wakeLockNavigator.wakeLock) return;
+
+    try {
+      const sentinel = await wakeLockNavigator.wakeLock.request("screen");
+      wakeLockRef.current = sentinel;
+      sentinel.addEventListener?.("release", () => {
+        if (wakeLockRef.current === sentinel) {
+          wakeLockRef.current = null;
+        }
+      });
+    } catch (error) {
+      // Audio vẫn hoạt động bình thường nếu trình duyệt không hỗ trợ Wake Lock.
+      console.warn("Không thể bật Screen Wake Lock:", error);
+    }
+  };
+
+  const releaseScreenWakeLock = async () => {
+    const wakeLock = wakeLockRef.current;
+    wakeLockRef.current = null;
+
+    if (wakeLock) {
+      try {
+        await wakeLock.release();
+      } catch {
+        // Trình duyệt có thể đã tự giải phóng Wake Lock.
+      }
+    }
+  };
 
   const clearDelay = () => {
     if (delayTimerRef.current !== null) {
@@ -83,7 +129,21 @@ function Listening() {
     loadVoices();
     window.speechSynthesis.onvoiceschanged = loadVoices;
 
+    const handleVisibilityChange = () => {
+      if (
+        document.visibilityState === "visible" &&
+        playingRef.current &&
+        !window.speechSynthesis.paused
+      ) {
+        void requestScreenWakeLock();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      void releaseScreenWakeLock();
       runIdRef.current += 1;
       clearDelay();
       playingRef.current = false;
@@ -133,6 +193,7 @@ function Listening() {
     clearDelay();
     playingRef.current = false;
     window.speechSynthesis.cancel();
+    void releaseScreenWakeLock();
     setPlaying(false);
     setPaused(false);
   };
@@ -178,6 +239,7 @@ function Listening() {
         scheduleSentence(0, runId, 800);
       } else {
         playingRef.current = false;
+        void releaseScreenWakeLock();
         setPlaying(false);
         setPaused(false);
         setCurrentIndex(unit.sentences.length - 1);
@@ -243,6 +305,7 @@ function Listening() {
         "Không thể phát câu này. Bạn hãy thử nhấn Nghe lại."
       );
       playingRef.current = false;
+      void releaseScreenWakeLock();
       setPlaying(false);
       setPaused(false);
     };
@@ -273,6 +336,7 @@ function Listening() {
     }
 
     playingRef.current = true;
+    void requestScreenWakeLock();
     setPlaying(true);
     setPaused(false);
     setError("");
@@ -284,12 +348,14 @@ function Listening() {
   const handlePlayPause = () => {
     if (playing && !paused) {
       window.speechSynthesis.pause();
+      void releaseScreenWakeLock();
       setPaused(true);
       return;
     }
 
     if (playing && paused) {
       window.speechSynthesis.resume();
+      void requestScreenWakeLock();
       setPaused(false);
       return;
     }

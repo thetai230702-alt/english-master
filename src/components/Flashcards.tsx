@@ -94,7 +94,7 @@ function Flashcards() {
   const [selectedUnit, setSelectedUnit] = useState("all");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
-  const [voiceType, setVoiceType] = useState<"uk" | "us">("uk");
+  const [voiceType, setVoiceType] = useState<"uk" | "us">("us");
   const [speed, setSpeed] = useState(1);
   const [progress, setProgress] = useState<LearningStatus>({});
   const [isLoading, setIsLoading] = useState(true);
@@ -301,7 +301,7 @@ function Flashcards() {
       {/* Chọn Unit và cài đặt */}
       <div className="flashcards-toolbar">
         <div className="flashcard-select-group">
-          <label>Chọn chủ đề học</label>
+          <label>Chọn Unit</label>
           <select
             value={selectedUnit}
             onChange={(event) => changeUnit(event.target.value)}
@@ -403,7 +403,9 @@ function Flashcards() {
               {!isFlipped ? (
                 <div className="flashcard-face flashcard-front">
                   <span className="flashcard-face-label">
-                    ENGLISH WORD / PHRASE
+                    {selectedUnit === "all"
+                      ? "ENGLISH MASTER · 50 UNITS"
+                      : units.find((unit) => unit.unitNumber === Number(selectedUnit))?.title || "ENGLISH WORD / PHRASE"}
                   </span>
 
                   <h2>{currentCard.word}</h2>
@@ -413,22 +415,6 @@ function Flashcards() {
                       {currentCard.ipa}
                     </p>
                   )}
-
-                  <button
-                    className="flashcard-speak"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      speakWord(
-                        currentCard.word,
-                        voiceType,
-                        speed
-                      );
-                    }}
-                    title="Nghe phát âm"
-                  >
-                    <Volume2 size={21} />
-                    Nghe phát âm
-                  </button>
 
                   <span className="flashcard-hint">
                     Nhấn vào thẻ để xem nghĩa
@@ -464,9 +450,17 @@ function Flashcards() {
 
             <div className="flashcard-flip-control">
               <button
+                className="flashcard-listen-button"
+                onClick={() => speakWord(currentCard.word, voiceType, speed)}
+                title="Nghe phát âm từ vựng"
+              >
+                <Volume2 size={18} />
+                Nghe {voiceType.toUpperCase()}
+              </button>
+              <button
                 onClick={() => setIsFlipped((value) => !value)}
               >
-                <RotateCw size={17} />
+                <RotateCw size={18} />
                 Lật thẻ
               </button>
             </div>

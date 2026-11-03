@@ -1,10 +1,7 @@
 
 import { useEffect, useRef, useState } from "react";
-import type { CSSProperties, ReactNode } from "react";
+import type { CSSProperties } from "react";
 import {
-  Maximize2,
-  Minimize2,
-  X,
   Play,
   Pause,
   RotateCcw,
@@ -18,6 +15,9 @@ import {
   ChevronDown,
   ListMusic,
   ChevronRight,
+  Maximize2,
+  Minimize2,
+  X,
 } from "lucide-react";
 import { getUnits } from "../services/unitService";
 import type { Unit } from "../types/unit";
@@ -41,60 +41,6 @@ type WakeLockNavigator = Navigator & {
 const START_DELAY = 700;
 const SENTENCE_DELAY = 600;
 const RETRY_DELAY = 150;
-
-function getWordIndexAtChar(text: string, charIndex: number): number {
-  const matches = [...text.matchAll(/\\S+/g)];
-  const found = matches.findIndex((match) => {
-    const start = match.index ?? 0;
-    return charIndex >= start && charIndex < start + match[0].length;
-  });
-  return found;
-}
-
-function renderHighlightedSentence(
-  text: string,
-  activeIndex: number,
-  large = false
-) {
-  const matches = [...text.matchAll(/\\S+/g)];
-  if (matches.length === 0) return text;
-
-  const parts: ReactNode[] = [];
-  let cursor = 0;
-
-  matches.forEach((match, index) => {
-    const start = match.index ?? 0;
-    if (start > cursor) {
-      parts.push(text.slice(cursor, start));
-    }
-    parts.push(
-      <span
-        key={`${start}-${index}`}
-        style={{
-          color: index === activeIndex ? "#F59E0B" : "inherit",
-          background:
-            index === activeIndex
-              ? "rgba(245, 158, 11, 0.18)"
-              : "transparent",
-          borderRadius: large ? 8 : 5,
-          padding: large ? "0 4px" : "0 2px",
-                  WebkitBoxDecorationBreak: "clone",
-          transition: "background 120ms ease, color 120ms ease",
-          fontWeight: index === activeIndex ? 800 : "inherit",
-        }}
-      >
-        {match[0]}
-      </span>
-    );
-    cursor = start + match[0].length;
-  });
-
-  if (cursor < text.length) {
-    parts.push(text.slice(cursor));
-  }
-
-  return parts;
-}
 
 function Listening() {
   const [units, setUnits] = useState<Unit[]>([]);
@@ -158,22 +104,6 @@ function Listening() {
     }
   };
 
-  useEffect(() => {
-    if (!focusMode) return;
-
-    const handleFocusEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setFocusMode(false);
-        if (document.fullscreenElement && document.exitFullscreen) {
-          void document.exitFullscreen().catch(() => {});
-        }
-      }
-    };
-
-    window.addEventListener("keydown", handleFocusEscape);
-    return () => window.removeEventListener("keydown", handleFocusEscape);
-  }, [focusMode]);
-
   const clearDelay = () => {
     if (delayTimerRef.current !== null) {
       window.clearTimeout(delayTimerRef.current);
@@ -227,6 +157,17 @@ function Listening() {
       window.speechSynthesis.onvoiceschanged = null;
     };
   }, []);
+
+  useEffect(() => {
+    if (!focusMode) return;
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setFocusMode(false);
+    };
+
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [focusMode]);
 
   useEffect(() => {
     currentIndexRef.current = currentIndex;
@@ -343,11 +284,17 @@ function Listening() {
 
     currentIndexRef.current = index;
     setCurrentIndex(index);
+
+    const spokenText = sentence.english.trim();
+    const wordMatches: Array<{ 0: string; index: number }> = [];
+    const spokenWordRegex = /[A-Za-z0-9]+(?:['’][A-Za-z0-9]+)*/g;
+    let spokenWordMatch: RegExpExecArray | null;
+    while ((spokenWordMatch = spokenWordRegex.exec(spokenText)) !== null) {
+      wordMatches.push({ 0: spokenWordMatch[0], index: spokenWordMatch.index });
+    }
     setActiveWordIndex(-1);
 
-    const utterance = new SpeechSynthesisUtterance(
-    `${sentence.english.trim()}`
-    );
+    const utterance = new SpeechSynthesisUtterance(spokenText);
 
     utterance.lang =
       voiceTypeRef.current === "UK" ? "en-GB" : "en-US";
@@ -361,22 +308,27 @@ function Listening() {
       utterance.voice = voice;
     }
 
-    utterance.onboundary = (event) => {
+    // Đồng bộ màu từ đang đọc bằng sự kiện word-boundary của SpeechSynthesis.
+    // Một số trình duyệt không phát sự kiện này; khi đó câu vẫn được đọc bình thường.
+    utterance.onboundary = (event: SpeechSynthesisEvent) => {
       if (runId !== runIdRef.current || !playingRef.current) return;
       if (event.name && event.name !== "word") return;
-      const wordIndex = getWordIndexAtChar(
-        sentence.english.trim(),
-        event.charIndex
-      );
+
+      const charIndex = event.charIndex ?? 0;
+      const wordIndex = wordMatches.findIndex((match) => {
+        const start = match.index ?? 0;
+        return charIndex >= start && charIndex < start + match[0].length;
+      });
+
       if (wordIndex >= 0) setActiveWordIndex(wordIndex);
     };
 
     utterance.onend = () => {
-      setActiveWordIndex(-1);
       if (runId !== runIdRef.current || !playingRef.current) {
         return;
       }
 
+      setActiveWordIndex(-1);
       scheduleSentence(index + 1, runId, SENTENCE_DELAY);
     };
 
@@ -397,6 +349,7 @@ function Listening() {
       void releaseScreenWakeLock();
       setPlaying(false);
       setPaused(false);
+      setActiveWordIndex(-1);
     };
 
     // Phát câu sau khi đã kiểm tra bộ đọc sẵn sàng.
@@ -428,6 +381,7 @@ function Listening() {
     void requestScreenWakeLock();
     setPlaying(true);
     setPaused(false);
+    setActiveWordIndex(-1);
     setError("");
 
     // Chờ Chrome giải phóng hoàn toàn bộ đọc.
@@ -524,14 +478,68 @@ function Listening() {
     );
   }
 
-  const currentSentence = selectedUnit.sentences[currentIndex];
-  const totalSentences = selectedUnit.sentences.length;
+  const totalSentences = selectedUnit.sentences?.length ?? 0;
+  const currentSentence = selectedUnit.sentences?.[currentIndex];
+
+  // Tránh crash nếu Unit chưa có câu hoặc index không còn hợp lệ.
+  if (!currentSentence || typeof currentSentence.english !== "string") {
+    return (
+      <div className="listening-loading">
+        Unit này chưa có câu luyện nghe hợp lệ.
+      </div>
+    );
+  }
 
   const progress = totalSentences
     ? ((currentIndex + 1) / totalSentences) * 100
     : 0;
 
+  // Dùng regex ASCII để tương thích với cấu hình TypeScript/JavaScript cũ hơn.
+  const displayWords: Array<{ 0: string; index: number }> = [];
+  const displayWordRegex = /[A-Za-z0-9]+(?:['’][A-Za-z0-9]+)*/g;
+  let displayWordMatch: RegExpExecArray | null;
+  while ((displayWordMatch = displayWordRegex.exec(currentSentence.english)) !== null) {
+    displayWords.push({ 0: displayWordMatch[0], index: displayWordMatch.index });
+  }
 
+  const highlightedEnglish = (() => {
+    let cursor = 0;
+    return displayWords.map((match, index) => {
+      const start = match.index ?? 0;
+      const word = match[0];
+      const before = currentSentence.english.slice(cursor, start);
+      cursor = start + word.length;
+      return (
+        <span key={`${index}-${start}`}>
+          {before}
+          <span
+            className={index === activeWordIndex ? "listening-word-active" : ""}
+            style={{
+              color: activeWordIndex >= 0 && index < activeWordIndex
+                ? "#6ee7b7"
+                : index === activeWordIndex
+                  ? "#ffffff"
+                  : "#dbe4f3",
+              background: index === activeWordIndex
+                ? "linear-gradient(135deg, #6366f1, #8b5cf6)"
+                : "transparent",
+              borderRadius: "0.3em",
+              padding: index === activeWordIndex ? "0.02em 0.12em" : "0",
+              boxDecorationBreak: "clone",
+              WebkitBoxDecorationBreak: "clone",
+              transition: "background 120ms ease, color 120ms ease",
+            }}
+          >
+            {word}
+          </span>
+        </span>
+      );
+    }).concat(
+      currentSentence.english.slice(cursor)
+        ? [<span key="tail">{currentSentence.english.slice(cursor)}</span>]
+        : []
+    );
+  })();
 
   return (
     <div className="listening-page">
@@ -778,38 +786,19 @@ function Listening() {
               <span>{showSentenceList ? "Ẩn danh sách câu" : "Danh sách câu"}</span>
               <span className="listening-list-total">{totalSentences}</span>
             </button>
-            <span className="listening-current-position">Câu {currentIndex + 1} / {totalSentences}</span>
-            <button
-              type="button"
-              onClick={() => {
-                setFocusMode(true);
-                const root = document.documentElement as HTMLElement & {
-                  requestFullscreen?: () => Promise<void>;
-                };
-                if (root.requestFullscreen) {
-                  void root.requestFullscreen().catch(() => {
-                    // Chế độ phủ toàn màn hình trong trang vẫn hoạt động nếu API bị chặn.
-                  });
-                }
-              }}
-              aria-label="Phóng to màn hình"
-              title="Phóng to"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 7,
-                border: "1px solid #dbe3f0",
-                borderRadius: 10,
-                padding: "8px 12px",
-                background: "#fff",
-                color: "#334155",
-                fontWeight: 700,
-                cursor: "pointer",
-              }}
-            >
-              <Maximize2 size={16} />
-              <span>Phóng to</span>
-            </button>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <span className="listening-current-position">Câu {currentIndex + 1} / {totalSentences}</span>
+              <button
+                type="button"
+                className="listening-list-toggle"
+                onClick={() => setFocusMode(true)}
+                title="Mở chế độ trình chiếu"
+                aria-label="Phóng to câu đang học"
+              >
+                <Maximize2 size={16} />
+                <span>Phóng to</span>
+              </button>
+            </div>
           </div>
 
           {currentSentence && (
@@ -835,7 +824,7 @@ function Listening() {
 
           <div className="listening-english">
             <span>English</span>
-            <p>{renderHighlightedSentence(currentSentence.english, activeWordIndex)}</p>
+            <p>{currentSentence.english}</p>
           </div>
 
           <div className="listening-ipa">
@@ -870,163 +859,117 @@ function Listening() {
         <div
           role="dialog"
           aria-modal="true"
-          aria-label="Chế độ luyện nghe toàn màn hình"
+          aria-label="Chế độ trình chiếu luyện nghe"
           style={{
             position: "fixed",
             inset: 0,
-            zIndex: 99999,
-            width: "100vw",
-            height: "100dvh",
-            overflowY: "auto",
-            boxSizing: "border-box",
-            background: "radial-gradient(circle at top, #263b67 0%, #101827 58%, #080d18 100%)",
-            color: "#fff",
+            zIndex: 9999,
+            background: "radial-gradient(circle at top, #202b52 0%, #0b1020 58%, #070b16 100%)",
+            color: "#ffffff",
             display: "flex",
             flexDirection: "column",
-            alignItems: "center",
             justifyContent: "center",
+            alignItems: "center",
             padding: "clamp(20px, 5vw, 64px)",
+            overflowY: "auto",
+            textAlign: "center",
           }}
         >
           <button
             type="button"
-            onClick={() => {
-              setFocusMode(false);
-              if (document.fullscreenElement && document.exitFullscreen) {
-                void document.exitFullscreen().catch(() => {});
-              }
-            }}
+            onClick={() => setFocusMode(false)}
             aria-label="Thoát chế độ phóng to"
-            title="Thoát"
+            title="Thoát (Esc)"
             style={{
               position: "absolute",
-              top: 18,
-              right: 18,
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 8,
-              border: "1px solid rgba(255,255,255,.25)",
-              borderRadius: 12,
-              padding: "10px 14px",
-              background: "rgba(255,255,255,.1)",
-              color: "#fff",
+              top: 20,
+              right: 20,
+              width: 46,
+              height: 46,
+              borderRadius: 14,
+              border: "1px solid rgba(255,255,255,.2)",
+              background: "rgba(255,255,255,.08)",
+              color: "white",
+              display: "grid",
+              placeItems: "center",
               cursor: "pointer",
-              fontWeight: 700,
             }}
           >
-            <X size={18} />
-            <span>Thoát</span>
-            <Minimize2 size={16} />
+            <X size={22} />
           </button>
 
-          <div style={{ width: "min(1100px, 100%)", textAlign: "center" }}>
-            <div
-              style={{
-                color: "#a5b4fc",
-                fontSize: 13,
-                fontWeight: 800,
-                letterSpacing: 3,
-                marginBottom: 24,
-              }}
-            >
-              UNIT {selectedUnit.unitNumber} · {selectedUnit.title}
+          <div style={{ width: "min(100%, 1100px)", margin: "auto", paddingBottom: 112 }}>
+            <div style={{ color: "#a5b4fc", fontSize: 13, fontWeight: 700, letterSpacing: ".16em", marginBottom: 18 }}>
+              UNIT {selectedUnit.unitNumber} · {selectedUnit.title.toUpperCase()}
+            </div>
+            <div style={{ color: "#94a3b8", fontSize: 13, marginBottom: 24 }}>
+              SENTENCE {currentIndex + 1} / {totalSentences}
             </div>
 
-            <div
-              style={{
-                fontSize: "clamp(30px, 5.2vw, 68px)",
-                lineHeight: 1.45,
-                fontWeight: 750,
-                overflowWrap: "break-word",
-                marginBottom: 30,
-              }}
-            >
-              {renderHighlightedSentence(
-                currentSentence.english,
-                activeWordIndex,
-                true
-              )}
+            <div style={{
+              fontSize: "clamp(30px, 5.2vw, 68px)",
+              lineHeight: 1.45,
+              fontWeight: 750,
+              letterSpacing: "-.035em",
+              overflowWrap: "anywhere",
+              marginBottom: 28,
+            }}>
+              {highlightedEnglish}
             </div>
 
-            <div
-              style={{
-                color: "#a5b4fc",
-                fontSize: "clamp(17px, 2.4vw, 28px)",
-                lineHeight: 1.7,
-                marginBottom: 22,
-                overflowWrap: "break-word",
-              }}
-            >
+            <div style={{
+              color: "#a5b4fc",
+              fontSize: "clamp(17px, 2.5vw, 29px)",
+              lineHeight: 1.7,
+              margin: "0 auto 24px",
+              maxWidth: 1000,
+            }}>
               {currentSentence.ipa || "Chưa có phiên âm"}
             </div>
 
-            <div
-              style={{
-                color: "#e2e8f0",
-                fontSize: "clamp(18px, 2.5vw, 30px)",
-                lineHeight: 1.6,
-                marginBottom: 32,
-              }}
-            >
+            <div style={{
+              color: "#e2e8f0",
+              fontSize: "clamp(20px, 3vw, 36px)",
+              lineHeight: 1.5,
+              margin: "0 auto 36px",
+              maxWidth: 1000,
+            }}>
               {currentSentence.vietnamese}
             </div>
 
-            <div
-              style={{
-                color: "#94a3b8",
-                fontSize: 14,
-                fontWeight: 600,
-                marginBottom: 24,
-              }}
-            >
-              CÂU {currentIndex + 1} / {totalSentences}
-              {playing && !paused ? " · ĐANG PHÁT" : paused ? " · TẠM DỪNG" : ""}
+            <div style={{ color: "#94a3b8", fontSize: 14, marginBottom: 24 }}>
+              {playing ? (paused ? "Đang tạm dừng" : "Đang đọc · Từ đang đọc được tô sáng") : "Nhấn phát để bắt đầu luyện nghe"}
             </div>
 
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 16,
-                flexWrap: "wrap",
-              }}
-            >
-              <button
-                type="button"
-                onClick={handlePrevious}
-                disabled={currentIndex === 0}
-                aria-label="Câu trước"
-                style={focusControlStyle}
-              >
-                <SkipBack size={22} />
-              </button>
-              <button
-                type="button"
-                onClick={handlePlayPause}
-                aria-label={playing && !paused ? "Tạm dừng" : "Phát"}
-                style={{ ...focusControlStyle, width: 66, height: 66, background: "#6366f1", borderColor: "#818cf8" }}
-              >
-                {playing && !paused ? <Pause size={27} /> : <Play size={27} />}
-              </button>
-              <button
-                type="button"
-                onClick={handleNext}
-                disabled={currentIndex >= totalSentences - 1}
-                aria-label="Câu tiếp theo"
-                style={focusControlStyle}
-              >
-                <SkipForward size={22} />
-              </button>
-              <button
-                type="button"
-                onClick={handleReplay}
-                aria-label="Nghe lại câu hiện tại"
-                style={focusControlStyle}
-              >
-                <RotateCcw size={20} />
-              </button>
-            </div>
+          </div>
+
+          {/* Thanh điều khiển luôn cố định ở đáy, không di chuyển khi đổi câu */}
+          <div style={{
+            position: "fixed",
+            left: 0,
+            right: 0,
+            bottom: 0,
+            zIndex: 10000,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 14,
+            padding: "16px 18px max(20px, env(safe-area-inset-bottom))",
+            background: "linear-gradient(180deg, rgba(10,15,30,0) 0%, rgba(10,15,30,.88) 35%, rgba(10,15,30,.98) 100%)",
+            backdropFilter: "blur(12px)",
+          }}>
+            <button type="button" onClick={handlePrevious} disabled={currentIndex === 0} aria-label="Câu trước" style={focusControlStyle}>
+              <SkipBack size={21} />
+            </button>
+            <button type="button" onClick={handlePlayPause} aria-label={playing && !paused ? "Tạm dừng" : "Phát"} style={{ ...focusControlStyle, width: 62, height: 62, background: "linear-gradient(135deg, #6366f1, #8b5cf6)", border: 0 }}>
+              {playing && !paused ? <Pause size={25} /> : <Play size={25} />}
+            </button>
+            <button type="button" onClick={handleNext} disabled={currentIndex >= totalSentences - 1} aria-label="Câu tiếp theo" style={focusControlStyle}>
+              <SkipForward size={21} />
+            </button>
+            <button type="button" onClick={handleReplay} aria-label="Phát lại câu hiện tại" title="Phát lại" style={focusControlStyle}>
+              <RotateCcw size={20} />
+            </button>
           </div>
         </div>
       )}
@@ -1035,15 +978,14 @@ function Listening() {
 }
 
 const focusControlStyle: CSSProperties = {
-  width: 52,
-  height: 52,
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  border: "1px solid rgba(255,255,255,.25)",
+  width: 48,
+  height: 48,
   borderRadius: 16,
-  background: "rgba(255,255,255,.1)",
-  color: "#fff",
+  border: "1px solid rgba(255,255,255,.2)",
+  background: "rgba(255,255,255,.09)",
+  color: "white",
+  display: "grid",
+  placeItems: "center",
   cursor: "pointer",
 };
 

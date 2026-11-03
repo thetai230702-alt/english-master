@@ -871,16 +871,18 @@ function Listening() {
             position: "fixed",
             inset: 0,
             zIndex: 2147483000,
-            width: "100vw",
+            width: "100%",
+            maxWidth: "100%",
             height: "100dvh",
-            minHeight: "100vh",
+            minHeight: "100svh",
             boxSizing: "border-box",
             overflow: "hidden",
+            overscrollBehavior: "none",
             background: "radial-gradient(ellipse at 50% 20%, #202b52 0%, #10182d 48%, #070b16 100%)",
             color: "#fff",
             display: "grid",
             gridTemplateRows: "auto minmax(0, 1fr) auto",
-            padding: "clamp(16px, 3vh, 30px) clamp(18px, 5vw, 72px) 0",
+            padding: "max(12px, env(safe-area-inset-top)) clamp(12px, 4vw, 56px) 0 max(12px, env(safe-area-inset-left))",
             textAlign: "center",
           }}
         >
@@ -891,16 +893,16 @@ function Listening() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            minHeight: 54,
-            padding: "0 58px",
+            minHeight: 64,
+            padding: "8px 48px 10px 8px",
             boxSizing: "border-box",
             borderBottom: "1px solid rgba(255,255,255,.10)",
           }}>
             <div style={{ minWidth: 0 }}>
-              <div style={{ color: "#a5b4fc", fontSize: "clamp(12px, 1.4vw, 15px)", fontWeight: 800, letterSpacing: ".14em", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              <div style={{ color: "#a5b4fc", fontSize: "clamp(10px, 2.4vw, 15px)", fontWeight: 800, letterSpacing: ".08em", whiteSpace: "normal", overflowWrap: "anywhere", lineHeight: 1.35, maxWidth: "100%" }}>
                 UNIT {selectedUnit.unitNumber} · {selectedUnit.title.toUpperCase()}
               </div>
-              <div style={{ color: "#94a3b8", fontSize: 13, marginTop: 5, fontVariantNumeric: "tabular-nums" }}>
+              <div style={{ color: "#94a3b8", fontSize: "clamp(11px, 2.5vw, 13px)", marginTop: 5, fontVariantNumeric: "tabular-nums" }}>
                 CÂU {currentIndex + 1} / {totalSentences}
               </div>
             </div>
@@ -922,7 +924,9 @@ function Listening() {
 
           {/* Vùng nội dung có kích thước ổn định, chỉ nội dung câu thay đổi */}
           <main style={{
-            width: "min(100%, 1180px)",
+            width: "100%",
+            maxWidth: 1180,
+            minWidth: 0,
             minHeight: 0,
             margin: "0 auto",
             alignSelf: "stretch",
@@ -931,28 +935,33 @@ function Listening() {
             justifyContent: "center",
             alignItems: "center",
             gap: "clamp(14px, 2.6vh, 28px)",
-            padding: "24px 0 30px",
+            padding: "clamp(12px, 3vh, 30px) 0 clamp(12px, 2vh, 24px)",
             boxSizing: "border-box",
             overflowY: "auto",
+            overflowX: "hidden",
           }}>
             <div style={{
               width: "100%",
-              fontSize: "clamp(30px, 5.2vw, 68px)",
-              lineHeight: 1.42,
+              maxWidth: "100%",
+              minWidth: 0,
+              fontSize: "clamp(26px, 5.2vw, 68px)",
+              lineHeight: 1.35,
               fontWeight: 750,
               letterSpacing: "-.035em",
-              overflowWrap: "anywhere",
-              minHeight: "2.8em",
+              overflowWrap: "break-word",
+              wordBreak: "normal",
+              textAlign: "center",
+              minHeight: "2.5em",
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
             }}>
               <div>{highlightedEnglish}</div>
             </div>
-            <div style={{ color: "#a5b4fc", fontSize: "clamp(17px, 2.2vw, 27px)", lineHeight: 1.6, minHeight: "1.6em", maxWidth: 1050 }}>
+            <div style={{ color: "#a5b4fc", fontSize: "clamp(15px, 2.2vw, 27px)", lineHeight: 1.5, minHeight: "1.5em", maxWidth: "100%", overflowWrap: "anywhere" }}>
               {currentSentence.ipa || "Chưa có phiên âm"}
             </div>
-            <div style={{ color: "#e2e8f0", fontSize: "clamp(19px, 2.8vw, 34px)", lineHeight: 1.5, minHeight: "1.5em", maxWidth: 1050 }}>
+            <div style={{ color: "#e2e8f0", fontSize: "clamp(17px, 2.8vw, 34px)", lineHeight: 1.5, minHeight: "1.5em", maxWidth: "100%", overflowWrap: "anywhere" }}>
               {currentSentence.vietnamese}
             </div>
             <div style={{ color: "#94a3b8", fontSize: 13, minHeight: 20 }}>
@@ -963,20 +972,22 @@ function Listening() {
           {/* Bộ điều khiển cố định ở đáy như trình phát video */}
           <footer style={{
             position: "relative",
-            width: "100vw",
-            marginLeft: "calc(50% - 50vw)",
+            width: "100%",
+            maxWidth: "100%",
+            marginLeft: 0,
+            minWidth: 0,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
             gap: 12,
-            padding: "14px 18px max(22px, env(safe-area-inset-bottom))",
+            padding: "12px 12px max(16px, env(safe-area-inset-bottom))",
             boxSizing: "border-box",
             background: "linear-gradient(180deg, rgba(10,15,30,0) 0%, rgba(10,15,30,.72) 25%, rgba(10,15,30,.98) 100%)",
             borderTop: "1px solid rgba(255,255,255,.08)",
             backdropFilter: "blur(14px)",
           }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "clamp(8px, 2.5vw, 14px)", width: "100%", flexWrap: "nowrap" }}>
               <button type="button" onClick={handlePrevious} disabled={currentIndex === 0} aria-label="Câu trước" style={focusControlStyle}>
                 <SkipBack size={21} />
               </button>
@@ -990,7 +1001,7 @@ function Listening() {
                 <RotateCcw size={20} />
               </button>
             </div>
-            <div style={{ width: "min(520px, 80vw)", height: 3, borderRadius: 99, background: "rgba(255,255,255,.16)", overflow: "hidden" }}>
+            <div style={{ width: "min(520px, 92%)", height: 3, borderRadius: 99, background: "rgba(255,255,255,.16)", overflow: "hidden" }}>
               <div style={{ height: "100%", width: `${progress}%`, background: "linear-gradient(90deg, #818cf8, #c084fc)", transition: "width 220ms ease" }} />
             </div>
           </footer>

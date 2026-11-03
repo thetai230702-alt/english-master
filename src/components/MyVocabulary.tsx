@@ -32,7 +32,6 @@ import {
 } from "lucide-react";
 
 import { auth, db } from "../firebase";
-import "./MyVocabulary.css";
 
 type StudyMode = "flashcard" | "typing" | "quiz";
 
@@ -577,7 +576,7 @@ function MyVocabulary() {
 
   if (!user) {
     return (
-      <div className="mv-card mv-login-card" style={{ ...cardStyle, textAlign: "center", margin: 20 }}>
+      <div style={{ ...cardStyle, textAlign: "center", margin: 20 }}>
         <BookPlus size={36} color={COLORS.primary} />
         <h2>Vui lòng đăng nhập</h2>
         <p style={{ color: COLORS.muted }}>
@@ -588,7 +587,7 @@ function MyVocabulary() {
   }
 
   return (
-    <div className="my-vocabulary"
+    <div
       style={{
         maxWidth: 1150,
         margin: "0 auto",
@@ -596,7 +595,7 @@ function MyVocabulary() {
         color: COLORS.text,
       }}
     >
-      <div className="mv-header"
+      <div
         style={{
           display: "flex",
           alignItems: "center",
@@ -604,7 +603,7 @@ function MyVocabulary() {
           marginBottom: 25,
         }}
       >
-        <div className="mv-header-icon"
+        <div
           style={{
             width: 52,
             height: 52,
@@ -629,7 +628,7 @@ function MyVocabulary() {
       </div>
 
       {error && (
-        <div className="mv-error"
+        <div
           style={{
             padding: 13,
             marginBottom: 16,
@@ -689,7 +688,7 @@ function MyVocabulary() {
           </div>
 
           {showTopicForm && (
-            <div className="mv-card" style={{ ...cardStyle, marginBottom: 20 }}>
+            <div style={{ ...cardStyle, marginBottom: 20 }}>
               <h3 style={{ marginTop: 0 }}>
                 {editingTopicId ? "Sửa chủ đề" : "Tạo chủ đề mới"}
               </h3>
@@ -731,7 +730,7 @@ function MyVocabulary() {
           )}
 
           {loading ? (
-            <div className="mv-card mv-empty-state" style={{ ...cardStyle, textAlign: "center", color: COLORS.muted }}>
+            <div style={{ ...cardStyle, textAlign: "center", color: COLORS.muted }}>
               Đang tải chủ đề...
             </div>
           ) : topics.length === 0 ? (
@@ -756,7 +755,7 @@ function MyVocabulary() {
               </button>
             </div>
           ) : (
-            <div className="mv-topic-grid"
+            <div
               style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(auto-fill, minmax(245px, 1fr))",
@@ -766,7 +765,6 @@ function MyVocabulary() {
               {topics.map((topic) => (
                 <div
                   key={topic.id}
-                  className="mv-topic-card"
                   style={{
                     ...cardStyle,
                     cursor: "pointer",
@@ -881,7 +879,7 @@ function MyVocabulary() {
             Danh sách chủ đề
           </button>
 
-          <div className="mv-card" style={{ ...cardStyle, marginBottom: 18 }}>
+          <div style={{ ...cardStyle, marginBottom: 18 }}>
             <div
               style={{
                 display: "flex",
@@ -941,7 +939,7 @@ function MyVocabulary() {
           </div>
 
           {showStudy && words.length > 0 && (
-            <div className="mv-card" style={{ ...cardStyle, marginBottom: 20 }}>
+            <div style={{ ...cardStyle, marginBottom: 20 }}>
               <div
                 style={{
                   display: "flex",
@@ -1093,8 +1091,18 @@ function MyVocabulary() {
                           placeholder="Nhập từ tiếng Anh..."
                           value={answer}
                           onChange={(e) => {
-                            setAnswer(e.target.value);
-                            setChecked(false);
+                            const value = e.target.value;
+                            setAnswer(value);
+
+                            // Tự động xác nhận ngay khi câu trả lời chính xác.
+                            const normalizedAnswer = value.trim().toLowerCase();
+                            const normalizedCorrectAnswer =
+                              currentWord.english.trim().toLowerCase();
+
+                            setChecked(
+                              normalizedAnswer.length > 0 &&
+                                normalizedAnswer === normalizedCorrectAnswer
+                            );
                           }}
                           onKeyDown={(e) => {
                             if (e.key === "Enter") checkTypingAnswer();
@@ -1263,7 +1271,7 @@ function MyVocabulary() {
           )}
 
           {showBulkForm && (
-            <div className="mv-card" style={{ ...cardStyle, marginBottom: 20 }}>
+            <div style={{ ...cardStyle, marginBottom: 20 }}>
               <h3 style={{ marginTop: 0 }}>Nhập nhiều từ vựng</h3>
               <p style={{ color: COLORS.muted, fontSize: 13 }}>
                 Mỗi dòng một từ theo định dạng: English | IPA | Nghĩa tiếng Việt
@@ -1301,7 +1309,7 @@ function MyVocabulary() {
             </div>
           )}
 
-          <div className="mv-card" style={cardStyle}>
+          <div style={cardStyle}>
             <div
               style={{
                 display: "flex",
@@ -1404,7 +1412,6 @@ function MyVocabulary() {
                 {filteredWords.map((word) => (
                   <div
                     key={word.id}
-                    className="mv-word-item"
                     style={{
                       border: `1px solid ${COLORS.border}`,
                       borderRadius: 12,

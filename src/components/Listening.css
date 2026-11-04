@@ -339,29 +339,43 @@
 ================================ */
 
 .listening-player-card {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 18px 24px;
+}
+
+.listening-player-left {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  min-width: 0;
 }
 
 .listening-player-title {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  color: #475569;
-  font-size: 14px;
-  font-weight: 650;
-}
-
-.listening-player-title svg {
-  color: #6366f1;
+  color: #172554;
+  font-size: 15px;
+  font-weight: 750;
+  white-space: nowrap;
 }
 
 .listening-controls {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  margin: 25px 0 17px;
+  gap: 12px;
+  margin: 0;
+}
+
+.listening-player-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: #718096;
+  font-size: 12px;
 }
 
 .listening-control-button {
@@ -406,10 +420,6 @@
   transform: scale(1.05);
 }
 
-.listening-player-status {
-  color: #64748b;
-  font-size: 13px;
-}
 
 .listening-inline-error {
   margin: 12px 0 0;
@@ -590,4 +600,23 @@
   .listening-focus-controls { gap:8px; }
   .listening-focus-control { width:46px; height:46px; }
   .listening-focus-control.primary { width:60px; height:60px; }
+}
+
+
+/* Compact lesson player row */
+@media (max-width: 760px) {
+  .listening-player-card {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+  }
+  .listening-player-left {
+    width: 100%;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .listening-controls { gap: 9px; }
+  .listening-player-meta { justify-content: flex-start; }
 }

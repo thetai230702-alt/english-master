@@ -8,7 +8,6 @@ import {
   RotateCcw,
   SkipBack,
   SkipForward,
-  Volume2,
   Headphones,
   Repeat,
   BookOpen,
@@ -36,7 +35,7 @@ function Listening() {
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [speed, setSpeed] = useState(1);
-  const [voiceType, setVoiceType] = useState<VoiceType>("UK");
+  const [voiceType, setVoiceType] = useState<VoiceType>("US");
   const [repeatMode, setRepeatMode] = useState<RepeatMode>("1");
   const [playing, setPlaying] = useState(false);
   const [paused, setPaused] = useState(false);
@@ -59,7 +58,7 @@ function Listening() {
   const selectedUnitRef = useRef<Unit | null>(null);
   const repeatModeRef = useRef<RepeatMode>("1");
   const speedRef = useRef(1);
-  const voiceTypeRef = useRef<VoiceType>("UK");
+  const voiceTypeRef = useRef<VoiceType>("US");
   const runIdRef = useRef(0);
   const delayTimerRef = useRef<number | null>(null);
 
@@ -801,71 +800,56 @@ function Listening() {
       )}
 
       <div className="listening-player-card">
-        <div className="listening-player-title">
-          <Volume2 size={19} />
-          <span>Trình phát âm thanh</span>
+        <div className="listening-player-left">
+          <div className="listening-player-title">Nghe bài học</div>
+          <div className="listening-controls">
+            <button
+              className="listening-control-button secondary"
+              onClick={handlePrevious}
+              disabled={getPreviousQueueIndex(currentIndex) === -1}
+              title="Câu trước"
+              aria-label="Câu trước"
+            >
+              <SkipBack size={20} />
+            </button>
+
+            <button
+              className="listening-control-button primary"
+              onClick={handlePlayPause}
+              title={playing && !paused ? "Tạm dừng" : "Nghe bài học"}
+              aria-label={playing && !paused ? "Tạm dừng" : "Nghe bài học"}
+            >
+              {playing && !paused ? <Pause size={23} /> : <Play size={23} />}
+            </button>
+
+            <button
+              className="listening-control-button secondary"
+              onClick={handleNext}
+              disabled={getNextQueueIndex(currentIndex) === -1}
+              title="Câu tiếp theo"
+              aria-label="Câu tiếp theo"
+            >
+              <SkipForward size={20} />
+            </button>
+
+            <button
+              className="listening-control-button secondary"
+              onClick={handleReplay}
+              title="Nghe lại câu hiện tại"
+              aria-label="Nghe lại câu hiện tại"
+            >
+              <RotateCcw size={19} />
+            </button>
+          </div>
         </div>
-
-        <div className="listening-controls">
-          <button
-            className="listening-control-button secondary"
-            onClick={handlePrevious}
-            disabled={getPreviousQueueIndex(currentIndex) === -1}
-            title="Câu trước"
-          >
-            <SkipBack size={20} />
-          </button>
-
-          <button
-            className="listening-control-button secondary"
-            onClick={handleReplay}
-            title="Nghe lại câu hiện tại"
-          >
-            <RotateCcw size={19} />
-          </button>
-
-          <button
-            className="listening-control-button primary"
-            onClick={handlePlayPause}
-            title={
-              playing && !paused ? "Tạm dừng" : "Phát"
-            }
-          >
-            {playing && !paused ? (
-              <Pause size={23} />
-            ) : (
-              <Play size={23} />
-            )}
-          </button>
-
-          <button
-            className="listening-control-button secondary"
-            onClick={handleNext}
-            disabled={getNextQueueIndex(currentIndex) === -1}
-            title="Câu tiếp theo"
-          >
-            <SkipForward size={20} />
-          </button>
+        <div className="listening-player-meta">
+          <span>{playing ? (paused ? "Đang tạm dừng" : "Đang phát") : "Sẵn sàng"}</span>
+          <span>•</span>
+          <span>{playlistCount} câu trong danh sách phát</span>
+          <span>•</span>
+          <span>Lặp {repeatLabel[repeatMode]}</span>
         </div>
-
-        <div className="listening-player-status">
-          {playing
-            ? paused
-              ? "Đang tạm dừng"
-              : "Đang phát tự động các câu trong Unit..."
-            : completedRounds > 0
-              ? `Đã hoàn thành ${completedRounds} lượt nghe`
-              : "Nhấn nút Phát để nghe toàn bộ Unit"}
-        </div>
-
-        {error && (
-          <p className="listening-inline-error">{error}</p>
-        )}
-
-        <p className="listening-repeat-note">
-          Chế độ hiện tại:{" "}
-          <strong>{repeatLabel[repeatMode]}</strong>
-        </p>
+        {error && <p className="listening-inline-error">{error}</p>}
       </div>
 
       {focusMode && createPortal(

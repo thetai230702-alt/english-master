@@ -64,9 +64,19 @@ function Listening() {
 
   const getPlaybackQueue = (unit = selectedUnitRef.current) => {
     if (!unit) return [];
-    const selected = selectedSentenceIndexesRef.current;
-    if (selected.length === 0) return unit.sentences.map((_, index) => index);
-    return [...selected].filter((index) => index >= 0 && index < unit.sentences.length).sort((a, b) => a - b);
+  const selected = selectedSentenceIndexesRef.current;
+
+  if (selected.length === 0) {
+    return unit.sentences.map((_, index) => index);
+  }
+
+  if (selected.includes(-1)) {
+    return [];
+  }
+
+  return [...selected]
+    .filter((index) => index >= 0 && index < unit.sentences.length)
+    .sort((a, b) => a - b);
   };
 
   const getNextQueueIndex = (index: number) => {
@@ -435,7 +445,9 @@ function Listening() {
   const handleToggleSentence = (index: number) => {
     if (!selectedUnit) return;
     const allIndexes = selectedUnit.sentences.map((_, itemIndex) => itemIndex);
-    const currentSelection = selectedSentenceIndexesRef.current;
+    const currentSelection = selectedSentenceIndexesRef.current.includes(-1)
+      ? []
+      : selectedSentenceIndexesRef.current;
     const nextSelection = currentSelection.length === 0
       ? allIndexes.filter((itemIndex) => itemIndex !== index)
       : currentSelection.includes(index)
@@ -462,6 +474,18 @@ function Listening() {
     setCompletedRounds(0);
   };
 
+  const handleDeselectAllSentences = () => {
+    selectedSentenceIndexesRef.current = [-1];
+    setSelectedSentenceIndexes([-1]);
+
+    stopAudio();
+
+    currentIndexRef.current = 0;
+    setCurrentIndex(0);
+
+    completedRoundsRef.current = 0;
+    setCompletedRounds(0);
+  };
   const handleToggleFocus = async () => {
     if (focusMode) {
       setFocusMode(false);
@@ -729,11 +753,29 @@ function Listening() {
               <strong>Chọn câu muốn phát</strong>
               <small>Mặc định phát tất cả câu trong Unit.</small>
             </div>
-            <button type="button" className="listening-text-button" onClick={handleSelectAllSentences}>Chọn tất cả</button>
+            <div className="listening-playlist-actions">
+              <button
+                type="button"
+                className="listening-text-button"
+                onClick={handleSelectAllSentences}
+              >
+                Chọn tất cả
+              </button>
+
+              <button
+                type="button"
+                className="listening-text-button"
+                onClick={handleDeselectAllSentences}
+              >
+                Bỏ chọn tất cả
+              </button>
+            </div>
           </div>
           <div className="listening-playlist-grid">
             {selectedUnit.sentences.map((sentence, index) => {
-              const checked = isAllSentences || selectedSentenceIndexes.includes(index);
+              const checked =
+                !selectedSentenceIndexes.includes(-1) &&
+                (isAllSentences || selectedSentenceIndexes.includes(index));
               return (
                 <label key={`${selectedUnit.unitNumber}-${index}`} className={`listening-playlist-item ${checked ? "selected" : ""}`}>
                   <input type="checkbox" checked={checked} onChange={() => handleToggleSentence(index)} />
@@ -745,7 +787,12 @@ function Listening() {
           </div>
           <div className="listening-playlist-footer">
             <span>Đang chọn {playlistCount} / {totalSentences} câu</span>
-            <button type="button" className="listening-playlist-play" onClick={() => startPlayback(getFirstQueueIndex(), true)}>
+            <button
+              type="button"
+              className="listening-playlist-play"
+              disabled={playlistCount === 0}
+              onClick={() => startPlayback(getFirstQueueIndex(), true)}
+            >
               <Play size={15} /> Phát danh sách đã chọn
             </button>
           </div>

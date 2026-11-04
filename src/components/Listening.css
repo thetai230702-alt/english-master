@@ -620,3 +620,14 @@
   .listening-controls { gap: 9px; }
   .listening-player-meta { justify-content: flex-start; }
 }
+.listening-playlist-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.listening-playlist-play:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

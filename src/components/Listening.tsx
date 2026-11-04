@@ -589,12 +589,12 @@ function Listening() {
               }
             >
               {units.map((unit) => (
-                <option
-                  key={unit.unitNumber}
-                  value={unit.unitNumber}
-                >
-                  Unit {unit.unitNumber} - {unit.title}
-                </option>
+              <option
+                key={unit.unitNumber}
+                value={unit.unitNumber}
+              >
+                {unit.title}
+              </option>
               ))}
             </select>
 
@@ -708,9 +708,6 @@ function Listening() {
       <div className="listening-progress-card">
         <div className="listening-progress-top">
           <div>
-            <span className="listening-unit-label">
-              UNIT {selectedUnit.unitNumber}
-            </span>
             <h3>{selectedUnit.title}</h3>
           </div>
 
@@ -903,7 +900,9 @@ function Listening() {
         <div className="listening-focus-overlay" ref={focusContainerRef}>
           <header className="listening-focus-header">
             <div className="listening-focus-title-wrap">
-              <div className="listening-focus-title">UNIT {selectedUnit.unitNumber} · {selectedUnit.title}</div>
+              <div className="listening-focus-title">
+  {selectedUnit.title}
+</div>
               <div className="listening-focus-count">CÂU {currentIndex + 1} / {totalSentences}</div>
             </div>
             <button className="listening-focus-close" onClick={handleToggleFocus} aria-label="Thoát phóng to"><X size={26} /></button>

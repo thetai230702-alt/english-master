@@ -25,6 +25,17 @@ import "./Listening.css";
 type RepeatMode = "1" | "2" | "3" | "infinite";
 type VoiceType = "US" | "UK";
 
+type ScreenWakeLockSentinel = {
+  release: () => Promise<void>;
+  addEventListener: (type: "release", listener: () => void) => void;
+};
+
+type NavigatorWithWakeLock = Navigator & {
+  wakeLock?: {
+    request: (type: "screen") => Promise<ScreenWakeLockSentinel>;
+  };
+};
+
 // Tăng thời gian chờ để Chrome giải phóng bộ đọc trước khi phát.
 const START_DELAY = 700;
 const SENTENCE_DELAY = 600;
@@ -50,6 +61,8 @@ function Listening() {
 
   const selectedSentenceIndexesRef = useRef<number[]>([]);
   const focusContainerRef = useRef<HTMLDivElement | null>(null);
+  const wakeLockRef = useRef<ScreenWakeLockSentinel | null>(null);
+  const wakeLockRequestRef = useRef<Promise<void> | null>(null);
 
   const voicesRef = useRef<SpeechSynthesisVoice[]>([]);
   const playingRef = useRef(false);
@@ -128,6 +141,44 @@ function Listening() {
     return parts;
   };
 
+  const requestScreenWakeLock = async () => {
+    const nav = navigator as NavigatorWithWakeLock;
+    if (!nav.wakeLock || document.visibilityState !== "visible") return;
+    if (wakeLockRef.current || wakeLockRequestRef.current) return;
+
+    const request = (async () => {
+      try {
+        const sentinel = await nav.wakeLock!.request("screen");
+        wakeLockRef.current = sentinel;
+        sentinel.addEventListener("release", () => {
+          if (wakeLockRef.current === sentinel) {
+            wakeLockRef.current = null;
+          }
+        });
+      } catch {
+        // Một số trình duyệt/thiết bị không hỗ trợ hoặc từ chối Wake Lock.
+      }
+    })();
+
+    wakeLockRequestRef.current = request;
+    try {
+      await request;
+    } finally {
+      wakeLockRequestRef.current = null;
+    }
+  };
+
+  const releaseScreenWakeLock = async () => {
+    const sentinel = wakeLockRef.current;
+    if (!sentinel) return;
+    wakeLockRef.current = null;
+    try {
+      await sentinel.release();
+    } catch {
+      // Bỏ qua lỗi khi trình duyệt đã tự thu hồi Wake Lock.
+    }
+  };
+
   const clearDelay = () => {
     if (delayTimerRef.current !== null) {
       window.clearTimeout(delayTimerRef.current);
@@ -164,9 +215,33 @@ function Listening() {
       clearDelay();
       playingRef.current = false;
       window.speechSynthesis.cancel();
+      void releaseScreenWakeLock();
       window.speechSynthesis.onvoiceschanged = null;
     };
   }, []);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible" && playing && !paused) {
+        void requestScreenWakeLock();
+      } else if (document.visibilityState !== "visible") {
+        void releaseScreenWakeLock();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [playing, paused]);
+
+  useEffect(() => {
+    if (playing && !paused) {
+      void requestScreenWakeLock();
+    } else {
+      void releaseScreenWakeLock();
+    }
+  }, [playing, paused]);
 
   useEffect(() => {
     currentIndexRef.current = currentIndex;
@@ -209,6 +284,7 @@ function Listening() {
     clearDelay();
     playingRef.current = false;
     window.speechSynthesis.cancel();
+    void releaseScreenWakeLock();
     setPlaying(false);
     setPaused(false);
     setActiveWordIndex(-1);
@@ -258,6 +334,7 @@ function Listening() {
         playingRef.current = false;
         setPlaying(false);
         setPaused(false);
+        void releaseScreenWakeLock();
         setCurrentIndex(unit.sentences.length - 1);
       }
 
@@ -333,6 +410,7 @@ function Listening() {
       playingRef.current = false;
       setPlaying(false);
       setPaused(false);
+      void releaseScreenWakeLock();
     };
 
     // Phát câu sau khi đã kiểm tra bộ đọc sẵn sàng.
@@ -367,6 +445,7 @@ function Listening() {
     playingRef.current = true;
     setPlaying(true);
     setPaused(false);
+    void requestScreenWakeLock();
     setError("");
 
     // Chờ Chrome giải phóng hoàn toàn bộ đọc.
@@ -377,12 +456,14 @@ function Listening() {
     if (playing && !paused) {
       window.speechSynthesis.pause();
       setPaused(true);
+      void releaseScreenWakeLock();
       return;
     }
 
     if (playing && paused) {
       window.speechSynthesis.resume();
       setPaused(false);
+      void requestScreenWakeLock();
       return;
     }
 
@@ -444,20 +525,45 @@ function Listening() {
 
   const handleToggleSentence = (index: number) => {
     if (!selectedUnit) return;
+
     const allIndexes = selectedUnit.sentences.map((_, itemIndex) => itemIndex);
-    const currentSelection = selectedSentenceIndexesRef.current.includes(-1)
-      ? []
-      : selectedSentenceIndexesRef.current;
-    const nextSelection = currentSelection.length === 0
-      ? allIndexes.filter((itemIndex) => itemIndex !== index)
-      : currentSelection.includes(index)
-        ? currentSelection.filter((itemIndex) => itemIndex !== index)
-        : [...currentSelection, index].sort((a, b) => a - b);
-    const normalized = nextSelection.length === allIndexes.length ? [] : nextSelection;
+    const currentSelection = selectedSentenceIndexesRef.current;
+    const isNoneSelected = currentSelection.includes(-1);
+
+    let nextSelection: number[];
+
+    if (isNoneSelected) {
+      // Từ trạng thái bỏ chọn tất cả: tích vào câu nào thì chỉ chọn câu đó.
+      nextSelection = [index];
+    } else if (currentSelection.length === 0) {
+      // Mảng rỗng đại diện cho trạng thái mặc định: tất cả câu đang được chọn.
+      // Bỏ tích một câu sẽ tạo danh sách gồm tất cả câu còn lại.
+      nextSelection = allIndexes.filter((itemIndex) => itemIndex !== index);
+    } else if (currentSelection.includes(index)) {
+      // Bỏ tích câu đang được chọn.
+      nextSelection = currentSelection.filter((itemIndex) => itemIndex !== index);
+    } else {
+      // Tích thêm một câu.
+      nextSelection = [...currentSelection, index].sort((a, b) => a - b);
+    }
+
+    // [] = chọn tất cả; [-1] = không chọn câu nào.
+    const normalized =
+      nextSelection.length === allIndexes.length
+        ? []
+        : nextSelection.length === 0
+          ? [-1]
+          : nextSelection;
+
     selectedSentenceIndexesRef.current = normalized;
     setSelectedSentenceIndexes(normalized);
+
     stopAudio();
-    const nextStart = normalized.length > 0 ? normalized[0] : 0;
+
+    const nextStart = normalized.length > 0 && normalized[0] !== -1
+      ? normalized[0]
+      : 0;
+
     currentIndexRef.current = nextStart;
     setCurrentIndex(nextStart);
     completedRoundsRef.current = 0;
@@ -573,6 +679,7 @@ function Listening() {
         </div>
       </div>
 
+      <div className="listening-main-card">
       <div className="listening-settings-card">
         <div className="listening-setting">
           <label htmlFor="listening-unit">
@@ -732,6 +839,61 @@ function Listening() {
         </div>
       </div>
 
+      <div className="listening-player-card">
+        <div className="listening-player-left">
+          <div className="listening-player-title">Nghe bài học</div>
+          <div className="listening-controls">
+            <button
+              className="listening-control-button secondary"
+              onClick={handlePrevious}
+              disabled={getPreviousQueueIndex(currentIndex) === -1}
+              title="Câu trước"
+              aria-label="Câu trước"
+            >
+              <SkipBack size={20} />
+            </button>
+
+            <button
+              className="listening-control-button primary"
+              onClick={handlePlayPause}
+              title={playing && !paused ? "Tạm dừng" : "Nghe bài học"}
+              aria-label={playing && !paused ? "Tạm dừng" : "Nghe bài học"}
+            >
+              {playing && !paused ? <Pause size={23} /> : <Play size={23} />}
+            </button>
+
+            <button
+              className="listening-control-button secondary"
+              onClick={handleNext}
+              disabled={getNextQueueIndex(currentIndex) === -1}
+              title="Câu tiếp theo"
+              aria-label="Câu tiếp theo"
+            >
+              <SkipForward size={20} />
+            </button>
+
+            <button
+              className="listening-control-button secondary"
+              onClick={handleReplay}
+              title="Nghe lại câu hiện tại"
+              aria-label="Nghe lại câu hiện tại"
+            >
+              <RotateCcw size={19} />
+            </button>
+          </div>
+        </div>
+        <div className="listening-player-meta">
+          <span>{playing ? (paused ? "Đang tạm dừng" : "Đang phát") : "Sẵn sàng"}</span>
+          <span>•</span>
+          <span>{playlistCount} câu trong danh sách phát</span>
+          <span>•</span>
+          <span>Lặp {repeatLabel[repeatMode]}</span>
+        </div>
+        {error && <p className="listening-inline-error">{error}</p>}
+      </div>
+
+      </div>
+
       <div className="listening-extra-toolbar">
         <button className="listening-outline-button" onClick={() => setShowPlaylist((value) => !value)}>
           <ListMusic size={17} />
@@ -843,58 +1005,7 @@ function Listening() {
         </div>
       )}
 
-      <div className="listening-player-card">
-        <div className="listening-player-left">
-          <div className="listening-player-title">Nghe bài học</div>
-          <div className="listening-controls">
-            <button
-              className="listening-control-button secondary"
-              onClick={handlePrevious}
-              disabled={getPreviousQueueIndex(currentIndex) === -1}
-              title="Câu trước"
-              aria-label="Câu trước"
-            >
-              <SkipBack size={20} />
-            </button>
 
-            <button
-              className="listening-control-button primary"
-              onClick={handlePlayPause}
-              title={playing && !paused ? "Tạm dừng" : "Nghe bài học"}
-              aria-label={playing && !paused ? "Tạm dừng" : "Nghe bài học"}
-            >
-              {playing && !paused ? <Pause size={23} /> : <Play size={23} />}
-            </button>
-
-            <button
-              className="listening-control-button secondary"
-              onClick={handleNext}
-              disabled={getNextQueueIndex(currentIndex) === -1}
-              title="Câu tiếp theo"
-              aria-label="Câu tiếp theo"
-            >
-              <SkipForward size={20} />
-            </button>
-
-            <button
-              className="listening-control-button secondary"
-              onClick={handleReplay}
-              title="Nghe lại câu hiện tại"
-              aria-label="Nghe lại câu hiện tại"
-            >
-              <RotateCcw size={19} />
-            </button>
-          </div>
-        </div>
-        <div className="listening-player-meta">
-          <span>{playing ? (paused ? "Đang tạm dừng" : "Đang phát") : "Sẵn sàng"}</span>
-          <span>•</span>
-          <span>{playlistCount} câu trong danh sách phát</span>
-          <span>•</span>
-          <span>Lặp {repeatLabel[repeatMode]}</span>
-        </div>
-        {error && <p className="listening-inline-error">{error}</p>}
-      </div>
 
       {focusMode && createPortal(
         <div className="listening-focus-overlay" ref={focusContainerRef}>

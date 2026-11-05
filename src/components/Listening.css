@@ -11,6 +11,41 @@
   color: #1e293b;
 }
 
+/* Gộp khu vực chọn Unit, tiến độ và trình phát vào một thẻ chính */
+.listening-main-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 22px;
+  background: #fff;
+  border: 1px solid #e8edf4;
+  border-radius: 17px;
+  box-shadow: 0 3px 12px rgba(15, 23, 42, 0.035);
+}
+
+.listening-main-card .listening-settings-card,
+.listening-main-card .listening-progress-card,
+.listening-main-card .listening-player-card {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.listening-main-card .listening-settings-card {
+  padding: 0 0 20px;
+}
+
+.listening-main-card .listening-progress-card {
+  padding: 20px 0;
+  border-top: 1px solid #eef2f7;
+}
+
+.listening-main-card .listening-player-card {
+  padding: 18px 0 0;
+  border-top: 1px solid #eef2f7;
+}
+
 .listening-loading,
 .listening-error {
   padding: 30px;
@@ -451,6 +486,23 @@
     gap: 15px;
   }
 
+  .listening-main-card {
+    padding: 16px;
+    border-radius: 13px;
+  }
+
+  .listening-main-card .listening-settings-card {
+    padding-bottom: 16px;
+  }
+
+  .listening-main-card .listening-progress-card {
+    padding: 16px 0;
+  }
+
+  .listening-main-card .listening-player-card {
+    padding: 16px 0 0;
+  }
+
   .listening-settings-card,
   .listening-progress-card,
   .listening-sentence-card,
@@ -630,4 +682,160 @@
 .listening-playlist-play:disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+
+
+/* ================================
+   FOCUS MODE - SCALE DOWN TO 70%
+   Giữ nguyên khung toàn màn hình, thu nhỏ nội dung bên trong.
+================================ */
+.listening-focus-header {
+  padding-bottom: 13px;
+}
+
+.listening-focus-title {
+  font-size: clamp(10.5px, 1.54vw, 21px);
+}
+
+.listening-focus-count {
+  margin-top: 7px;
+  font-size: clamp(10.5px, 1.4vw, 17.5px);
+}
+
+.listening-focus-close {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+}
+
+.listening-focus-content {
+  gap: clamp(13px, 2.45vh, 27px);
+  padding-top: 17px;
+  padding-bottom: 17px;
+}
+
+.listening-focus-english {
+  font-size: clamp(21px, 3.78vw, 53px);
+  line-height: 1.32;
+}
+
+.listening-focus-ipa {
+  font-size: clamp(12px, 1.68vw, 21px);
+  line-height: 1.5;
+}
+
+.listening-focus-vietnamese {
+  font-size: clamp(13px, 1.96vw, 25px);
+  line-height: 1.5;
+}
+
+.listening-focus-status {
+  font-size: clamp(8.5px, 1.05vw, 11px);
+}
+
+.listening-focus-footer {
+  padding-top: 14px;
+}
+
+.listening-focus-controls {
+  gap: clamp(7px, 1.25vw, 14px);
+}
+
+.listening-focus-control {
+  width: clamp(38px, 4.2vw, 53px);
+  height: clamp(38px, 4.2vw, 53px);
+  border-radius: 15px;
+}
+
+.listening-focus-control.primary {
+  width: clamp(49px, 5.05vw, 67px);
+  height: clamp(49px, 5.05vw, 67px);
+  border-radius: 17px;
+}
+
+.listening-focus-progress {
+  height: 4px;
+  margin-top: 15px;
+  max-width: 770px;
+}
+
+@media (max-width: 700px) {
+  .listening-focus-header {
+    padding: 0 42px 10px;
+  }
+
+  .listening-focus-title {
+    font-size: clamp(9.5px, 2.8vw, 13.5px);
+  }
+
+  .listening-focus-count {
+    margin-top: 5px;
+    font-size: 11px;
+  }
+
+  .listening-focus-close {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+  }
+
+  .listening-focus-content {
+    gap: clamp(11px, 2.1vh, 20px);
+    padding: 12px 0;
+  }
+
+  .listening-focus-english {
+    font-size: clamp(19px, 5.04vw, 30px);
+    line-height: 1.35;
+  }
+
+  .listening-focus-ipa {
+    font-size: clamp(11px, 2.94vw, 15px);
+  }
+
+  .listening-focus-vietnamese {
+    font-size: clamp(12.5px, 3.36vw, 17px);
+  }
+
+  .listening-focus-status {
+    font-size: 9px;
+  }
+
+  .listening-focus-footer {
+    padding-top: 10px;
+  }
+
+  .listening-focus-control {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+  }
+
+  .listening-focus-control.primary {
+    width: 46px;
+    height: 46px;
+    border-radius: 13px;
+  }
+
+  .listening-focus-progress {
+    height: 3px;
+    margin-top: 11px;
+  }
+}
+
+@media (max-width: 380px) {
+  .listening-focus-controls {
+    gap: 6px;
+  }
+
+  .listening-focus-control {
+    width: 33px;
+    height: 33px;
+  }
+
+  .listening-focus-control.primary {
+    width: 42px;
+    height: 42px;
+  }
 }

@@ -12,7 +12,6 @@ import {
   Mic,
   PanelLeftClose,
   PanelLeftOpen,
-  Sparkles,
   UserRound,
 } from "lucide-react";
 import { useState } from "react";

@@ -10,6 +10,7 @@ import {
   X,
   Layers,
   BookOpen,
+  Search,
 } from "lucide-react";
 import "./Flashcards.css";
 
@@ -92,6 +93,8 @@ function speakWord(
 function Flashcards() {
   const [units, setUnits] = useState<FlashcardUnit[]>([]);
   const [selectedUnit, setSelectedUnit] = useState("all");
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "learning" | "remembered">("all");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [voiceType, setVoiceType] = useState<"uk" | "us">("us");
@@ -153,7 +156,7 @@ function Flashcards() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
   }, [progress]);
 
-  const allCards = useMemo(() => {
+  const unitCards = useMemo(() => {
     if (selectedUnit === "all") {
       return units.flatMap((unit) => unit.cards || []);
     }
@@ -164,6 +167,18 @@ function Flashcards() {
 
     return unit?.cards || [];
   }, [units, selectedUnit]);
+
+  const allCards = useMemo(() => {
+    const keyword = search.trim().toLocaleLowerCase();
+    return unitCards.filter((card) => {
+      const matchesSearch = !keyword || [
+        card.word, card.ipa, card.meaning, card.example,
+      ].some((value) => value?.toLocaleLowerCase().includes(keyword));
+      const status = progress[card.id] === "remembered" ? "remembered" : "learning";
+      const matchesStatus = statusFilter === "all" || status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [unitCards, search, statusFilter, progress]);
 
   const currentCard = allCards[currentIndex];
 
@@ -182,6 +197,8 @@ function Flashcards() {
 
   function changeUnit(value: string) {
     setSelectedUnit(value);
+    setSearch("");
+    setStatusFilter("all");
     setCurrentIndex(0);
     setIsFlipped(false);
     window.speechSynthesis?.cancel();
@@ -201,10 +218,8 @@ function Flashcards() {
   function shuffleCards() {
     if (allCards.length <= 1) return;
 
-    const randomIndex = Math.floor(
-      Math.random() * allCards.length
-    );
-
+    const candidates = allCards.map((_, index) => index).filter((index) => index !== currentIndex);
+    const randomIndex = candidates[Math.floor(Math.random() * candidates.length)];
     goToCard(randomIndex);
   }
 
@@ -316,6 +331,41 @@ function Flashcards() {
                 {unit.title}
               </option>
             ))}
+          </select>
+        </div>
+
+        <div className="flashcard-search-group">
+          <label htmlFor="flashcard-search">Tìm từ vựng</label>
+          <div className="flashcard-search-input">
+            <Search size={16} />
+            <input
+              id="flashcard-search"
+              type="search"
+              value={search}
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setCurrentIndex(0);
+                setIsFlipped(false);
+              }}
+              placeholder="Từ, IPA, nghĩa tiếng Việt..."
+            />
+          </div>
+        </div>
+
+        <div className="flashcard-filter-group">
+          <label htmlFor="flashcard-status-filter">Trạng thái</label>
+          <select
+            id="flashcard-status-filter"
+            value={statusFilter}
+            onChange={(event) => {
+              setStatusFilter(event.target.value as "all" | "learning" | "remembered");
+              setCurrentIndex(0);
+              setIsFlipped(false);
+            }}
+          >
+            <option value="all">Tất cả từ</option>
+            <option value="learning">Chưa nhớ</option>
+            <option value="remembered">Đã nhớ</option>
           </select>
         </div>
 

@@ -84,13 +84,13 @@ function Login({ onSwitch }: LoginProps) {
 
       <div className="auth-card">
         <div className="auth-brand">
-          <div className="auth-logo">E</div>
-          <span>ENGLISH MASTER</span>
+          <div className="auth-logo">NTT</div>
+          <span>NTT GROUP</span>
         </div>
 
         <div className="auth-heading">
           <h1>Chào mừng trở lại!</h1>
-          <p>Đăng nhập để tiếp tục hành trình học tiếng Anh.</p>
+          <p>Đăng nhập để truy cập không gian làm việc NTT GROUP.</p>
         </div>
 
         <form onSubmit={handleLogin} className="auth-form">
@@ -159,7 +159,7 @@ function Login({ onSwitch }: LoginProps) {
         </div>
 
         <div className="auth-footer">
-          © 2026 English Master. All rights reserved.
+          © 2026 NTT GROUP. All rights reserved.
         </div>
       </div>
     </div>

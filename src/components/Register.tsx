@@ -79,8 +79,8 @@ function Register({ onSwitch }: RegisterProps) {
 
       <div className="auth-card">
         <div className="auth-brand">
-          <div className="auth-logo">E</div>
-          <span>ENGLISH MASTER</span>
+          <div className="auth-logo">NTT</div>
+          <span>NTT GROUP</span>
         </div>
 
         <div className="auth-heading">
@@ -171,7 +171,7 @@ function Register({ onSwitch }: RegisterProps) {
         </div>
 
         <div className="auth-footer">
-          © 2026 English Master. All rights reserved.
+          © 2026 NTT GROUP. All rights reserved.
         </div>
       </div>
     </div>

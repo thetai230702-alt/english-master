@@ -106,8 +106,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #2563eb;
-  background: #eaf2ff;
+  color: #155c9f;
+  background: #edf5ff;
   border-radius: 16px;
 }
 
@@ -180,7 +180,7 @@
   align-items: center;
   justify-content: center;
   color: #3279df;
-  background: #eaf2ff;
+  background: #edf5ff;
   border-radius: 13px;
 }
 
@@ -211,7 +211,7 @@
 
 .information-detail-item > .information-version {
   padding: 8px 15px;
-  color: #2563eb;
+  color: #155c9f;
   background: #e6efff;
   border-radius: 30px;
 }
@@ -344,6 +344,6 @@
 .information-cover { background:linear-gradient(125deg,#153765 0%,#2766bd 58%,#65aaff 100%); }
 .information-avatar { border:5px solid #fff; box-shadow:0 8px 0 rgba(28,75,145,.10),0 14px 26px rgba(20,57,110,.2); }
 .information-brand h2 { color:#17365f; letter-spacing:-.03em; }
-.information-brand-icon { background:linear-gradient(145deg,#6eb3ff,#2a60bd); box-shadow:0 4px 0 #214f9d; border-radius:13px; }
+.information-brand-icon { background:linear-gradient(145deg,#68a8e0,#155c9f); box-shadow:0 4px 0 #214f9d; border-radius:13px; }
 .information-detail-item { border:1px solid #e6edf7; border-radius:13px; background:#fbfdff; }
 .information-detail-icon { background:#eaf3ff; color:#2b68bf; border-radius:11px; }

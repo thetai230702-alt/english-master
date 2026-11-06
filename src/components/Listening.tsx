@@ -486,6 +486,23 @@ function Listening() {
     if (nextIndex !== -1) startPlayback(nextIndex, true);
   };
 
+  // Thanh tua điều hướng theo câu trong playlist (SpeechSynthesis không hỗ trợ tua theo giây).
+  const handleSeekSentence = (queuePosition: number) => {
+    const queue = getPlaybackQueue();
+    const targetIndex = queue[queuePosition];
+    if (targetIndex === undefined) return;
+
+    if (playingRef.current) {
+      startPlayback(targetIndex, true);
+      return;
+    }
+
+    stopAudio();
+    currentIndexRef.current = targetIndex;
+    setCurrentIndex(targetIndex);
+    setActiveWordIndex(-1);
+  };
+
   const handleSelectUnit = (unitNumber: number) => {
     const unit = units.find(
       (item) => item.unitNumber === unitNumber
@@ -820,7 +837,7 @@ function Listening() {
 
           <div className="listening-progress-count">
             Câu <strong>{currentIndex + 1}</strong> /{" "}
-            {totalSentences}
+            {totalSentences} <small>· Playlist {queuePosition + 1}/{playlistCount}</small>
           </div>
         </div>
 
@@ -829,6 +846,21 @@ function Listening() {
             className="listening-progress-fill"
             style={{ width: `${progress}%` }}
           />
+        </div>
+
+        <div className="listening-seek-row">
+          <span>{playlistCount ? `${queuePosition + 1}` : "0"}</span>
+          <input
+            type="range"
+            min={0}
+            max={Math.max(0, playlistCount - 1)}
+            step={1}
+            value={Math.max(0, queuePosition)}
+            disabled={playlistCount <= 1}
+            onChange={(event) => handleSeekSentence(Number(event.target.value))}
+            aria-label="Tua đến câu trong danh sách phát"
+          />
+          <span>{playlistCount}</span>
         </div>
 
         <div className="listening-progress-bottom">
@@ -1014,7 +1046,7 @@ function Listening() {
               <div className="listening-focus-title">
   {selectedUnit.title}
 </div>
-              <div className="listening-focus-count">CÂU {currentIndex + 1} / {totalSentences}</div>
+              <div className="listening-focus-count">CÂU {queuePosition + 1} / {playlistCount}</div>
             </div>
             <button className="listening-focus-close" onClick={handleToggleFocus} aria-label="Thoát phóng to"><X size={26} /></button>
           </header>

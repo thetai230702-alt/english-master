@@ -126,7 +126,7 @@
 
 .stat-icon.learning {
   background: #eff6ff;
-  color: #2563eb;
+  color: #155c9f;
 }
 
 .stat-icon.reviewed {
@@ -333,10 +333,363 @@
 .progress-card,.stat-card,.checklist-table-card { background:linear-gradient(145deg,#fff,#fbfdff); border:1px solid #e4edf9; border-radius:18px; box-shadow:0 9px 26px rgba(30,73,130,.055); }
 .progress-icon,.stat-icon { border-radius:14px; box-shadow:0 4px 0 rgba(42,103,190,.10),0 7px 14px rgba(42,103,190,.08); }
 .progress-track { background:#eaf1fb; }
-.progress-value,.progress-track > span { background:linear-gradient(90deg,#438cf0,#2460bf); }
+.progress-value,.progress-track > span { background:linear-gradient(90deg,#247bc1,#2460bf); }
 .checklist-search input,.date-input,.note-input,.status-select { border:1px solid #dfe8f5; border-radius:10px; background:#fbfdff; }
 .checklist-search input:focus,.date-input:focus,.note-input:focus { outline:none; border-color:#6ca5f2; box-shadow:0 0 0 3px #e7f1ff; }
 .filter-buttons button { border-radius:999px; }
-.filter-buttons button.active { background:linear-gradient(135deg,#347de0,#245bb5); box-shadow:0 4px 10px rgba(38,99,186,.2); }
+.filter-buttons button.active { background:linear-gradient(135deg,#155c9f,#123b67); box-shadow:0 4px 10px rgba(38,99,186,.2); }
 .checklist-table th { color:#5d7392; background:#f4f8fe; }
 .checklist-table tbody tr:hover { background:#f6faff; }
+
+
+/* NTT GROUP — premium filter and search panels */
+.units-toolbar,
+.flashcards-toolbar,
+.cefr-filter-panel,
+.cefr-toolbar,
+.checklist-search,
+.filter-buttons,
+.listening-extra-toolbar {
+  border-color:#dce6f2;
+}
+.units-toolbar,
+.flashcards-toolbar,
+.cefr-filter-panel {
+  padding:18px 20px;
+  background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);
+  border:1px solid #dce6f2;
+  border-radius:13px;
+  box-shadow:0 5px 18px rgba(27,65,111,.045);
+}
+.units-search,
+.checklist-search,
+.cefr-search {
+  min-height:40px;
+  background:#fff;
+  border:1px solid #d7e2ef;
+  border-radius:8px;
+  box-shadow:inset 0 1px 2px rgba(20,50,90,.025);
+}
+.units-search:focus-within,
+.checklist-search:focus-within,
+.cefr-search:focus-within {
+  border-color:#5b91ce;
+  box-shadow:0 0 0 3px rgba(44,117,190,.1);
+}
+.units-toolbar select,
+.flashcards-toolbar select,
+.cefr-filter-panel select,
+.cefr-toolbar select,
+.listening-select-wrap select,
+.profile-field select {
+  min-height:40px;
+  color:#233d5c;
+  background-color:#fff;
+  border:1px solid #d6e1ef;
+  border-radius:8px;
+  outline:none;
+}
+.units-toolbar select:focus,
+.flashcards-toolbar select:focus,
+.cefr-filter-panel select:focus,
+.cefr-toolbar select:focus,
+.listening-select-wrap select:focus {
+  border-color:#4b8bcf;
+  box-shadow:0 0 0 3px rgba(44,117,190,.1);
+}
+.filter-buttons button,
+.cefr-level-tabs button,
+.cefr-topic-button {
+  border-radius:8px;
+}
+.filter-buttons button.active,
+.cefr-level-tabs button.active,
+.cefr-topic-button.active {
+  color:#fff;
+  background:linear-gradient(110deg,#155c9f,#287bc1);
+  border-color:#1d68ad;
+  box-shadow:0 4px 10px rgba(35,104,174,.15);
+}
+.listening-extra-toolbar {
+  padding:14px 16px;
+  background:#fff;
+  border:1px solid #dce6f2;
+  border-radius:12px;
+  box-shadow:0 5px 18px rgba(27,65,111,.04);
+}
+@media(max-width:650px) {
+  .units-toolbar,.flashcards-toolbar,.cefr-filter-panel { padding:13px; }
+  .listening-extra-toolbar { padding:11px; }
+}
+
+
+/* NTT LEARNING — unified premium interface */
+.checklist-page,.units-page,.listening-page,.flashcards-page,.cefr-container,.my-vocabulary,.practice-page {
+  color:#1b3554;
+}
+.checklist-heading,.units-overview,.listening-heading,.flashcards-page>header,.mv-header {
+  margin-bottom:18px;
+}
+.checklist-heading h2,.units-overview h2,.listening-heading h2,.mv-header h1 {
+  color:#173b62;
+  font-weight:900;
+  letter-spacing:-.45px;
+}
+.checklist-heading p,.units-overview p,.listening-heading p,.mv-header p {
+  color:#7c90a8;
+  line-height:1.65;
+}
+.checklist-stats,.flashcards-stats {
+  gap:12px;
+}
+.stat-card,.flashcard-stat-card,.progress-card,.flashcards-progress,
+.units-summary-card,.unit-card,.listening-main-card,.listening-player-card,
+.listening-settings-card,.listening-progress-card,.listening-playlist-card,
+.cefr-intro,.cefr-filter-panel,.cefr-progress-card,.mv-card {
+  border:1px solid #dfe8f3;
+  border-radius:14px;
+  box-shadow:0 5px 18px rgba(27,65,111,.045);
+}
+.stat-card,.flashcard-stat-card {
+  transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease;
+}
+.stat-card:hover,.flashcard-stat-card:hover {
+  transform:translateY(-2px);
+  border-color:#b8d1eb;
+  box-shadow:0 9px 20px rgba(27,65,111,.075);
+}
+.progress-track,.flashcards-progress-track,.cefr-progress-track,
+.listening-progress-track,.practice-progress-track {
+  background:#eaf1f8;
+  border-radius:30px;
+}
+.progress-value,.flashcards-progress-fill,.cefr-progress-fill,
+.listening-progress-fill,.practice-progress-fill {
+  background:linear-gradient(90deg,#4b98d7,#155c9f);
+  border-radius:30px;
+}
+.checklist-table-card,.table-heading {
+  border-color:#dfe8f3;
+}
+.table-heading h3 {
+  color:#1d3d60;
+  font-weight:900;
+}
+.filter-buttons {
+  gap:7px;
+  padding:11px 14px;
+  background:#f7faff;
+  border-top:1px solid #edf2f8;
+  border-bottom:1px solid #edf2f8;
+}
+.filter-buttons button {
+  min-height:33px;
+  padding:6px 12px;
+  color:#617b98;
+  background:#fff;
+  border:1px solid #dce6f1;
+  border-radius:8px;
+  font-size:10px;
+  font-weight:800;
+}
+.filter-buttons button.active {
+  color:#fff;
+  background:linear-gradient(110deg,#15569a,#287bc1);
+  border-color:#216eae;
+  box-shadow:0 3px 9px rgba(32,105,178,.14);
+}
+.checklist-table-wrapper {
+  overflow-x:auto;
+  border:1px solid #e3ebf4;
+  border-radius:0 0 12px 12px;
+}
+.checklist-table {
+  min-width:760px;
+  border-collapse:separate;
+  border-spacing:0;
+}
+.checklist-table thead th {
+  position:sticky;
+  top:0;
+  z-index:1;
+  color:#244b72;
+  background:#edf4fb;
+  border-bottom:1px solid #d9e5f1;
+  font-size:9px;
+  font-weight:900;
+}
+.checklist-table tbody td {
+  border-bottom:1px solid #edf1f6;
+}
+.checklist-table tbody tr:hover td { background:#f7faff; }
+.checklist-search,.units-search,.cefr-search,.mv-search {
+  min-height:40px;
+  border:1px solid #d7e3f0;
+  border-radius:9px;
+  background:#fbfdff;
+}
+.checklist-search:focus-within,.units-search:focus-within,
+.cefr-search:focus-within,.mv-search:focus-within {
+  border-color:#3985c6;
+  box-shadow:0 0 0 3px rgba(35,119,190,.12);
+}
+.units-toolbar,.flashcards-toolbar,.cefr-toolbar,.listening-extra-toolbar,
+.mv-word-toolbar {
+  padding:15px;
+  background:linear-gradient(180deg,#fff,#f8fbff);
+  border:1px solid #dfe8f3;
+  border-radius:13px;
+  box-shadow:0 4px 15px rgba(27,65,111,.035);
+}
+.unit-card {
+  transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease;
+}
+.unit-card:hover {
+  transform:translateY(-2px);
+  border-color:#a9c9e8;
+  box-shadow:0 9px 20px rgba(27,65,111,.075);
+}
+.unit-open-button,.flashcard-learning-button,.cefr-shuffle-button,
+.practice-check-button,.mv-button-primary {
+  color:#fff;
+  background:linear-gradient(110deg,#15569a,#287bc1);
+  border-color:#216eae;
+  border-radius:9px;
+  box-shadow:0 4px 11px rgba(32,105,178,.13);
+}
+.unit-open-button:hover,.flashcard-learning-button:hover,
+.cefr-shuffle-button:hover,.practice-check-button:hover,
+.mv-button-primary:hover:not(:disabled) {
+  background:linear-gradient(110deg,#10477f,#2069b4);
+  box-shadow:0 7px 15px rgba(32,105,178,.18);
+}
+.flashcard,.cefr-flashcard {
+  border:1px solid #dce8f5;
+  border-radius:19px;
+  box-shadow:0 12px 30px rgba(27,65,111,.09);
+}
+.flashcard-front,.cefr-card-front {
+  background:radial-gradient(circle at top right,#eaf3ff 0,transparent 46%),#fff;
+}
+.flashcard-status.remembered,.cefr-card-actions button.remembered {
+  color:#fff;
+  background:linear-gradient(110deg,#15569a,#287bc1);
+}
+.listening-player-card,.listening-main-card,.listening-settings-card,
+.listening-progress-card,.listening-playlist-card {
+  background:#fff;
+  border-color:#dfe8f3;
+}
+.listening-control-button.primary,.listening-playlist-play {
+  background:linear-gradient(110deg,#15569a,#287bc1);
+  border-color:#216eae;
+  box-shadow:0 4px 12px rgba(32,105,178,.15);
+}
+.listening-text-button,.listening-outline-button {
+  color:#2169aa;
+  border-color:#d7e5f3;
+}
+.listening-text-button:hover,.listening-outline-button:hover {
+  color:#155c9f;
+  border-color:#a9c8e8;
+  background:#f1f7ff;
+}
+.listening-playlist-item.selected {
+  border-color:#9fc2e6;
+  background:#edf5ff;
+}
+.listening-playlist-item span { color:#2169aa; }
+.listening-focus-word.active {
+  color:#fff;
+  background:linear-gradient(135deg,#287bc1,#155c9f);
+  box-shadow:0 2px 12px rgba(40,123,193,.28);
+}
+.practice-page { max-width:1120px; }
+.practice-progress-card,.practice-combined-card,.practice-audio,
+.practice-detail-card,.practice-vietnamese-card {
+  border:1px solid #dfe8f3;
+  border-radius:14px;
+  box-shadow:0 5px 18px rgba(27,65,111,.04);
+}
+.practice-vietnamese-card {
+  background:linear-gradient(145deg,#f0f7ff,#fff);
+  border-color:#d5e6f7;
+}
+.practice-audio {
+  background:linear-gradient(145deg,#f4f9ff,#fff);
+}
+.practice-detail-card,.practice-inline-answer {
+  background:linear-gradient(145deg,#f1f8ff,#fff);
+  border-color:#d5e6f7;
+}
+.practice-detail-heading h3,.practice-inline-answer h3 { color:#155c9f; }
+.practice-ipa p,.practice-inline-answer strong { color:#216eae; }
+.practice-navigation {
+  padding:13px 0;
+  border-top:1px solid #e7eef6;
+}
+.mv-header-icon {
+  color:#fff;
+  background:linear-gradient(145deg,#287bc1,#155c9f);
+}
+.mv-topic-card,.mv-word-item,.mv-study-panel {
+  border:1px solid #dfe8f3;
+  border-radius:13px;
+  box-shadow:0 4px 14px rgba(27,65,111,.035);
+}
+.mv-topic-card:hover,.mv-word-item:hover {
+  border-color:#afcce8;
+  box-shadow:0 8px 18px rgba(27,65,111,.07);
+}
+.mv-study-tabs button.active {
+  color:#155c9f;
+  border-color:#b8d3ef;
+  background:#edf5ff;
+}
+@media(max-width:700px) {
+  .checklist-stats,.flashcards-stats { gap:8px; }
+  .filter-buttons { padding:9px 10px; }
+  .filter-buttons button { flex:1 1 auto; }
+  .units-toolbar,.flashcards-toolbar,.cefr-toolbar,
+  .listening-extra-toolbar,.mv-word-toolbar { padding:12px; }
+  .practice-page { padding-inline:0; }
+}
+
+/* NTT LEARNING — dashboard experience */
+.learning-hero{position:relative;display:flex;justify-content:space-between;align-items:center;gap:28px;overflow:hidden;min-height:244px;padding:28px 34px;border:1px solid #164f89;border-radius:18px;background:radial-gradient(circle at 85% 10%,rgba(111,182,247,.22),transparent 37%),linear-gradient(115deg,#102d50,#17558f 65%,#2678b9);color:#fff;box-shadow:0 15px 34px rgba(21,74,130,.14)}
+.learning-hero:after{content:"";position:absolute;right:-75px;bottom:-170px;width:350px;height:350px;border:1px solid rgba(255,255,255,.13);border-radius:50%;pointer-events:none}
+.learning-hero-copy{position:relative;z-index:1;max-width:640px}
+.learning-hero-eyebrow{display:inline-flex;align-items:center;gap:8px;color:#c1e1ff;font-size:10px;font-weight:900;letter-spacing:1.3px}
+.learning-hero h2{margin:13px 0 9px;color:#fff;font-size:clamp(22px,2.4vw,31px);font-weight:900;letter-spacing:-.7px;line-height:1.2}
+.learning-hero p{max-width:540px;margin:0;color:#c9ddf2;font-size:13px;line-height:1.8}
+.learning-hero-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+.learning-hero-actions button{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:43px;padding:10px 16px;border-radius:10px;font-size:12px;font-weight:850;cursor:pointer;transition:transform .15s,background .15s}
+.learning-hero-actions button:hover{transform:translateY(-2px)}
+.learning-hero-primary{color:#17558f;background:#fff;border:1px solid #fff;box-shadow:0 5px 12px rgba(5,25,48,.1)}
+.learning-hero-secondary{color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3)}
+.learning-hero-side{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:10px;flex:0 0 185px}
+.learning-hero-date{display:flex;align-items:center;gap:6px;color:#c7e0f9;font-size:10px;text-transform:capitalize}
+.learning-hero-ring{display:grid;place-items:center;width:148px;height:148px;border-radius:50%;background:conic-gradient(#8fd4ff var(--learning-progress),rgba(255,255,255,.17) 0);box-shadow:0 0 0 9px rgba(255,255,255,.045)}
+.learning-hero-ring>div{display:flex;align-items:center;justify-content:center;flex-direction:column;width:120px;height:120px;border-radius:50%;background:#174b7e}
+.learning-hero-ring strong{color:#fff;font-size:35px;font-weight:900;letter-spacing:-1px;line-height:1}
+.learning-hero-ring small{margin-top:7px;color:#bcd9f5;font-size:11px}
+.learning-hero-counter{color:#c8e0f8;font-size:11px;font-weight:750}
+.learning-quick-section{display:flex;flex-direction:column;gap:13px}
+.learning-section-title{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.learning-section-title span{color:#4080b9;font-size:9px;font-weight:900;letter-spacing:1.4px}
+.learning-section-title h3{margin:5px 0 0;color:#173b62;font-size:19px;font-weight:900}
+.learning-section-title>small{color:#8497ad;font-size:11px}
+.learning-quick-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.learning-quick-card{display:flex;align-items:flex-start;gap:13px;min-width:0;padding:17px;text-align:left;background:#fff;border:1px solid #dce7f3;border-radius:13px;box-shadow:0 5px 18px rgba(27,65,111,.04);cursor:pointer;transition:transform .15s,border-color .15s,box-shadow .15s}
+.learning-quick-card:hover{transform:translateY(-2px);border-color:#a8c8e8;box-shadow:0 10px 24px rgba(27,65,111,.09)}
+.learning-quick-icon{display:grid;place-items:center;flex:0 0 43px;width:43px;height:43px;border-radius:12px}
+.learning-quick-icon.blue{color:#1e6bac;background:#eaf4ff}.learning-quick-icon.cyan{color:#0788a6;background:#e6f8fb}.learning-quick-icon.purple{color:#7250b8;background:#f1edff}
+.learning-quick-card>span:last-child{display:flex;flex-direction:column;gap:7px;min-width:0}
+.learning-quick-card small{color:#8a9db1;font-size:9px;font-weight:900;letter-spacing:.7px}
+.learning-quick-card strong{overflow:hidden;color:#214567;font-size:13px;font-weight:900;line-height:1.45;text-overflow:ellipsis}
+.learning-quick-card em{display:inline-flex;align-items:center;gap:5px;color:#2677b6;font-size:11px;font-style:normal;font-weight:800}
+.learning-insight-row{display:flex;flex-wrap:wrap;gap:9px}
+.learning-insight-row span{display:inline-flex;align-items:center;gap:7px;padding:9px 12px;color:#527393;background:#f0f6fd;border:1px solid #dce8f4;border-radius:9px;font-size:11px;font-weight:750}
+@media(max-width:960px){.learning-quick-grid{grid-template-columns:1fr}.learning-quick-card{align-items:center}.learning-hero{padding:24px}.learning-hero-side{flex-basis:155px}.learning-hero-ring{width:126px;height:126px}.learning-hero-ring>div{width:101px;height:101px}.learning-hero-ring strong{font-size:29px}}
+@media(max-width:640px){.learning-hero{flex-direction:column;align-items:stretch;gap:22px;padding:22px}.learning-hero-side{flex:initial;flex-direction:row;justify-content:space-between;gap:15px}.learning-hero-ring{width:90px;height:90px;flex:0 0 90px}.learning-hero-ring>div{width:72px;height:72px}.learning-hero-ring strong{font-size:22px}.learning-hero-ring small{font-size:8px}.learning-hero-counter{font-size:10px}.learning-hero-date{max-width:130px;line-height:1.5}.learning-hero-actions button{flex:1 1 auto}.learning-section-title>small{display:none}.learning-quick-card{padding:14px}.learning-quick-card strong{font-size:12px}}
+@media(prefers-reduced-motion:reduce){.learning-hero-actions button,.learning-quick-card{transition:none}}

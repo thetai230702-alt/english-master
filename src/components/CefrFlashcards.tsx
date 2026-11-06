@@ -75,6 +75,7 @@ function CefrFlashcards() {
   const [selectedLevel, setSelectedLevel] = useState<LevelName>("A1");
   const [selectedTopic, setSelectedTopic] = useState("all");
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "learning" | "remembered">("all");
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [remembered, setRemembered] = useState<string[]>(readRemembered);
@@ -150,7 +151,16 @@ function CefrFlashcards() {
     });
   }, [topics, selectedTopic, selectedTopicData, search]);
 
-  const displayedCards = isShuffled ? shuffledCards : filteredCards;
+  const studyCards = useMemo(() => {
+    if (statusFilter === "all") return filteredCards;
+    return filteredCards.filter((card) =>
+      statusFilter === "remembered"
+        ? remembered.includes(card.id)
+        : !remembered.includes(card.id)
+    );
+  }, [filteredCards, statusFilter, remembered]);
+
+  const displayedCards = isShuffled ? shuffledCards : studyCards;
   const currentCard = displayedCards[currentIndex];
 
   const levelCardCount = currentLevel
@@ -170,7 +180,7 @@ function CefrFlashcards() {
     setIsFlipped(false);
     setIsShuffled(false);
     setShuffledCards([]);
-  }, [selectedLevel, selectedTopic, search]);
+  }, [selectedLevel, selectedTopic, search, statusFilter, remembered]);
 
   function chooseLevel(level: LevelName) {
     setSelectedLevel(level);
@@ -187,7 +197,7 @@ function CefrFlashcards() {
       return;
     }
 
-    setShuffledCards(shuffleArray(filteredCards));
+    setShuffledCards(shuffleArray(studyCards));
     setIsShuffled(true);
     setCurrentIndex(0);
     setIsFlipped(false);
@@ -355,11 +365,23 @@ function CefrFlashcards() {
             )}
           </label>
 
+          <label className="cefr-status-filter">
+            <span>Trạng thái học</span>
+            <select
+              value={statusFilter}
+              onChange={(event) => setStatusFilter(event.target.value as "all" | "learning" | "remembered")}
+            >
+              <option value="all">Tất cả từ</option>
+              <option value="learning">Chưa nhớ</option>
+              <option value="remembered">Đã nhớ</option>
+            </select>
+          </label>
+
           <button
             type="button"
             className={`cefr-shuffle-button ${isShuffled ? "active" : ""}`}
             onClick={toggleShuffle}
-            disabled={filteredCards.length < 2}
+            disabled={studyCards.length < 2}
           >
             <Shuffle size={17} />
             {isShuffled ? "Tắt trộn" : "Trộn từ"}
@@ -412,6 +434,8 @@ function CefrFlashcards() {
               {selectedTopic === "all"
                 ? "Tất cả chủ đề"
                 : selectedTopicData?.name}
+              {" · "}
+              {statusFilter === "all" ? "Tất cả từ" : statusFilter === "remembered" ? "Đã nhớ" : "Chưa nhớ"}
             </span>
           </div>
 
@@ -522,6 +546,7 @@ function CefrFlashcards() {
             onClick={() => {
               setSearch("");
               setSelectedTopic("all");
+              setStatusFilter("all");
             }}
           >
             Hiển thị tất cả từ

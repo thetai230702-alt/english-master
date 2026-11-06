@@ -15,6 +15,8 @@ import Flashcards from "./components/Flashcards";
 import CefrFlashcards from "./components/CefrFlashcards";
 import MyVocabulary from "./components/MyVocabulary";
 import Information from "./components/Information";
+import Profile from "./components/Profile";
+import Dashboard from "./components/Dashboard";
 
 import Login from "./components/Login";
 import Register from "./components/Register";
@@ -23,6 +25,7 @@ import Sidebar, { type TabType } from "./components/Sidebar";
 import "./App.css";
 
 const VALID_TABS: TabType[] = [
+  "dashboard",
   "checklist",
   "units",
   "listening",
@@ -30,12 +33,31 @@ const VALID_TABS: TabType[] = [
   "cefr",
   "my-vocabulary",
   "information",
+  "profile",
 ];
 
-function getTabFromUrl(): TabType {
-  const tabFromHash = window.location.hash.replace(/^#\/?/, "") as TabType;
+const TAB_ROUTES: Record<TabType, string> = {
+  dashboard: "/dashboard",
+  checklist: "/hoc-tieng-anh/tong-quan",
+  units: "/hoc-tieng-anh/luyen-tap-1500-cau",
+  listening: "/hoc-tieng-anh/luyen-nghe",
+  flashcards: "/hoc-tieng-anh/flashcard-tu-vung",
+  cefr: "/hoc-tieng-anh/tu-vung-cefr",
+  "my-vocabulary": "/hoc-tieng-anh/tu-vung-cua-toi",
+  profile: "/tai-khoan/ho-so-ca-nhan",
+  information: "/gioi-thieu-ntt-group",
+};
 
-  return VALID_TABS.includes(tabFromHash) ? tabFromHash : "checklist";
+function getTabFromUrl(): TabType {
+  const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
+  const routeMatch = (Object.entries(TAB_ROUTES) as [TabType, string][])
+    .find(([, route]) => route === pathname);
+
+  if (routeMatch) return routeMatch[0];
+
+  // Compatibility with links created by older versions that used URL hashes.
+  const tabFromHash = window.location.hash.replace(/^#\/?/, "") as TabType;
+  return VALID_TABS.includes(tabFromHash) ? tabFromHash : "dashboard";
 }
 
 function App() {
@@ -88,16 +110,10 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const nextHash = `#${activeTab}`;
+    const nextPath = TAB_ROUTES[activeTab];
 
-    if (window.location.hash !== nextHash) {
-      const hasExistingHash = window.location.hash.length > 0;
-
-      if (hasExistingHash) {
-        window.history.pushState(null, "", nextHash);
-      } else {
-        window.history.replaceState(null, "", nextHash);
-      }
+    if (window.location.pathname !== nextPath || window.location.hash) {
+      window.history.pushState(null, "", nextPath);
     }
   }, [activeTab]);
 
@@ -108,7 +124,7 @@ function App() {
 
     try {
       await signOut(auth);
-      setActiveTab("checklist");
+      setActiveTab("dashboard");
     } catch (error) {
       console.error("Logout error:", error);
       alert("Đăng xuất thất bại. Vui lòng thử lại.");
@@ -116,16 +132,19 @@ function App() {
   };
 
   const pageTitles: Record<TabType, string> = {
-    checklist: "Checklist học tập",
+    dashboard: "Tổng quan NTT GROUP",
+    checklist: "Tổng quan học tập",
     units: "Luyện tập 1.500 câu",
     listening: "Luyện nghe",
     flashcards: "Flashcard từ vựng",
     cefr: "Flashcard CEFR",
     "my-vocabulary": "Từ vựng của tôi",
-    information: "Information",
+    information: "Thông tin ứng dụng",
+    profile: "Hồ sơ tài khoản",
   };
 
   const pageDescriptions: Record<TabType, string> = {
+    dashboard: "Không gian tổng quan và truy cập các phân hệ trong hệ sinh thái NTT GROUP.",
     checklist: "Theo dõi tiến độ học tiếng Anh của bạn.",
     units: "Luyện dịch câu tiếng Việt sang tiếng Anh theo từng Unit.",
     listening: "Nghe và luyện phát âm theo từng câu trong mỗi Unit.",
@@ -133,7 +152,8 @@ function App() {
     cefr: "Học từ vựng theo sáu cấp độ A1, A2, B1, B2, C1 và C2.",
     "my-vocabulary":
       "Tạo bộ từ vựng riêng và luyện tập theo cách của bạn.",
-    information: "Thông tin về ứng dụng và người phát triển.",
+    information: "Thông tin về NTT GROUP và hệ thống học tập.",
+    profile: "Quản lý thông tin cá nhân, công việc, học vấn và gia đình.",
   };
 
   const toggleSidebar = () => {
@@ -141,7 +161,7 @@ function App() {
   };
 
   if (checkingAuth) {
-    return <div className="auth-loading">Đang tải English Master...</div>;
+    return <div className="auth-loading">Đang tải NTT GROUP...</div>;
   }
 
   if (!user) {
@@ -182,6 +202,37 @@ function App() {
             </button>
 
             <div className="topbar-page-info">
+              <nav className="topbar-breadcrumb" aria-label="Đường dẫn trang">
+                <button
+                  type="button"
+                  className="breadcrumb-home"
+                  onClick={() => setActiveTab("dashboard")}
+                  title="Trang chủ NTT GROUP"
+                >
+                  <span className="breadcrumb-home-mark">N</span>
+                  <span>NTT GROUP</span>
+                </button>
+                <span className="breadcrumb-separator">›</span>
+                {activeTab === "dashboard" ? (
+                  <strong className="breadcrumb-current">Trung tâm điều hành</strong>
+                ) : activeTab === "profile" ? (
+                  <>
+                    <button type="button" className="breadcrumb-parent" onClick={() => setActiveTab("dashboard")}>Không gian cá nhân</button>
+                    <span className="breadcrumb-separator">›</span>
+                    <strong className="breadcrumb-current">Hồ sơ cá nhân</strong>
+                  </>
+                ) : activeTab === "information" ? (
+                  <>
+                    <strong className="breadcrumb-current">Về NTT GROUP</strong>
+                  </>
+                ) : (
+                  <>
+                    <button type="button" className="breadcrumb-parent" onClick={() => setActiveTab("dashboard")}>Học viện ngoại ngữ</button>
+                    <span className="breadcrumb-separator">›</span>
+                    <strong className="breadcrumb-current">{pageTitles[activeTab]}</strong>
+                  </>
+                )}
+              </nav>
               <h1>{pageTitles[activeTab]}</h1>
               <p>{pageDescriptions[activeTab]}</p>
             </div>
@@ -194,11 +245,15 @@ function App() {
             </div>
 
             <div className="topbar-user">
-              <div className="topbar-avatar">
-                {(user.displayName || user.email || "U")
-                  .charAt(0)
-                  .toUpperCase()}
-              </div>
+              <button
+                className="topbar-avatar"
+                type="button"
+                onClick={() => setActiveTab("profile")}
+                title="Mở hồ sơ tài khoản"
+                aria-label="Mở hồ sơ tài khoản"
+              >
+                {(user.displayName || user.email || "U").charAt(0).toUpperCase()}
+              </button>
 
               <div className="topbar-user-info">
                 <strong>{user.displayName || "Học viên"}</strong>
@@ -218,7 +273,13 @@ function App() {
         </header>
 
         <section className="page-content">
-          {activeTab === "checklist" && <Checklist />}
+          {activeTab === "dashboard" && (
+            <Dashboard
+              displayName={user.displayName || "bạn"}
+              onNavigate={setActiveTab}
+            />
+          )}
+          {activeTab === "checklist" && <Checklist onNavigate={setActiveTab} />}
           {activeTab === "units" && <Units />}
           {activeTab === "listening" && <Listening />}
           {activeTab === "flashcards" && <Flashcards />}
@@ -227,6 +288,7 @@ function App() {
           {activeTab === "my-vocabulary" && <MyVocabulary />}
 
           {activeTab === "information" && <Information />}
+          {activeTab === "profile" && <Profile />}
         </section>
       </main>
     </div>

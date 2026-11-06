@@ -1,6 +1,5 @@
 
 import {
-  GraduationCap,
   Tag,
   UserRound,
   Phone,
@@ -22,7 +21,7 @@ function Information() {
           <div className="information-avatar-wrapper">
             <img
               src="/images/information-avatar.png"
-              alt="English Master Creator Avatar"
+              alt="NTT GROUP"
               className="information-avatar"
             />
           </div>
@@ -31,21 +30,21 @@ function Information() {
         <div className="information-content">
           <div className="information-brand">
             <div className="information-brand-icon">
-              <GraduationCap size={34} />
+              <strong className="information-ntt-mark">NTT</strong>
             </div>
 
             <div>
               <h2>
-                English <span>Master</span>
+                NTT <span>GROUP</span>
               </h2>
-              <p>LEARN ENGLISH EVERY DAY</p>
+              <p>ONE PLATFORM · MULTIPLE POSSIBILITIES</p>
             </div>
           </div>
 
           <div className="information-introduction">
-            <h3>Welcome to English Master!</h3>
+            <h3>Welcome to NTT GROUP!</h3>
             <p>
-              Ứng dụng hỗ trợ học tiếng Anh thông qua từ vựng,
+              NTT GROUP là nền tảng đa chức năng. Phân hệ đầu tiên hỗ trợ học tiếng Anh thông qua từ vựng,
               luyện nghe, luyện dịch và thực hành mỗi ngày.
             </p>
           </div>

@@ -30,6 +30,8 @@ function UnitPractice({ unit, onBack }: UnitPracticeProps) {
   const [playing, setPlaying] = useState(false);
   const [paused, setPaused] = useState(false);
   const [audioMessage, setAudioMessage] = useState("");
+  const [checkedResults, setCheckedResults] = useState<Record<number, boolean>>({});
+  const [showSummary, setShowSummary] = useState(false);
 
   const runIdRef = useRef(0);
   const delayTimerRef = useRef<number | null>(null);
@@ -171,6 +173,23 @@ function UnitPractice({ unit, onBack }: UnitPracticeProps) {
 
   if (!sentence) return <div className="practice-message">Unit này chưa có câu hỏi.</div>;
   const progress = total > 0 ? ((currentIndex + 1) / total) * 100 : 0;
+  const attemptedCount = Object.keys(checkedResults).length;
+  const correctCount = Object.values(checkedResults).filter(Boolean).length;
+  const accuracy = attemptedCount > 0 ? Math.round((correctCount / attemptedCount) * 100) : 0;
+
+  function handleCheck() {
+    setChecked(true);
+    if (answer.trim()) {
+      setCheckedResults((current) => ({ ...current, [currentIndex]: isCorrect }));
+    }
+  }
+
+  function restartUnit() {
+    stopAudio();
+    setCurrentIndex(0);
+    setCheckedResults({});
+    setShowSummary(false);
+  }
 
   return (
     <div className="practice-page">
@@ -189,7 +208,10 @@ function UnitPractice({ unit, onBack }: UnitPracticeProps) {
 
       <div className="practice-progress-card">
         <div className="practice-progress-info">
-          <span>Tiến độ luyện tập</span>
+          <div className="practice-progress-labels">
+            <span>Tiến độ luyện tập</span>
+            <small>{attemptedCount} câu đã kiểm tra · {correctCount} câu chính xác</small>
+          </div>
           <strong>{currentIndex + 1} / {total}</strong>
         </div>
         <div className="practice-progress-track" role="progressbar"
@@ -197,6 +219,31 @@ function UnitPractice({ unit, onBack }: UnitPracticeProps) {
           <div className="practice-progress-fill" style={{ width: `${progress}%` }} />
         </div>
       </div>
+
+      <nav className="practice-question-map" aria-label="Chọn câu luyện tập">
+        <div className="practice-question-map-heading">
+          <span>TIẾN ĐỘ CÂU HỎI</span>
+          <small>{attemptedCount}/{total} đã kiểm tra</small>
+        </div>
+        <div className="practice-question-map-list">
+          {unit.sentences.map((item, index) => {
+            const result = checkedResults[index];
+            const current = index === currentIndex;
+            return (
+              <button
+                key={item.id ?? index}
+                type="button"
+                className={`practice-question-dot ${current ? "current" : ""} ${result === true ? "correct" : result === false ? "incorrect" : ""}`}
+                onClick={() => goTo(index)}
+                aria-label={`Đến câu ${index + 1}${result === true ? ", chính xác" : result === false ? ", cần xem lại" : ""}`}
+                aria-current={current ? "step" : undefined}
+              >
+                {index + 1}
+              </button>
+            );
+          })}
+        </div>
+      </nav>
 
       <section className="practice-combined-card">
         <div className="practice-combined-heading">
@@ -265,7 +312,7 @@ function UnitPractice({ unit, onBack }: UnitPracticeProps) {
           )}
 
           <div className="practice-actions">
-            <button className="practice-check-button" type="button" onClick={() => setChecked(true)}>
+            <button className="practice-check-button" type="button" onClick={handleCheck}>
               <CheckCircle2 size={18} /> Kiểm tra đáp án
             </button>
             <button className="practice-skip-button" type="button" onClick={skipQuestion}>
@@ -299,10 +346,36 @@ function UnitPractice({ unit, onBack }: UnitPracticeProps) {
         </button>
         <span>{currentIndex + 1} / {total}</span>
         <button className="practice-nav-button next" type="button"
-          onClick={() => goTo(currentIndex + 1)} disabled={currentIndex === total - 1}>
-          Câu tiếp theo <ArrowRight size={18} />
+          onClick={() => currentIndex === total - 1 ? setShowSummary(true) : goTo(currentIndex + 1)}>
+          {currentIndex === total - 1 ? "Tổng kết Unit" : "Câu tiếp theo"}
+          {currentIndex === total - 1 ? <CheckCircle2 size={18} /> : <ArrowRight size={18} />}
         </button>
       </div>
+
+      {showSummary && (
+        <div className="practice-summary-backdrop" role="presentation">
+          <section className="practice-summary-modal" role="dialog" aria-modal="true" aria-labelledby="practice-summary-title">
+            <div className="practice-summary-icon"><CheckCircle2 size={27}/></div>
+            <span className="practice-summary-eyebrow">UNIT COMPLETION</span>
+            <h2 id="practice-summary-title">Bạn đã đi hết Unit này!</h2>
+            <p>Đây là kết quả luyện tập trong phiên hiện tại.</p>
+            <div className="practice-summary-score">
+              <strong>{accuracy}%</strong>
+              <span>Tỷ lệ chính xác</span>
+            </div>
+            <div className="practice-summary-stats">
+              <div><strong>{total}</strong><span>Tổng số câu</span></div>
+              <div><strong>{attemptedCount}</strong><span>Đã kiểm tra</span></div>
+              <div><strong>{correctCount}</strong><span>Chính xác</span></div>
+            </div>
+            <div className="practice-summary-actions">
+              <button type="button" className="practice-summary-secondary" onClick={() => setShowSummary(false)}>Xem lại câu hỏi</button>
+              <button type="button" className="practice-summary-primary" onClick={restartUnit}><RotateCcw size={15}/> Luyện lại Unit</button>
+              <button type="button" className="practice-summary-primary" onClick={() => { stopAudio(); setShowSummary(false); onBack(); }}>Về danh sách Unit</button>
+            </div>
+          </section>
+        </div>
+      )}
     </div>
   );
 }

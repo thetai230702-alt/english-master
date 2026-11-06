@@ -1,12 +1,19 @@
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import {
   Search,
   BookOpen,
   CheckCircle2,
   Clock3,
   RotateCcw,
+  ArrowRight,
+  Headphones,
+  Layers,
+  Sparkles,
+  Target,
+  CalendarDays,
 } from "lucide-react";
+import type { TabType } from "./Sidebar";
 import "./Checklist.css";
 
 type Status = "Chưa học" | "Đang học" | "Đã học";
@@ -86,11 +93,33 @@ const initialUnits: Unit[] = topics.map((topic, index) => ({
 
 const STORAGE_KEY = "english-master-checklist";
 
-export default function Checklist() {
+type ChecklistProps = { onNavigate?: (tab: TabType) => void };
+
+export default function Checklist({ onNavigate }: ChecklistProps) {
   const [units, setUnits] = useState<Unit[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : initialUnits;
+      if (!saved) return initialUnits;
+      const parsed: unknown = JSON.parse(saved);
+      if (!Array.isArray(parsed)) return initialUnits;
+      const existing = new Map<number, Partial<Unit>>();
+      for (const item of parsed) {
+        if (item && typeof item === "object" && "id" in item && typeof item.id === "number") {
+          existing.set(item.id, item as Partial<Unit>);
+        }
+      }
+      return initialUnits.map((unit) => {
+        const savedUnit = existing.get(unit.id);
+        if (!savedUnit) return unit;
+        return {
+          ...unit,
+          status: savedUnit.status === "Đã học" || savedUnit.status === "Đang học" ? savedUnit.status : "Chưa học",
+          date: typeof savedUnit.date === "string" ? savedUnit.date : "",
+          exercise: savedUnit.exercise === true,
+          review: savedUnit.review === true,
+          note: typeof savedUnit.note === "string" ? savedUnit.note : "",
+        };
+      });
     } catch {
       return initialUnits;
     }
@@ -114,6 +143,12 @@ export default function Checklist() {
   const reviewed = units.filter((unit) => unit.review).length;
 
   const progress = Math.round((completed / units.length) * 100);
+  const nextUnit = units.find((unit) => unit.status === "Đang học")
+    ?? units.find((unit) => unit.status !== "Đã học");
+  const exerciseCount = units.filter((unit) => unit.exercise).length;
+  const today = new Intl.DateTimeFormat("vi-VN", {
+    weekday: "long", day: "2-digit", month: "2-digit", year: "numeric",
+  }).format(new Date());
 
   const filteredUnits = useMemo(() => {
     return units.filter((unit) => {
@@ -148,6 +183,47 @@ export default function Checklist() {
           <span>50 Units</span>
         </div>
       </div>
+
+      <section className="learning-hero" aria-label="Trung tâm học tập">
+        <div className="learning-hero-copy">
+          <span className="learning-hero-eyebrow"><Sparkles size={14} /> NTT LEARNING · YOUR STUDY SPACE</span>
+          <h2>Học mỗi ngày, tiến bộ từng bước.</h2>
+          <p>Theo dõi hành trình 50 Unit, chọn bài học tiếp theo và truy cập nhanh các công cụ luyện tập.</p>
+          <div className="learning-hero-actions">
+            <button type="button" className="learning-hero-primary" onClick={() => onNavigate?.("units")}>
+              <BookOpen size={17} /> {nextUnit ? `Tiếp tục Unit ${nextUnit.id}` : "Ôn lại các Unit"} <ArrowRight size={16} />
+            </button>
+            <button type="button" className="learning-hero-secondary" onClick={() => onNavigate?.("listening")}>
+              <Headphones size={17} /> Luyện nghe
+            </button>
+          </div>
+        </div>
+        <div className="learning-hero-side">
+          <span className="learning-hero-date"><CalendarDays size={14} /> {today}</span>
+          <div className="learning-hero-ring" style={{ "--learning-progress": `${progress}%` } as CSSProperties}>
+            <div><strong>{progress}%</strong><small>Hoàn thành</small></div>
+          </div>
+          <span className="learning-hero-counter">{completed} / {units.length} Unit</span>
+        </div>
+      </section>
+
+      <section className="learning-quick-section" aria-label="Truy cập nhanh">
+        <div className="learning-section-title"><div><span>YOUR LEARNING PATH</span><h3>Tiếp tục hành trình</h3></div><small>{units.length} chủ đề tiếng Anh</small></div>
+        <div className="learning-quick-grid">
+          <button type="button" className="learning-quick-card" onClick={() => onNavigate?.("units")}>
+            <span className="learning-quick-icon blue"><Target size={21} /></span>
+            <span><small>BÀI HỌC TIẾP THEO</small><strong>{nextUnit ? `Unit ${nextUnit.id} · ${nextUnit.topic}` : "Đã hoàn thành 50 Unit"}</strong><em>Vào trang luyện tập <ArrowRight size={13} /></em></span>
+          </button>
+          <button type="button" className="learning-quick-card" onClick={() => onNavigate?.("listening")}>
+            <span className="learning-quick-icon cyan"><Headphones size={21} /></span>
+            <span><small>LUYỆN NGHE</small><strong>Nghe và phát âm</strong><em>Mở trình luyện nghe <ArrowRight size={13} /></em></span>
+          </button>
+          <button type="button" className="learning-quick-card" onClick={() => onNavigate?.("flashcards")}>
+            <span className="learning-quick-icon purple"><Layers size={21} /></span>
+            <span><small>GHI NHỚ TỪ VỰNG</small><strong>Ôn tập với Flashcard</strong><em>Ôn từ vựng <ArrowRight size={13} /></em></span>
+          </button>
+        </div>
+      </section>
 
       <div className="progress-card">
         <div className="progress-top">
@@ -204,6 +280,8 @@ export default function Checklist() {
           </div>
         </div>
       </div>
+
+      <div className="learning-insight-row"><span><CheckCircle2 size={15} /> {exerciseCount} Unit đã đánh dấu làm bài tập</span><span><RotateCcw size={15} /> {reviewed} Unit đã ôn tập</span></div>
 
       <div className="checklist-table-card">
         <div className="table-heading">

@@ -51,8 +51,8 @@ interface VocabularyWord {
 }
 
 const COLORS = {
-  primary: "#6656d9",
-  primaryLight: "#f0edff",
+  primary: "#216eae",
+  primaryLight: "#edf5ff",
   text: "#20243a",
   muted: "#777d91",
   border: "#e8e9f1",
@@ -124,6 +124,9 @@ function MyVocabulary() {
   const [showBulkForm, setShowBulkForm] = useState(false);
 
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "learning" | "remembered">("all");
+  const [voiceType, setVoiceType] = useState<"US" | "UK">("US");
+  const [speechSpeed, setSpeechSpeed] = useState(0.9);
   const [studyMode, setStudyMode] = useState<StudyMode>("flashcard");
   const [studyIndex, setStudyIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
@@ -475,37 +478,51 @@ function MyVocabulary() {
     window.speechSynthesis.cancel();
 
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "en-US";
-    utterance.rate = 0.9;
+    utterance.lang = voiceType === "UK" ? "en-GB" : "en-US";
+    utterance.rate = speechSpeed;
 
     const voices = window.speechSynthesis.getVoices();
-    const americanVoice = voices.find(
-      (voice) => voice.lang === "en-US"
+    const preferredVoice = voices.find((voice) =>
+      voice.lang.toLowerCase() === (voiceType === "UK" ? "en-gb" : "en-us")
     );
 
-    if (americanVoice) utterance.voice = americanVoice;
+    if (preferredVoice) utterance.voice = preferredVoice;
 
     window.speechSynthesis.speak(utterance);
-  }, []);
+  }, [voiceType, speechSpeed]);
 
   const filteredWords = useMemo(() => {
     const keyword = search.trim().toLowerCase();
 
     if (!keyword) return words;
 
-    return words.filter(
-      (word) =>
+    return words.filter((word) => {
+      const matchesSearch =
+        !keyword ||
         word.english.toLowerCase().includes(keyword) ||
-        word.meaning.toLowerCase().includes(keyword)
-    );
-  }, [words, search]);
+        word.ipa.toLowerCase().includes(keyword) ||
+        word.meaning.toLowerCase().includes(keyword);
+      const matchesStatus =
+        statusFilter === "all" ||
+        (statusFilter === "remembered" ? word.remembered : !word.remembered);
+      return matchesSearch && matchesStatus;
+    });
+  }, [words, search, statusFilter]);
 
-  const studyWords = useMemo(
-    () => words,
-    [words]
-  );
-
+  // Chế độ học sử dụng đúng danh sách đang lọc để người học có thể ôn riêng từ chưa nhớ.
+  const studyWords = filteredWords;
   const currentWord = studyWords[studyIndex];
+
+  useEffect(() => {
+    setStudyIndex((index) =>
+      studyWords.length ? Math.min(index, studyWords.length - 1) : 0
+    );
+    setFlipped(false);
+    setAnswer("");
+    setChecked(false);
+    setSelectedChoice("");
+    setQuizResult(null);
+  }, [studyWords.length, search, statusFilter]);
 
   const nextWord = () => {
     setStudyIndex((index) =>
@@ -588,6 +605,7 @@ function MyVocabulary() {
 
   return (
     <div
+      className="my-vocabulary"
       style={{
         maxWidth: 1150,
         margin: "0 auto",
@@ -910,6 +928,12 @@ function MyVocabulary() {
                 </div>
               </div>
             </div>
+            <div className="mv-topic-progress">
+              <div className="mv-topic-progress-track">
+                <span style={{ width: `${words.length ? (rememberedCount / words.length) * 100 : 0}%` }} />
+              </div>
+              <small>{words.length ? Math.round((rememberedCount / words.length) * 100) : 0}% từ vựng đã ghi nhớ</small>
+            </div>
           </div>
 
           <div
@@ -923,7 +947,7 @@ function MyVocabulary() {
             <button
               style={buttonStyle(COLORS.primary)}
               onClick={() => setShowStudy(!showStudy)}
-              disabled={words.length === 0}
+              disabled={filteredWords.length === 0}
             >
               <BookOpen size={16} />
               {showStudy ? "Đóng chế độ học" : "Bắt đầu học"}
@@ -938,7 +962,7 @@ function MyVocabulary() {
             </button>
           </div>
 
-          {showStudy && words.length > 0 && (
+          {showStudy && studyWords.length > 0 && (
             <div style={{ ...cardStyle, marginBottom: 20 }}>
               <div
                 style={{
@@ -1321,7 +1345,7 @@ function MyVocabulary() {
               }}
             >
               <h3 style={{ margin: 0 }}>
-                Danh sách từ vựng ({words.length})
+                Danh sách từ vựng ({filteredWords.length}/{words.length})
               </h3>
 
               <div style={{ position: "relative", width: "min(100%, 260px)" }}>
@@ -1336,11 +1360,52 @@ function MyVocabulary() {
                 />
                 <input
                   style={{ ...inputStyle, paddingLeft: 36 }}
-                  placeholder="Tìm từ vựng..."
+                  placeholder="Tìm từ, IPA hoặc nghĩa..."
                   value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    setStudyIndex(0);
+                  }}
                 />
               </div>
+
+              <select
+                aria-label="Lọc trạng thái ghi nhớ"
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value as "all" | "learning" | "remembered");
+                  setStudyIndex(0);
+                }}
+                style={{ ...inputStyle, width: "auto", minWidth: 145 }}
+              >
+                <option value="all">Tất cả từ</option>
+                <option value="learning">Chưa nhớ</option>
+                <option value="remembered">Đã nhớ</option>
+              </select>
+
+              <select
+                aria-label="Chọn giọng phát âm"
+                value={voiceType}
+                onChange={(e) => setVoiceType(e.target.value as "US" | "UK")}
+                style={{ ...inputStyle, width: "auto", minWidth: 145 }}
+              >
+                <option value="US">Giọng Anh - Mỹ</option>
+                <option value="UK">Giọng Anh - Anh</option>
+              </select>
+
+              <select
+                aria-label="Chọn tốc độ phát âm"
+                value={speechSpeed}
+                onChange={(e) => setSpeechSpeed(Number(e.target.value))}
+                style={{ ...inputStyle, width: "auto", minWidth: 105 }}
+              >
+                <option value={0.6}>0.6x</option>
+                <option value={0.8}>0.8x</option>
+                <option value={0.9}>0.9x</option>
+                <option value={1}>1.0x</option>
+                <option value={1.2}>1.2x</option>
+                <option value={1.5}>1.5x</option>
+              </select>
             </div>
 
             <div
@@ -1406,6 +1471,14 @@ function MyVocabulary() {
                 {words.length === 0
                   ? "Chủ đề chưa có từ vựng. Hãy thêm từ đầu tiên nhé!"
                   : "Không tìm thấy từ phù hợp."}
+                {words.length > 0 && (
+                  <button
+                    onClick={() => { setSearch(""); setStatusFilter("all"); }}
+                    style={{ ...buttonStyle("#edf5ff", COLORS.primary), marginTop: 12 }}
+                  >
+                    Xóa bộ lọc
+                  </button>
+                )}
               </div>
             ) : (
               <div style={{ display: "grid", gap: 10 }}>

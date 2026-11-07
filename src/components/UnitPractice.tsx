@@ -27,14 +27,6 @@ function updateChecklistStatus(unitNumber: number, status: "Đang học" | "Đã
     const raw = localStorage.getItem(CHECKLIST_STORAGE_KEY);
     const parsed: unknown = raw ? JSON.parse(raw) : [];
     const entries = Array.isArray(parsed) ? parsed : [];
-    const existing = entries.find(
-      (entry: unknown) =>
-        typeof entry === "object" &&
-        entry !== null &&
-        "id" in entry &&
-        (entry as { id?: unknown }).id === unitNumber
-    ) as Record<string, unknown> | undefined;
-
     const next = Array.from({ length: 50 }, (_, index) => {
       const id = index + 1;
       const current = entries.find(

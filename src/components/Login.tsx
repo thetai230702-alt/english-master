@@ -84,13 +84,13 @@ function Login({ onSwitch }: LoginProps) {
 
       <div className="auth-card">
         <div className="auth-brand">
-          <div className="auth-logo">NTT</div>
-          <span>NTT GROUP</span>
+          <img className="auth-logo" src="/ati-approved-logo.png" alt="ATI" />
+          
         </div>
 
         <div className="auth-heading">
           <h1>Chào mừng trở lại!</h1>
-          <p>Đăng nhập để truy cập không gian làm việc NTT GROUP.</p>
+          <p>Đăng nhập để truy cập không gian làm việc ATI Group.</p>
         </div>
 
         <form onSubmit={handleLogin} className="auth-form">
@@ -159,7 +159,7 @@ function Login({ onSwitch }: LoginProps) {
         </div>
 
         <div className="auth-footer">
-          © 2026 NTT GROUP. All rights reserved.
+          © 2026 ATI Group. All rights reserved.
         </div>
       </div>
     </div>

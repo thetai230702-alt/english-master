@@ -1,5 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#12a879"/><stop offset="1" stop-color="#075b45"/></linearGradient></defs>
-<rect width="64" height="64" rx="15" fill="url(#g)"/>
-<path d="M9 20h13v6h-3.5v18h-6V26H9zm17 0h6l8 13V20h6v24h-5.8l-8.2-13v13h-6zm22 0h9v6h-1.5v18h-6V26H48z" fill="#fff"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 150" role="img" aria-labelledby="title">
+<title id="title">ATI</title>
+<path fill="#0878C9" d="M18 14H162V42H18Z"/>
+<path fill="#F28A22" d="M18 14H55L39 42H18Z"/>
+<path fill="#0878C9" d="M76 42H104V140H76Z"/>
+<path fill="#0878C9" d="M14 140L38 64H62L83 140H59L55 126H39L35 140Z"/>
+<path fill="#FFFFFF" d="M43 108H52L47.5 88Z"/>
+<path fill="#0878C9" d="M122 64H151L137 140H108Z"/>
 </svg>

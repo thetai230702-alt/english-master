@@ -237,7 +237,7 @@
 .unit-open-button:hover { transform:translateY(-2px); }
 
 
-/* NTT GROUP — premium filter and search panels */
+/* ATI Group — premium filter and search panels */
 .units-toolbar,
 .flashcards-toolbar,
 .cefr-filter-panel,
@@ -318,7 +318,7 @@
 }
 
 
-/* NTT LEARNING — unified premium interface */
+/* ATI LEARNING — unified premium interface */
 .checklist-page,.units-page,.listening-page,.flashcards-page,.cefr-container,.my-vocabulary,.practice-page {
   color:#1b3554;
 }
@@ -623,3 +623,12 @@
 .units-error button{padding:8px 12px;color:#fff;background:#a9434b;border:0;border-radius:7px;font-size:10px}
 @media(max-width:1000px){.units-grid-premium{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:680px){.units-hero{min-height:0;padding:18px}.units-hero-progress{flex-basis:92px}.units-hero-progress-ring{width:82px;height:82px}.units-hero-progress-ring strong{font-size:19px}.units-hero-progress-ring:before{inset:6px}.units-summary-premium{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.units-summary-premium .units-summary-card{padding:10px;gap:8px}.units-summary-icon{flex-basis:32px;width:32px;height:32px}.units-summary-premium .units-summary-card strong{font-size:18px}.units-toolbar-premium{align-items:stretch;flex-direction:column;padding:14px}.units-search-premium{flex-basis:auto;max-width:none}.units-filter-row{align-items:flex-start;flex-direction:column;padding:10px}.units-status-filters{width:100%}.units-status-filters button{flex:1 1 auto}.units-grid-premium{grid-template-columns:1fr;padding:10px}.unit-card-premium{min-height:155px}.units-library-footer{align-items:flex-start;flex-direction:column}}
+
+/* V5 — per-Unit sentence progress */
+.unit-sentence-progress{margin:16px 0 13px;padding:12px 13px;border:1px solid #e6edf7;border-radius:12px;background:#f8fbff}
+.unit-sentence-progress-label{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#64748b;font-size:12px}
+.unit-sentence-progress-label strong{color:#2456a6;font-size:12px;font-weight:750}
+.unit-sentence-progress-track{height:6px;margin-top:9px;overflow:hidden;border-radius:99px;background:#e4ebf5}
+.unit-sentence-progress-track span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#3478dc,#36b6d8);transition:width .25s ease}
+.unit-sentence-progress small{display:block;margin-top:7px;color:#8492a6;font-size:11px}
+@media(max-width:600px){.unit-sentence-progress{margin:12px 0}}

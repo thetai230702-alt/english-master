@@ -70,7 +70,7 @@ function Profile() {
   }, [user]);
 
   const initials = useMemo(() => {
-    const name = profile.fullName || user?.displayName || user?.email || "NTT";
+    const name = profile.fullName || user?.displayName || user?.email || "ATI";
     return name.split(/\s+/).slice(-2).map((part) => part[0]).join("").toUpperCase();
   }, [profile.fullName, user]);
 
@@ -122,11 +122,11 @@ function Profile() {
       <section className="profile-hero">
         <div className="profile-avatar">{initials}</div>
         <div className="profile-hero-copy">
-          <span className="profile-eyebrow">NTT GROUP · ACCOUNT CENTER</span>
+          <span className="profile-eyebrow">ATI Group · ACCOUNT CENTER</span>
           <h2>{profile.fullName || user?.displayName || "Hồ sơ của tôi"}</h2>
           <p>{user?.email || "Cập nhật thông tin tài khoản và hồ sơ cá nhân của bạn."}</p>
         </div>
-        <div className="profile-verified"><ShieldCheck size={16} /> Tài khoản NTT</div>
+        <div className="profile-verified"><ShieldCheck size={16} /> Tài khoản ATI</div>
       </section>
 
       <section className="profile-card">
@@ -134,7 +134,7 @@ function Profile() {
           <div>
             <span className="profile-eyebrow">ACCOUNT PROFILE</span>
             <h3>Hồ sơ tài khoản</h3>
-            <p>Quản lý thông tin cơ bản của bạn trong hệ sinh thái NTT GROUP.</p>
+            <p>Quản lý thông tin cơ bản của bạn trong hệ sinh thái ATI Group.</p>
           </div>
           <button className="profile-save" type="button" onClick={saveProfile}>
             <Save size={16} /> Lưu thay đổi

@@ -92,3 +92,21 @@ requirements are defined.
 - Retained topic CRUD, word CRUD, bulk import, keyword search, remembered-state filter, flashcard, typing practice, quiz, and Firestore synchronization.
 - Responsive Premium Blue styling and focus states updated.
 - Build remains unverified in this environment because the local TypeScript type definition packages for `vite/client` and `node` are missing.
+
+
+## UI Polish V3 — Platform Dashboard
+- Refined NTT GROUP dashboard visual hierarchy, spacing, typography, cards, and responsive breakpoints.
+- Added live search for the six NTT Learning quick-access modules, including clear-search and empty-result states.
+- Improved keyboard focus states and hover feedback for dashboard actions.
+- Existing navigation targets and Firebase/auth behavior are unchanged.
+- This pass focuses on the platform dashboard; remaining learning pages can be polished in subsequent passes.
+
+
+## Checklist V3 — Learning Progress UX
+- Added status counts to the four checklist filter tabs.
+- Added a reviewed-only filter and ascending/descending Unit sorting.
+- Added one-click reset for active filters.
+- Added CSV export for all 50 Unit progress records (status, study date, exercise, review, notes).
+- Added segmented overall progress for completed / in-progress / not-started Units.
+- Preserved the existing localStorage key `english-master-checklist` and existing record structure.
+- Progress remains stored in the current browser/device localStorage; it is not synced to Firebase.

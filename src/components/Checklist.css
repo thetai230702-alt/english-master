@@ -342,7 +342,7 @@
 .checklist-table tbody tr:hover { background:#f6faff; }
 
 
-/* NTT GROUP — premium filter and search panels */
+/* ATI Group — premium filter and search panels */
 .units-toolbar,
 .flashcards-toolbar,
 .cefr-filter-panel,
@@ -423,7 +423,7 @@
 }
 
 
-/* NTT LEARNING — unified premium interface */
+/* ATI LEARNING — unified premium interface */
 .checklist-page,.units-page,.listening-page,.flashcards-page,.cefr-container,.my-vocabulary,.practice-page {
   color:#1b3554;
 }
@@ -655,7 +655,7 @@
   .practice-page { padding-inline:0; }
 }
 
-/* NTT LEARNING — dashboard experience */
+/* ATI LEARNING — dashboard experience */
 .learning-hero{position:relative;display:flex;justify-content:space-between;align-items:center;gap:28px;overflow:hidden;min-height:244px;padding:28px 34px;border:1px solid #164f89;border-radius:18px;background:radial-gradient(circle at 85% 10%,rgba(111,182,247,.22),transparent 37%),linear-gradient(115deg,#102d50,#17558f 65%,#2678b9);color:#fff;box-shadow:0 15px 34px rgba(21,74,130,.14)}
 .learning-hero:after{content:"";position:absolute;right:-75px;bottom:-170px;width:350px;height:350px;border:1px solid rgba(255,255,255,.13);border-radius:50%;pointer-events:none}
 .learning-hero-copy{position:relative;z-index:1;max-width:640px}
@@ -693,3 +693,40 @@
 @media(max-width:960px){.learning-quick-grid{grid-template-columns:1fr}.learning-quick-card{align-items:center}.learning-hero{padding:24px}.learning-hero-side{flex-basis:155px}.learning-hero-ring{width:126px;height:126px}.learning-hero-ring>div{width:101px;height:101px}.learning-hero-ring strong{font-size:29px}}
 @media(max-width:640px){.learning-hero{flex-direction:column;align-items:stretch;gap:22px;padding:22px}.learning-hero-side{flex:initial;flex-direction:row;justify-content:space-between;gap:15px}.learning-hero-ring{width:90px;height:90px;flex:0 0 90px}.learning-hero-ring>div{width:72px;height:72px}.learning-hero-ring strong{font-size:22px}.learning-hero-ring small{font-size:8px}.learning-hero-counter{font-size:10px}.learning-hero-date{max-width:130px;line-height:1.5}.learning-hero-actions button{flex:1 1 auto}.learning-section-title>small{display:none}.learning-quick-card{padding:14px}.learning-quick-card strong{font-size:12px}}
 @media(prefers-reduced-motion:reduce){.learning-hero-actions button,.learning-quick-card{transition:none}}
+
+
+/* Checklist V3 — filter controls, segmented progress and export */
+.progress-segments{display:flex;gap:3px;height:7px;margin-top:13px;overflow:hidden;background:#edf2f8;border-radius:99px}
+.progress-segments span{display:block;min-width:0;transition:width .25s ease}
+.progress-segments .segment-done{background:#22a477}
+.progress-segments .segment-learning{background:#e6a23c}
+.progress-segments .segment-pending{flex:1;background:#e9eff6}
+.checklist-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.checklist-toolbar .filter-buttons{margin:0}
+.checklist-toolbar .filter-buttons button{display:inline-flex;align-items:center;gap:7px}
+.checklist-toolbar .filter-buttons button span{display:inline-grid;place-items:center;min-width:19px;height:19px;padding:0 5px;color:#6d8299;background:rgba(125,151,180,.12);border-radius:99px;font-size:9px}
+.checklist-toolbar .filter-buttons button.active span{color:#fff;background:rgba(255,255,255,.2)}
+.checklist-extra-filters{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.checklist-extra-filters button,.checklist-extra-filters select{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:34px;padding:7px 10px;color:#55718e;background:#fff;border:1px solid #dce7f3;border-radius:8px;font-size:10px;font-weight:750}
+.checklist-extra-filters button:hover,.checklist-extra-filters select:hover{border-color:#9fc1e3;background:#f7fbff}
+.checklist-extra-filters .review-filter.active{color:#1b68a6;background:#edf5ff;border-color:#bcd6ef}
+.checklist-extra-filters .checklist-export{color:#fff;background:#216eae;border-color:#216eae}
+.checklist-extra-filters .checklist-export:hover{color:#fff;background:#185b94;border-color:#185b94}
+.checklist-extra-filters .checklist-clear{color:#a04c55;background:#fff7f7;border-color:#f2d9dc}
+.checklist-table-card .table-heading p{line-height:1.6}
+.checklist-search:focus-within{border-color:#8bb7e1;box-shadow:0 0 0 3px rgba(40,123,193,.1)}
+.checklist-table tbody tr{transition:background .15s ease}
+.checklist-table tbody tr:hover{background:#f7fbff}
+.checklist-table input:focus-visible,.checklist-table select:focus-visible,.checklist-extra-filters button:focus-visible,.checklist-extra-filters select:focus-visible{outline:3px solid rgba(40,123,193,.22);outline-offset:2px}
+@media(max-width:760px){
+ .checklist-toolbar{align-items:stretch;flex-direction:column}
+ .checklist-toolbar .filter-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .checklist-toolbar .filter-buttons button{justify-content:center}
+ .checklist-extra-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .checklist-extra-filters button,.checklist-extra-filters select{width:100%}
+}
+@media(max-width:430px){
+ .checklist-extra-filters{grid-template-columns:1fr}
+ .progress-caption{gap:8px}
+ .progress-caption span{font-size:10px}
+}

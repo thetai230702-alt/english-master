@@ -12,6 +12,9 @@ import {
   Sparkles,
   Target,
   CalendarDays,
+  Download,
+  Filter,
+  X,
 } from "lucide-react";
 import type { TabType } from "./Sidebar";
 import "./Checklist.css";
@@ -127,9 +130,12 @@ export default function Checklist({ onNavigate }: ChecklistProps) {
 
   const [keyword, setKeyword] = useState("");
   const [filter, setFilter] = useState("Tất cả");
+  const [reviewOnly, setReviewOnly] = useState(false);
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(units));
+    window.dispatchEvent(new CustomEvent("ntt-learning-progress-local-updated"));
   }, [units]);
 
   const completed = units.filter(
@@ -151,17 +157,52 @@ export default function Checklist({ onNavigate }: ChecklistProps) {
   }).format(new Date());
 
   const filteredUnits = useMemo(() => {
-    return units.filter((unit) => {
-      const matchesKeyword =
-        `unit ${unit.id}`.includes(keyword.toLowerCase()) ||
-        unit.topic.toLowerCase().includes(keyword.toLowerCase());
+    const normalizedKeyword = keyword.trim().toLocaleLowerCase("vi");
+    return units
+      .filter((unit) => {
+        const matchesKeyword =
+          `unit ${unit.id}`.includes(normalizedKeyword) ||
+          unit.topic.toLocaleLowerCase("vi").includes(normalizedKeyword);
+        const matchesFilter =
+          filter === "Tất cả" || unit.status === filter;
+        const matchesReview = !reviewOnly || unit.review;
+        return matchesKeyword && matchesFilter && matchesReview;
+      })
+      .sort((a, b) => sortOrder === "asc" ? a.id - b.id : b.id - a.id);
+  }, [units, keyword, filter, reviewOnly, sortOrder]);
 
-      const matchesFilter =
-        filter === "Tất cả" || unit.status === filter;
+  const statusCounts = useMemo(() => ({
+    all: units.length,
+    notStarted: units.filter((unit) => unit.status === "Chưa học").length,
+    studying: units.filter((unit) => unit.status === "Đang học").length,
+    completed: units.filter((unit) => unit.status === "Đã học").length,
+  }), [units]);
 
-      return matchesKeyword && matchesFilter;
-    });
-  }, [units, keyword, filter]);
+  function clearFilters() {
+    setKeyword("");
+    setFilter("Tất cả");
+    setReviewOnly(false);
+    setSortOrder("asc");
+  }
+
+  function exportChecklist() {
+    const escapeCsv = (value: string) => `"${value.replace(/"/g, '""')}"`;
+    const rows = [
+      ["Unit", "Topic", "Status", "Study date", "Exercise", "Reviewed", "Note"],
+      ...units.map((unit) => [
+        `Unit ${unit.id}`, unit.topic, unit.status, unit.date,
+        unit.exercise ? "Yes" : "No", unit.review ? "Yes" : "No", unit.note,
+      ]),
+    ];
+    const csv = "\uFEFF" + rows.map((row) => row.map(escapeCsv).join(",")).join("\r\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = "ntt-learning-checklist.csv";
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }
 
   function updateUnit(id: number, changes: Partial<Unit>) {
     setUnits((current) =>
@@ -180,13 +221,13 @@ export default function Checklist({ onNavigate }: ChecklistProps) {
         </div>
         <div className="unit-total">
           <BookOpen size={20} />
-          <span>50 Units</span>
+          <span>{units.length} Units</span>
         </div>
       </div>
 
       <section className="learning-hero" aria-label="Trung tâm học tập">
         <div className="learning-hero-copy">
-          <span className="learning-hero-eyebrow"><Sparkles size={14} /> NTT LEARNING · YOUR STUDY SPACE</span>
+          <span className="learning-hero-eyebrow"><Sparkles size={14} /> ATI LEARNING · YOUR STUDY SPACE</span>
           <h2>Học mỗi ngày, tiến bộ từng bước.</h2>
           <p>Theo dõi hành trình 50 Unit, chọn bài học tiếp theo và truy cập nhanh các công cụ luyện tập.</p>
           <div className="learning-hero-actions">
@@ -244,8 +285,13 @@ export default function Checklist({ onNavigate }: ChecklistProps) {
         </div>
 
         <div className="progress-caption">
-          <span>{completed}/50 Unit đã học</span>
-          <span>{50 - completed} Unit còn lại</span>
+          <span>{completed}/{units.length} Unit đã học</span>
+          <span>{units.length - completed} Unit còn lại</span>
+        </div>
+        <div className="progress-segments" aria-label={`Đã học ${completed}, đang học ${studying}, chưa học ${units.length - completed - studying}`}>
+          <span className="segment-done" style={{ width: `${completed / units.length * 100}%` }} />
+          <span className="segment-learning" style={{ width: `${studying / units.length * 100}%` }} />
+          <span className="segment-pending" />
         </div>
       </div>
 
@@ -287,7 +333,7 @@ export default function Checklist({ onNavigate }: ChecklistProps) {
         <div className="table-heading">
           <div>
             <h3>Danh sách 50 Unit</h3>
-            <p>Cập nhật trạng thái học tập của bạn.</p>
+            <p>Đang hiển thị {filteredUnits.length}/{units.length} Unit · Tiến độ được lưu trên thiết bị này.</p>
           </div>
 
           <div className="checklist-search">
@@ -300,18 +346,51 @@ export default function Checklist({ onNavigate }: ChecklistProps) {
           </div>
         </div>
 
-        <div className="filter-buttons">
-          {["Tất cả", "Chưa học", "Đang học", "Đã học"].map(
-            (item) => (
+        <div className="checklist-toolbar">
+          <div className="filter-buttons" role="group" aria-label="Lọc trạng thái Unit">
+            {[
+              { label: "Tất cả", count: statusCounts.all },
+              { label: "Chưa học", count: statusCounts.notStarted },
+              { label: "Đang học", count: statusCounts.studying },
+              { label: "Đã học", count: statusCounts.completed },
+            ].map((item) => (
               <button
-                key={item}
-                className={filter === item ? "active" : ""}
-                onClick={() => setFilter(item)}
+                type="button"
+                key={item.label}
+                className={filter === item.label ? "active" : ""}
+                aria-pressed={filter === item.label}
+                onClick={() => setFilter(item.label)}
               >
-                {item}
+                {item.label}<span>{item.count}</span>
               </button>
-            )
-          )}
+            ))}
+          </div>
+          <div className="checklist-extra-filters">
+            <button
+              type="button"
+              className={`review-filter ${reviewOnly ? "active" : ""}`}
+              aria-pressed={reviewOnly}
+              onClick={() => setReviewOnly((value) => !value)}
+            >
+              <Filter size={14} /> Đã đánh dấu ôn tập
+            </button>
+            <select
+              aria-label="Sắp xếp danh sách Unit"
+              value={sortOrder}
+              onChange={(event) => setSortOrder(event.target.value as "asc" | "desc")}
+            >
+              <option value="asc">Unit tăng dần</option>
+              <option value="desc">Unit giảm dần</option>
+            </select>
+            <button type="button" className="checklist-export" onClick={exportChecklist}>
+              <Download size={14} /> Xuất CSV
+            </button>
+            {(keyword || filter !== "Tất cả" || reviewOnly || sortOrder !== "asc") && (
+              <button type="button" className="checklist-clear" onClick={clearFilters}>
+                <X size={14} /> Xóa lọc
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="checklist-table-wrapper">

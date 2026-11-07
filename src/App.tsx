@@ -17,6 +17,8 @@ import MyVocabulary from "./components/MyVocabulary";
 import Information from "./components/Information";
 import Profile from "./components/Profile";
 import Dashboard from "./components/Dashboard";
+import Statistics from "./components/Statistics";
+import { useLearningProgressSync } from "./services/learningProgressSync";
 
 import Login from "./components/Login";
 import Register from "./components/Register";
@@ -27,6 +29,7 @@ import "./App.css";
 const VALID_TABS: TabType[] = [
   "dashboard",
   "checklist",
+  "statistics",
   "units",
   "listening",
   "flashcards",
@@ -39,19 +42,21 @@ const VALID_TABS: TabType[] = [
 const TAB_ROUTES: Record<TabType, string> = {
   dashboard: "/dashboard",
   checklist: "/hoc-tieng-anh/tong-quan",
+  statistics: "/hoc-tieng-anh/thong-ke",
   units: "/hoc-tieng-anh/luyen-tap-1500-cau",
   listening: "/hoc-tieng-anh/luyen-nghe",
   flashcards: "/hoc-tieng-anh/flashcard-tu-vung",
   cefr: "/hoc-tieng-anh/tu-vung-cefr",
   "my-vocabulary": "/hoc-tieng-anh/tu-vung-cua-toi",
   profile: "/tai-khoan/ho-so-ca-nhan",
-  information: "/gioi-thieu-ntt-group",
+  information: "/gioi-thieu-t-ai-group",
 };
 
 function getTabFromUrl(): TabType {
   const pathname = window.location.pathname.replace(/\/+$/, "") || "/";
   const routeMatch = (Object.entries(TAB_ROUTES) as [TabType, string][])
-    .find(([, route]) => route === pathname);
+    .find(([, route]) => route === pathname)
+    ?? (pathname === "/gioi-thieu-ntt-group" ? ["information", TAB_ROUTES.information] as [TabType, string] : undefined);
 
   if (routeMatch) return routeMatch[0];
 
@@ -67,6 +72,8 @@ function App() {
 
   const [activeTab, setActiveTab] = useState<TabType>(() => getTabFromUrl());
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  useLearningProgressSync(user);
 
   useEffect(() => {
     let unsubscribe: (() => void) | undefined;
@@ -132,8 +139,9 @@ function App() {
   };
 
   const pageTitles: Record<TabType, string> = {
-    dashboard: "Tổng quan NTT GROUP",
+    dashboard: "Tổng quan ATI Group",
     checklist: "Tổng quan học tập",
+    statistics: "Báo cáo học tập",
     units: "Luyện tập 1.500 câu",
     listening: "Luyện nghe",
     flashcards: "Flashcard từ vựng",
@@ -143,25 +151,14 @@ function App() {
     profile: "Hồ sơ tài khoản",
   };
 
-  const pageDescriptions: Record<TabType, string> = {
-    dashboard: "Không gian tổng quan và truy cập các phân hệ trong hệ sinh thái NTT GROUP.",
-    checklist: "Theo dõi tiến độ học tiếng Anh của bạn.",
-    units: "Luyện dịch câu tiếng Việt sang tiếng Anh theo từng Unit.",
-    listening: "Nghe và luyện phát âm theo từng câu trong mỗi Unit.",
-    flashcards: "Học và ghi nhớ từ vựng theo 50 Unit.",
-    cefr: "Học từ vựng theo sáu cấp độ A1, A2, B1, B2, C1 và C2.",
-    "my-vocabulary":
-      "Tạo bộ từ vựng riêng và luyện tập theo cách của bạn.",
-    information: "Thông tin về NTT GROUP và hệ thống học tập.",
-    profile: "Quản lý thông tin cá nhân, công việc, học vấn và gia đình.",
-  };
+
 
   const toggleSidebar = () => {
     setSidebarCollapsed((previous) => !previous);
   };
 
   if (checkingAuth) {
-    return <div className="auth-loading">Đang tải NTT GROUP...</div>;
+    return <div className="auth-loading">Đang tải ATI Group...</div>;
   }
 
   if (!user) {
@@ -187,63 +184,22 @@ function App() {
 
       <main className="main-content">
         <header className="topbar">
-          <div className="topbar-left">
+          <div className="topbar-brand">
             <button
-              className="topbar-menu-button"
-              onClick={toggleSidebar}
-              aria-label="Đóng hoặc mở Sidebar"
-              title="Đóng hoặc mở Sidebar"
+              className="topbar-logo-button"
+              type="button"
+              onClick={() => setActiveTab("dashboard")}
+              aria-label="ATI – Trang chủ"
+              title="ATI – Trang chủ"
             >
-              <span className="topbar-menu-lines">
-                <span />
-                <span />
-                <span />
-              </span>
+              <img className="topbar-ati-logo" src="/ati-approved-logo.png" alt="ATI" />
             </button>
-
             <div className="topbar-page-info">
-              <nav className="topbar-breadcrumb" aria-label="Đường dẫn trang">
-                <button
-                  type="button"
-                  className="breadcrumb-home"
-                  onClick={() => setActiveTab("dashboard")}
-                  title="Trang chủ NTT GROUP"
-                >
-                  <span className="breadcrumb-home-mark">N</span>
-                  <span>NTT GROUP</span>
-                </button>
-                <span className="breadcrumb-separator">›</span>
-                {activeTab === "dashboard" ? (
-                  <strong className="breadcrumb-current">Trung tâm điều hành</strong>
-                ) : activeTab === "profile" ? (
-                  <>
-                    <button type="button" className="breadcrumb-parent" onClick={() => setActiveTab("dashboard")}>Không gian cá nhân</button>
-                    <span className="breadcrumb-separator">›</span>
-                    <strong className="breadcrumb-current">Hồ sơ cá nhân</strong>
-                  </>
-                ) : activeTab === "information" ? (
-                  <>
-                    <strong className="breadcrumb-current">Về NTT GROUP</strong>
-                  </>
-                ) : (
-                  <>
-                    <button type="button" className="breadcrumb-parent" onClick={() => setActiveTab("dashboard")}>Học viện ngoại ngữ</button>
-                    <span className="breadcrumb-separator">›</span>
-                    <strong className="breadcrumb-current">{pageTitles[activeTab]}</strong>
-                  </>
-                )}
-              </nav>
               <h1>{pageTitles[activeTab]}</h1>
-              <p>{pageDescriptions[activeTab]}</p>
             </div>
           </div>
 
           <div className="topbar-right">
-            <div className="topbar-version">
-              <span className="version-dot" />
-              <span>Version 1.0.0</span>
-            </div>
-
             <div className="topbar-user">
               <button
                 className="topbar-avatar"
@@ -280,6 +236,7 @@ function App() {
             />
           )}
           {activeTab === "checklist" && <Checklist onNavigate={setActiveTab} />}
+          {activeTab === "statistics" && <Statistics />}
           {activeTab === "units" && <Units />}
           {activeTab === "listening" && <Listening />}
           {activeTab === "flashcards" && <Flashcards />}

@@ -4,6 +4,7 @@ import {
   BookPlus,
   ChevronDown,
   ClipboardCheck,
+  ChartNoAxesCombined,
   GraduationCap,
   Headphones,
   LayoutDashboard,
@@ -20,6 +21,7 @@ import "./Sidebar.css";
 export type TabType =
   | "dashboard"
   | "checklist"
+  | "statistics"
   | "units"
   | "listening"
   | "flashcards"
@@ -37,6 +39,7 @@ interface SidebarProps {
 
 const learningItems = [
   { id: "checklist" as TabType, label: "Tổng quan học tập", description: "Tiến độ và mục tiêu", icon: ClipboardCheck },
+  { id: "statistics" as TabType, label: "Báo cáo học tập", description: "Phân tích kết quả học", icon: ChartNoAxesCombined },
   { id: "units" as TabType, label: "Luyện tập 1.500 câu", description: "Thực hành theo Unit", icon: BookOpen },
   { id: "listening" as TabType, label: "Luyện nghe", description: "Nghe và luyện phát âm", icon: Headphones },
   { id: "flashcards" as TabType, label: "Flashcard từ vựng", description: "Từ vựng theo chủ đề", icon: Layers },
@@ -58,11 +61,11 @@ function Sidebar({ activeTab, onTabChange, collapsed, onToggle }: SidebarProps) 
           title={collapsed ? "Mở rộng thanh bên" : "Thu gọn thanh bên"}
           aria-label={collapsed ? "Mở rộng thanh bên" : "Thu gọn thanh bên"}
         >
-          <span className="ntt-mark">NTT</span>
+          <img className="ntt-mark" src="/ati-approved-logo.png" alt="ATI" />
           {!collapsed && (
             <span className="logo-text">
-              <strong>NTT GROUP</strong>
-              <small>ONE PLATFORM · MULTIPLE POSSIBILITIES</small>
+              <strong>GROUP</strong>
+              <small>TECHNOLOGY · AI · MANUFACTURING</small>
             </span>
           )}
         </button>
@@ -85,13 +88,13 @@ function Sidebar({ activeTab, onTabChange, collapsed, onToggle }: SidebarProps) 
           type="button"
           className={`menu-item dashboard-nav-item ${activeTab === "dashboard" ? "active" : ""}`}
           onClick={() => onTabChange("dashboard")}
-          title={collapsed ? "Tổng quan NTT GROUP" : undefined}
+          title={collapsed ? "Tổng quan ATI Group" : undefined}
           aria-current={activeTab === "dashboard" ? "page" : undefined}
         >
           <span className="menu-icon"><LayoutDashboard size={18} strokeWidth={2} /></span>
           {!collapsed && (
             <span className="menu-item-text">
-              <span>Tổng quan NTT GROUP</span>
+              <span>Tổng quan ATI Group</span>
               <small>Trung tâm điều hành</small>
             </span>
           )}
@@ -165,13 +168,13 @@ function Sidebar({ activeTab, onTabChange, collapsed, onToggle }: SidebarProps) 
             type="button"
             className={`menu-item ${activeTab === "information" ? "active" : ""}`}
             onClick={() => onTabChange("information")}
-            title={collapsed ? "Về NTT GROUP" : undefined}
+            title={collapsed ? "Về ATI Group" : undefined}
             aria-current={activeTab === "information" ? "page" : undefined}
           >
             <span className="menu-icon"><Info size={18} strokeWidth={2} /></span>
             {!collapsed && (
               <span className="menu-item-text">
-                <span>Về NTT GROUP</span>
+                <span>Về ATI Group</span>
                 <small>Giới thiệu nền tảng</small>
               </span>
             )}
@@ -184,7 +187,7 @@ function Sidebar({ activeTab, onTabChange, collapsed, onToggle }: SidebarProps) 
             <p className="menu-heading future-heading">CÁC PHÂN HỆ KHÁC</p>
             <div className="future-module">
               <span className="future-module-icon"><Mic size={17} /></span>
-              <span><strong>NTT Studio</strong><small>Sáng tạo nội dung</small></span>
+              <span><strong>ATI Studio</strong><small>Sáng tạo nội dung</small></span>
               <em>Sắp ra mắt</em>
             </div>
           </>
@@ -193,9 +196,9 @@ function Sidebar({ activeTab, onTabChange, collapsed, onToggle }: SidebarProps) 
 
       {!collapsed && (
         <div className="sidebar-footer">
-          <div className="sidebar-footer-mark">N</div>
+          <img className="sidebar-footer-mark" src="/ati-approved-logo.png" alt="ATI" />
           <div className="sidebar-footer-text">
-            <strong>NTT GROUP</strong>
+            <strong>ATI Group</strong>
             <p>Phát triển không giới hạn.</p>
           </div>
         </div>

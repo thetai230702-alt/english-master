@@ -13,6 +13,7 @@ type ChecklistEntry = { id: number; status?: StudyStatus };
 type StatusFilter = "Tất cả" | StudyStatus;
 
 const CHECKLIST_STORAGE_KEY = "english-master-checklist";
+const PRACTICE_PROGRESS_KEY = "ntt-unit-practice-progress-v1";
 
 function readStudyStatuses(): Map<number, StudyStatus> {
   try {
@@ -32,6 +33,19 @@ function readStudyStatuses(): Map<number, StudyStatus> {
   } catch {
     return new Map();
   }
+}
+
+
+function readUnitProgress(unitNumber: number): { attempted: number; correct: number } {
+  try {
+    const raw = localStorage.getItem(PRACTICE_PROGRESS_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : {};
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return { attempted: 0, correct: 0 };
+    const record = (parsed as Record<string, unknown>)[String(unitNumber)];
+    if (!record || typeof record !== "object" || Array.isArray(record)) return { attempted: 0, correct: 0 };
+    const values = Object.values(record as Record<string, unknown>).filter((value) => typeof value === "boolean");
+    return { attempted: values.length, correct: values.filter(Boolean).length };
+  } catch { return { attempted: 0, correct: 0 }; }
 }
 
 function Units() {
@@ -58,10 +72,12 @@ function Units() {
     loadUnits();
     const refreshStatuses = () => setStudyStatuses(readStudyStatuses());
     window.addEventListener("storage", refreshStatuses);
+    window.addEventListener("ntt-unit-progress-updated", refreshStatuses);
     window.addEventListener("focus", refreshStatuses);
     return () => {
       active = false;
       window.removeEventListener("storage", refreshStatuses);
+      window.removeEventListener("ntt-unit-progress-updated", refreshStatuses);
       window.removeEventListener("focus", refreshStatuses);
     };
   }, []);
@@ -109,7 +125,7 @@ function Units() {
     <div className="units-page units-page-premium">
       <section className="units-hero">
         <div className="units-hero-copy">
-          <span className="units-hero-eyebrow"><GraduationCap size={14}/> NTT LEARNING / PRACTICE LIBRARY</span>
+          <span className="units-hero-eyebrow"><GraduationCap size={14}/> ATI LEARNING / PRACTICE LIBRARY</span>
           <h2>Kho bài học tiếng Anh</h2>
           <p>Chinh phục 1.500 câu qua 50 chủ đề. Học theo lộ trình của bạn, từng Unit một.</p>
           <div className="units-hero-actions">
@@ -160,6 +176,9 @@ function Units() {
         <div className="units-grid units-grid-premium">
           {filteredUnits.map((unit) => {
             const meta = statusMeta(unit.unitNumber);
+            const practiceProgress = readUnitProgress(unit.unitNumber);
+            const sentencePercent = unit.sentences.length
+              ? Math.round((practiceProgress.attempted / unit.sentences.length) * 100) : 0;
             return (
               <article className={`unit-card unit-card-premium ${meta.className}`} key={unit.unitNumber}>
                 <div className="unit-card-top">
@@ -168,6 +187,14 @@ function Units() {
                 </div>
                 <h3>{unit.title}</h3>
                 <div className="unit-card-meta"><BookOpen size={14}/><span>{unit.sentences.length} câu luyện tập</span><span className="unit-card-dot"/> <span>{Math.max(1, Math.ceil(unit.sentences.length * 1.2))} phút dự kiến</span></div>
+                <div className="unit-sentence-progress">
+                  <div className="unit-sentence-progress-label">
+                    <span>Tiến độ câu hỏi</span>
+                    <strong>{practiceProgress.attempted}/{unit.sentences.length} · {sentencePercent}%</strong>
+                  </div>
+                  <div className="unit-sentence-progress-track"><span style={{ width: `${sentencePercent}%` }} /></div>
+                  <small>{practiceProgress.correct} câu trả lời chính xác</small>
+                </div>
                 <div className="unit-card-bottom">
                   <span>{meta.className === "completed" ? "Bạn đã hoàn thành chủ đề này" : meta.className === "in-progress" ? "Tiếp tục hành trình học" : "Sẵn sàng bắt đầu?"}</span>
                   <button type="button" className="unit-open-button" onClick={() => setSelectedUnit(unit)}>

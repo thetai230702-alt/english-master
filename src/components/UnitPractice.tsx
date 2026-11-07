@@ -19,6 +19,73 @@ function normalizeText(value: string) {
 
 const START_DELAY = 180;
 const SPEEDS = [0.5, 0.8, 1, 1.25, 1.5, 2];
+const CHECKLIST_STORAGE_KEY = "english-master-checklist";
+const PRACTICE_PROGRESS_KEY = "ntt-unit-practice-progress-v1";
+
+function updateChecklistStatus(unitNumber: number, status: "Đang học" | "Đã học") {
+  try {
+    const raw = localStorage.getItem(CHECKLIST_STORAGE_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : [];
+    const entries = Array.isArray(parsed) ? parsed : [];
+    const existing = entries.find(
+      (entry: unknown) =>
+        typeof entry === "object" &&
+        entry !== null &&
+        "id" in entry &&
+        (entry as { id?: unknown }).id === unitNumber
+    ) as Record<string, unknown> | undefined;
+
+    const next = Array.from({ length: 50 }, (_, index) => {
+      const id = index + 1;
+      const current = entries.find(
+        (entry: unknown) =>
+          typeof entry === "object" &&
+          entry !== null &&
+          "id" in entry &&
+          (entry as { id?: unknown }).id === id
+      ) as Record<string, unknown> | undefined;
+      return {
+        id,
+        topic: typeof current?.topic === "string" ? current.topic : "",
+        status: id === unitNumber ? status : current?.status ?? "Chưa học",
+        date: typeof current?.date === "string" ? current.date : "",
+        exercise: current?.exercise === true,
+        review: current?.review === true,
+        note: typeof current?.note === "string" ? current.note : "",
+      };
+    });
+    localStorage.setItem(CHECKLIST_STORAGE_KEY, JSON.stringify(next));
+    window.dispatchEvent(new Event("storage"));
+    window.dispatchEvent(new CustomEvent("ntt-learning-progress-local-updated"));
+  } catch {
+    // Keep the practice flow working even if browser storage is unavailable.
+  }
+}
+
+
+function saveUnitPracticeProgress(unitNumber: number, results: Record<number, boolean>) {
+  try {
+    const raw = localStorage.getItem(PRACTICE_PROGRESS_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : {};
+    const all = parsed && typeof parsed === "object" && !Array.isArray(parsed)
+      ? parsed as Record<string, unknown> : {};
+    all[String(unitNumber)] = results;
+    localStorage.setItem(PRACTICE_PROGRESS_KEY, JSON.stringify(all));
+    window.dispatchEvent(new CustomEvent("ntt-unit-progress-updated"));
+    window.dispatchEvent(new CustomEvent("ntt-learning-progress-local-updated"));
+  } catch { /* Keep practice available if storage is unavailable. */ }
+}
+
+function readUnitPracticeProgress(unitNumber: number): Record<number, boolean> {
+  try {
+    const raw = localStorage.getItem(PRACTICE_PROGRESS_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : {};
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+    const value = (parsed as Record<string, unknown>)[String(unitNumber)];
+    return value && typeof value === "object" && !Array.isArray(value)
+      ? value as Record<number, boolean> : {};
+  } catch { return {}; }
+}
 
 function UnitPractice({ unit, onBack }: UnitPracticeProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -30,7 +97,7 @@ function UnitPractice({ unit, onBack }: UnitPracticeProps) {
   const [playing, setPlaying] = useState(false);
   const [paused, setPaused] = useState(false);
   const [audioMessage, setAudioMessage] = useState("");
-  const [checkedResults, setCheckedResults] = useState<Record<number, boolean>>({});
+  const [checkedResults, setCheckedResults] = useState<Record<number, boolean>>(() => readUnitPracticeProgress(unit.unitNumber));
   const [showSummary, setShowSummary] = useState(false);
 
   const runIdRef = useRef(0);
@@ -62,6 +129,7 @@ function UnitPractice({ unit, onBack }: UnitPracticeProps) {
   }, []);
 
   useEffect(() => {
+    setCheckedResults(readUnitPracticeProgress(unit.unitNumber));
     setAnswer("");
     setShowAnswer(false);
     setChecked(false);
@@ -171,16 +239,31 @@ function UnitPractice({ unit, onBack }: UnitPracticeProps) {
     else setAudioMessage("Bạn đã đến câu cuối cùng của Unit.");
   }
 
-  if (!sentence) return <div className="practice-message">Unit này chưa có câu hỏi.</div>;
   const progress = total > 0 ? ((currentIndex + 1) / total) * 100 : 0;
   const attemptedCount = Object.keys(checkedResults).length;
   const correctCount = Object.values(checkedResults).filter(Boolean).length;
   const accuracy = attemptedCount > 0 ? Math.round((correctCount / attemptedCount) * 100) : 0;
 
+  useEffect(() => {
+    if (total > 0) updateChecklistStatus(unit.unitNumber, "Đang học");
+  }, [unit.unitNumber, total]);
+
+  useEffect(() => {
+    if (showSummary && attemptedCount === total && total > 0) {
+      updateChecklistStatus(unit.unitNumber, "Đã học");
+    }
+  }, [showSummary, attemptedCount, total, unit.unitNumber]);
+
+  if (!sentence) return <div className="practice-message">Unit này chưa có câu hỏi.</div>;
+
   function handleCheck() {
     setChecked(true);
     if (answer.trim()) {
-      setCheckedResults((current) => ({ ...current, [currentIndex]: isCorrect }));
+      setCheckedResults((current) => {
+        const next = { ...current, [currentIndex]: isCorrect };
+        saveUnitPracticeProgress(unit.unitNumber, next);
+        return next;
+      });
     }
   }
 
@@ -188,6 +271,7 @@ function UnitPractice({ unit, onBack }: UnitPracticeProps) {
     stopAudio();
     setCurrentIndex(0);
     setCheckedResults({});
+    saveUnitPracticeProgress(unit.unitNumber, {});
     setShowSummary(false);
   }
 

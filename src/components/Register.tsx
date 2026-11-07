@@ -79,8 +79,8 @@ function Register({ onSwitch }: RegisterProps) {
 
       <div className="auth-card">
         <div className="auth-brand">
-          <div className="auth-logo">NTT</div>
-          <span>NTT GROUP</span>
+          <img className="auth-logo" src="/ati-approved-logo.png" alt="ATI" />
+          
         </div>
 
         <div className="auth-heading">
@@ -171,7 +171,7 @@ function Register({ onSwitch }: RegisterProps) {
         </div>
 
         <div className="auth-footer">
-          © 2026 NTT GROUP. All rights reserved.
+          © 2026 ATI Group. All rights reserved.
         </div>
       </div>
     </div>

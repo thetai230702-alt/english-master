@@ -10,7 +10,14 @@ import {
   Sparkles,
   GraduationCap,
   Compass,
+  Cpu,
+  Cog,
+  Factory,
+  Search,
+  ChartNoAxesCombined,
+  X,
 } from "lucide-react";
+import { useMemo, useState } from "react";
 import type { TabType } from "./Sidebar";
 import "./Dashboard.css";
 
@@ -33,6 +40,14 @@ const learningModules: {
     description: "Theo dõi mục tiêu và tiến độ học tập.",
     detail: "LEARNING OVERVIEW",
     icon: ClipboardCheck,
+    tone: "blue",
+  },
+  {
+    id: "statistics",
+    title: "Báo cáo học tập",
+    description: "Theo dõi kết quả và tiến độ luyện tập.",
+    detail: "LEARNING ANALYTICS",
+    icon: ChartNoAxesCombined,
     tone: "blue",
   },
   {
@@ -79,47 +94,57 @@ const learningModules: {
 
 function Dashboard({ displayName, onNavigate }: DashboardProps) {
   const firstName = displayName.trim().split(/\s+/)[0] || "bạn";
+  const [moduleSearch, setModuleSearch] = useState("");
+  const filteredModules = useMemo(() => {
+    const keyword = moduleSearch.trim().toLocaleLowerCase("vi");
+    if (!keyword) return learningModules;
+    return learningModules.filter((module) =>
+      [module.title, module.description, module.detail]
+        .join(" ")
+        .toLocaleLowerCase("vi")
+        .includes(keyword)
+    );
+  }, [moduleSearch]);
 
   return (
     <div className="ntt-dashboard">
       <section className="dashboard-welcome">
         <div className="dashboard-welcome-copy">
           <span className="dashboard-eyebrow">
-            <Sparkles size={13} /> NTT GROUP · ONE PLATFORM
+            <Sparkles size={13} /> ATI GROUP · TECHNOLOGY ECOSYSTEM
           </span>
           <h2>Xin chào, {firstName}!</h2>
           <p>
-            Chào mừng bạn đến với không gian làm việc NTT GROUP.
-            Chọn một phân hệ để tiếp tục công việc của mình.
+            Một hệ sinh thái phát triển AI, phần mềm, thiết kế kỹ thuật và công nghệ chế tạo.
+            Bắt đầu từ ATI Learning, mở rộng đến các giải pháp công nghiệp thông minh.
           </p>
           <button
             type="button"
             className="dashboard-primary-action"
             onClick={() => onNavigate("checklist")}
           >
-            Khám phá không gian học tập <ArrowRight size={16} />
+            Khám phá ATI Learning <ArrowRight size={16} />
           </button>
         </div>
         <div className="dashboard-welcome-art" aria-hidden="true">
           <div className="dashboard-orbit orbit-one" />
           <div className="dashboard-orbit orbit-two" />
           <div className="dashboard-art-center">
-            <span>NTT</span>
-            <small>GROUP</small>
+            <img src="/ati-approved-logo.png" alt="ATI" />
           </div>
-          <div className="dashboard-art-chip chip-top"><GraduationCap size={17} /></div>
-          <div className="dashboard-art-chip chip-bottom"><Compass size={16} /></div>
+          <div className="dashboard-art-chip chip-top"><Cpu size={17} /></div>
+          <div className="dashboard-art-chip chip-bottom"><Cog size={16} /></div>
         </div>
       </section>
 
       <section className="dashboard-section">
         <div className="dashboard-section-heading">
           <div>
-            <span className="dashboard-section-kicker">WORKSPACE</span>
-            <h3>Không gian của bạn</h3>
-            <p>Các phân hệ hiện có trong hệ sinh thái NTT GROUP.</p>
+            <span className="dashboard-section-kicker">ATI ECOSYSTEM</span>
+            <h3>Hệ sinh thái ATI</h3>
+            <p>Các sản phẩm và định hướng phát triển trong hệ sinh thái công nghệ ATI.</p>
           </div>
-          <span className="dashboard-section-count">01 PHÂN HỆ ĐANG HOẠT ĐỘNG</span>
+          <span className="dashboard-section-count"><i /> 01 SẢN PHẨM ĐANG HOẠT ĐỘNG</span>
         </div>
 
         <div className="dashboard-module-grid">
@@ -133,7 +158,7 @@ function Dashboard({ displayName, onNavigate }: DashboardProps) {
               <span className="dashboard-module-status"><i /> ĐANG HOẠT ĐỘNG</span>
             </div>
             <div className="dashboard-feature-copy">
-              <span className="dashboard-module-kicker">NTT LEARNING</span>
+              <span className="dashboard-module-kicker">ATI LEARNING</span>
               <h4>Học tiếng Anh</h4>
               <p>
                 Không gian luyện tập tiếng Anh với bài học, nghe, từ vựng
@@ -144,18 +169,42 @@ function Dashboard({ displayName, onNavigate }: DashboardProps) {
           </button>
 
           <div className="dashboard-coming-card">
+            <span className="dashboard-coming-icon ai"><Cpu size={20} /></span>
+            <span className="dashboard-module-kicker">AI & SOFTWARE</span>
+            <h4>ATI AI Lab</h4>
+            <p>Nghiên cứu AI, tự động hóa quy trình và phát triển phần mềm thông minh.</p>
+            <span className="dashboard-coming-label">ĐỊNH HƯỚNG PHÁT TRIỂN</span>
+          </div>
+
+          <div className="dashboard-coming-card">
+            <span className="dashboard-coming-icon engineering"><Cog size={20} /></span>
+            <span className="dashboard-module-kicker">ENGINEERING</span>
+            <h4>ATI Engineering</h4>
+            <p>Thiết kế cơ khí, phát triển máy móc và giải pháp kỹ thuật.</p>
+            <span className="dashboard-coming-label">ĐỊNH HƯỚNG PHÁT TRIỂN</span>
+          </div>
+
+          <div className="dashboard-coming-card">
+            <span className="dashboard-coming-icon manufacturing"><Factory size={20} /></span>
+            <span className="dashboard-module-kicker">MANUFACTURING</span>
+            <h4>ATI Manufacturing</h4>
+            <p>Công nghệ chế tạo, gia công và tự động hóa sản xuất.</p>
+            <span className="dashboard-coming-label">ĐỊNH HƯỚNG PHÁT TRIỂN</span>
+          </div>
+
+          <div className="dashboard-coming-card">
             <span className="dashboard-coming-icon"><Sparkles size={20} /></span>
             <span className="dashboard-module-kicker">COMING SOON</span>
-            <h4>NTT Business</h4>
-            <p>Không gian quản lý công việc và vận hành doanh nghiệp.</p>
+            <h4>ATI Business</h4>
+            <p>Giải pháp quản trị, quản lý công việc và vận hành doanh nghiệp.</p>
             <span className="dashboard-coming-label">SẮP RA MẮT</span>
           </div>
 
           <div className="dashboard-coming-card">
             <span className="dashboard-coming-icon studio"><Compass size={20} /></span>
             <span className="dashboard-module-kicker">COMING SOON</span>
-            <h4>NTT Studio</h4>
-            <p>Không gian sáng tạo, sản xuất và quản lý nội dung.</p>
+            <h4>ATI Studio</h4>
+            <p>Công cụ sáng tạo nội dung, thiết kế và truyền thông số.</p>
             <span className="dashboard-coming-label">SẮP RA MẮT</span>
           </div>
         </div>
@@ -164,17 +213,33 @@ function Dashboard({ displayName, onNavigate }: DashboardProps) {
       <section className="dashboard-section dashboard-learning-section">
         <div className="dashboard-section-heading">
           <div>
-            <span className="dashboard-section-kicker">NTT LEARNING</span>
+            <span className="dashboard-section-kicker">ATI LEARNING</span>
             <h3>Truy cập nhanh</h3>
             <p>Mở trực tiếp chức năng bạn muốn sử dụng.</p>
           </div>
-          <button type="button" className="dashboard-text-link" onClick={() => onNavigate("checklist")}>
-            Xem tổng quan học tập <ArrowRight size={14} />
-          </button>
+          <div className="dashboard-quick-tools">
+            <label className="dashboard-module-search">
+              <Search size={16} />
+              <input
+                value={moduleSearch}
+                onChange={(event) => setModuleSearch(event.target.value)}
+                placeholder="Tìm chức năng học tập..."
+                aria-label="Tìm chức năng học tập"
+              />
+              {moduleSearch && (
+                <button type="button" onClick={() => setModuleSearch("")} aria-label="Xóa tìm kiếm">
+                  <X size={15} />
+                </button>
+              )}
+            </label>
+            <button type="button" className="dashboard-text-link" onClick={() => onNavigate("checklist")}>
+              Tổng quan học tập <ArrowRight size={14} />
+            </button>
+          </div>
         </div>
 
         <div className="dashboard-quick-grid">
-          {learningModules.map((module) => {
+          {filteredModules.map((module) => {
             const Icon = module.icon;
             return (
               <button
@@ -193,6 +258,14 @@ function Dashboard({ displayName, onNavigate }: DashboardProps) {
               </button>
             );
           })}
+          {filteredModules.length === 0 && (
+            <div className="dashboard-no-results">
+              <Search size={20} />
+              <strong>Không tìm thấy chức năng phù hợp</strong>
+              <span>Thử tìm bằng tên chức năng hoặc từ khóa khác.</span>
+              <button type="button" onClick={() => setModuleSearch("")}>Xóa tìm kiếm</button>
+            </div>
+          )}
         </div>
       </section>
 
@@ -200,7 +273,7 @@ function Dashboard({ displayName, onNavigate }: DashboardProps) {
         <div className="dashboard-account-icon"><UserRound size={19} /></div>
         <div>
           <strong>Không gian cá nhân</strong>
-          <p>Cập nhật hồ sơ và thông tin tài khoản NTT GROUP.</p>
+          <p>Cập nhật hồ sơ và thông tin tài khoản ATI Group.</p>
         </div>
         <button type="button" onClick={() => onNavigate("profile")}>
           Hồ sơ tài khoản <ArrowRight size={15} />

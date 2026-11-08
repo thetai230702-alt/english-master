@@ -170,7 +170,8 @@ function UnitPractice({ unit, onBack }: UnitPracticeProps) {
     delayTimerRef.current = window.setTimeout(() => {
       delayTimerRef.current = null;
       if (runId !== runIdRef.current) return;
-      const utterance = new SpeechSynthesisUtterance(sentence.english.trim());
+      const spokenText = `Number ${currentIndex + 1}. ${sentence.english.trim()}`;
+      const utterance = new SpeechSynthesisUtterance(spokenText);
       const language = voiceType === "US" ? "en-US" : "en-GB";
       const exactVoice = voicesRef.current.find(
         voice => voice.lang.toLowerCase() === language.toLowerCase()

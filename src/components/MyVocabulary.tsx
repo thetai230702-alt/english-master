@@ -30,6 +30,7 @@ import {
   BookOpen,
   ArrowLeft,
   Search,
+  Settings,
 } from "lucide-react";
 
 import { auth, db } from "../firebase";
@@ -132,6 +133,15 @@ function MyVocabulary() {
   const [studyIndex, setStudyIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [showStudy, setShowStudy] = useState(false);
+  const [showStudySettings, setShowStudySettings] = useState(false);
+  const [studySettings, setStudySettings] = useState(() => {
+    try {
+      const saved = localStorage.getItem("english-master-vocabulary-study-settings");
+      return { speakOnFlip: false, speakOnCorrect: true, ...(saved ? JSON.parse(saved) : {}) };
+    } catch {
+      return { speakOnFlip: false, speakOnCorrect: true };
+    }
+  });
 
   const [answer, setAnswer] = useState("");
   const [checked, setChecked] = useState(false);
@@ -560,6 +570,8 @@ function MyVocabulary() {
 
   const checkTypingAnswer = () => {
     setChecked(true);
+    const correct = !!currentWord && answer.trim().toLowerCase() === currentWord.english.trim().toLowerCase();
+    if (correct && studySettings.speakOnCorrect && currentWord) speak(currentWord.english);
   };
 
   const isTypingCorrect =
@@ -584,10 +596,9 @@ function MyVocabulary() {
     if (quizResult !== null || !currentWord) return;
 
     setSelectedChoice(choice);
-    setQuizResult(
-      choice.trim().toLowerCase() ===
-        currentWord.english.trim().toLowerCase()
-    );
+    const correct = choice.trim().toLowerCase() === currentWord.english.trim().toLowerCase();
+    setQuizResult(correct);
+    if (correct && studySettings.speakOnCorrect) speak(currentWord.english);
   };
 
   const rememberedCount = words.filter((word) => word.remembered).length;
@@ -966,7 +977,7 @@ function MyVocabulary() {
           {showStudy && studyWords.length > 0 && createPortal(
             <div className="mv-study-fullscreen" role="dialog" aria-modal="true" aria-label="Chế độ học tập">
               <div className="mv-study-fullscreen-inner">
-                <div style={{ ...cardStyle, marginBottom: 20, width: "100%", maxWidth: 1120, margin: "0 auto" }}>
+                <div className="mv-study-stage" style={{ ...cardStyle, marginBottom: 20, width: "100%", maxWidth: 1480, margin: "0 auto" }}>
               <div
                 style={{
                   display: "flex",
@@ -978,6 +989,14 @@ function MyVocabulary() {
                 }}
               >
                 <h3 style={{ margin: 0 }}>Chế độ học tập</h3>
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                <button
+                  onClick={() => setShowStudySettings(value => !value)}
+                  style={buttonStyle(showStudySettings ? COLORS.primary : "#f0f1f6", showStudySettings ? "#fff" : COLORS.text)}
+                  aria-expanded={showStudySettings}
+                >
+                  <Settings size={17} /> Cài đặt
+                </button>
                 <button
                   onClick={() => setShowStudy(false)}
                   style={{
@@ -988,7 +1007,24 @@ function MyVocabulary() {
                 >
                   <X size={19} />
                 </button>
+                </div>
               </div>
+
+              {showStudySettings && (
+                <section className="mv-study-settings-panel">
+                  <h4 style={{ margin: "0 0 12px" }}>Cài đặt học tập</h4>
+                  <label><input type="checkbox" checked={!!studySettings.speakOnFlip} onChange={e => { const next = { ...studySettings, speakOnFlip: e.target.checked }; setStudySettings(next); localStorage.setItem("english-master-vocabulary-study-settings", JSON.stringify(next)); }} /> Tự đọc từ tiếng Anh khi lật thẻ</label>
+                  <label><input type="checkbox" checked={!!studySettings.speakOnCorrect} onChange={e => { const next = { ...studySettings, speakOnCorrect: e.target.checked }; setStudySettings(next); localStorage.setItem("english-master-vocabulary-study-settings", JSON.stringify(next)); }} /> Tự đọc từ tiếng Anh khi trả lời đúng</label>
+                  <div className="mv-study-settings-row">
+                    <span>Giọng đọc</span>
+                    <select value={voiceType} onChange={e => setVoiceType(e.target.value as "US" | "UK")}><option value="US">English (US)</option><option value="UK">English (UK)</option></select>
+                  </div>
+                  <div className="mv-study-settings-row">
+                    <span>Tốc độ đọc</span>
+                    <select value={speechSpeed} onChange={e => setSpeechSpeed(Number(e.target.value))}>{[0.6,0.8,0.9,1,1.1,1.25,1.5].map(v => <option key={v} value={v}>{v}x</option>)}</select>
+                  </div>
+                </section>
+              )}
 
               <div
                 style={{
@@ -1049,6 +1085,7 @@ function MyVocabulary() {
               {currentWord && (
                 <>
                   <div
+                    className="mv-study-card-face"
                     style={{
                       background: "linear-gradient(135deg, #f5f2ff, #eef5ff)",
                       border: "1px solid #e7e2ff",
@@ -1092,7 +1129,7 @@ function MyVocabulary() {
                         )}
 
                         <button
-                          onClick={() => setFlipped(!flipped)}
+                          onClick={() => { const next = !flipped; setFlipped(next); if (next && studySettings.speakOnFlip) speak(currentWord.english); }}
                           style={{
                             ...buttonStyle(COLORS.primary),
                             marginTop: 18,

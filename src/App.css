@@ -1925,3 +1925,71 @@ a { color:var(--ati-blue); }
   .mv-study-fullscreen-inner { justify-content: flex-start; padding-top: 8px; }
   .mv-study-fullscreen-inner > div { padding: 15px !important; border-radius: 14px !important; }
 }
+
+/* Larger vocabulary study experience and accessible settings */
+.mv-study-fullscreen { padding: clamp(16px, 3vw, 48px); align-items: center; }
+.mv-study-fullscreen-inner { max-width: 1540px; }
+.mv-study-stage { max-width: 1480px !important; padding: clamp(22px, 3vw, 48px) !important; }
+.mv-study-stage h2 { letter-spacing: -0.025em; }
+.mv-study-settings-panel { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 24px; margin: 0 auto 20px; padding: 20px 22px; max-width: 1480px; border: 1px solid #dfe6f1; border-radius: 16px; background: #fff; box-shadow: 0 8px 28px rgba(20,55,90,.07); }
+.mv-study-settings-panel h4 { grid-column: 1 / -1; color: #25324a; }
+.mv-study-settings-panel label { display: flex; align-items: center; gap: 10px; color: #344054; font-size: 14px; }
+.mv-study-settings-panel input[type="checkbox"] { width: 18px; height: 18px; accent-color: #6554c0; }
+.mv-study-settings-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: #344054; font-size: 14px; }
+.mv-study-settings-row select { min-width: 140px; padding: 9px 12px; border: 1px solid #d8deea; border-radius: 9px; background: #fff; }
+@media (max-width: 700px) { .mv-study-fullscreen { padding: 8px; align-items: flex-start; } .mv-study-stage { padding: 16px !important; } .mv-study-settings-panel { grid-template-columns: 1fr; padding: 16px; } }
+
+/* Mobile-first enlargement for the vocabulary study card */
+@media (max-width: 700px) {
+  .mv-study-fullscreen {
+    padding: 5px !important;
+    align-items: stretch !important;
+  }
+  .mv-study-fullscreen-inner {
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 100dvh !important;
+    justify-content: flex-start !important;
+    padding: 4px 0 12px !important;
+  }
+  .mv-study-stage {
+    width: 100% !important;
+    max-width: none !important;
+    min-height: calc(100dvh - 10px) !important;
+    padding: 14px 12px 22px !important;
+    margin: 0 !important;
+    border-radius: 12px !important;
+  }
+  .mv-study-card-face {
+    width: 100% !important;
+    min-height: 52dvh !important;
+    padding: 34px 14px !important;
+    border-radius: 22px !important;
+    gap: 10px;
+  }
+  .mv-study-card-face h2 {
+    font-size: clamp(36px, 10vw, 54px) !important;
+    line-height: 1.15 !important;
+    overflow-wrap: anywhere;
+  }
+  .mv-study-card-face p {
+    font-size: clamp(18px, 5vw, 25px) !important;
+    line-height: 1.4 !important;
+  }
+  .mv-study-card-face button {
+    min-height: 48px !important;
+    padding: 12px 20px !important;
+    font-size: 16px !important;
+  }
+  .mv-study-stage > div:first-child h3 {
+    font-size: 20px !important;
+  }
+  .mv-study-stage button {
+    touch-action: manipulation;
+  }
+}
+
+@media (max-width: 380px) {
+  .mv-study-card-face { min-height: 48dvh !important; padding: 26px 10px !important; }
+  .mv-study-card-face h2 { font-size: clamp(32px, 9vw, 42px) !important; }
+}

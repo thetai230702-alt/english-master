@@ -1097,10 +1097,40 @@ function MyVocabulary() {
                       flexDirection: "column",
                       alignItems: "center",
                       justifyContent: "center",
+                      position: studyMode === "flashcard" ? "relative" : "static",
+                      cursor: studyMode === "flashcard" ? "pointer" : "default",
                     }}
+                    onClick={studyMode === "flashcard" ? () => {
+                      const next = !flipped;
+                      setFlipped(next);
+                      if (next && studySettings.speakOnFlip) speak(currentWord.english);
+                    } : undefined}
+                    onKeyDown={studyMode === "flashcard" ? (event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        const next = !flipped;
+                        setFlipped(next);
+                        if (next && studySettings.speakOnFlip) speak(currentWord.english);
+                      }
+                    } : undefined}
+                    tabIndex={studyMode === "flashcard" ? 0 : undefined}
+                    role={studyMode === "flashcard" ? "button" : undefined}
+                    aria-label={studyMode === "flashcard" ? "Nhấn để lật thẻ từ vựng" : undefined}
                   >
                     {studyMode === "flashcard" && (
                       <>
+                        <button
+                          type="button"
+                          className="mv-study-card-speaker"
+                          aria-label="Phát âm từ tiếng Anh"
+                          title="Phát âm"
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            speak(currentWord.english);
+                          }}
+                        >
+                          <Volume2 size={22} />
+                        </button>
                         {!flipped ? (
                           <>
                             <h2 style={{ fontSize: 31, margin: "0 0 10px" }}>
@@ -1109,13 +1139,6 @@ function MyVocabulary() {
                             <p style={{ color: COLORS.primary, fontSize: 18 }}>
                               {currentWord.ipa || "Chưa có IPA"}
                             </p>
-                            <button
-                              onClick={() => speak(currentWord.english)}
-                              style={buttonStyle("#ffffff", COLORS.primary)}
-                            >
-                              <Volume2 size={18} />
-                              Phát âm
-                            </button>
                           </>
                         ) : (
                           <>
@@ -1127,17 +1150,9 @@ function MyVocabulary() {
                             </h2>
                           </>
                         )}
-
-                        <button
-                          onClick={() => { const next = !flipped; setFlipped(next); if (next && studySettings.speakOnFlip) speak(currentWord.english); }}
-                          style={{
-                            ...buttonStyle(COLORS.primary),
-                            marginTop: 18,
-                          }}
-                        >
-                          <RotateCcw size={16} />
-                          {flipped ? "Xem mặt trước" : "Lật thẻ"}
-                        </button>
+                        <span className="mv-study-card-hint">
+                          Nhấn vào thẻ để {flipped ? "xem từ tiếng Anh" : "xem nghĩa tiếng Việt"}
+                        </span>
                       </>
                     )}
 

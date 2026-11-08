@@ -1993,3 +1993,45 @@ a { color:var(--ati-blue); }
   .mv-study-card-face { min-height: 48dvh !important; padding: 26px 10px !important; }
   .mv-study-card-face h2 { font-size: clamp(32px, 9vw, 42px) !important; }
 }
+
+
+/* Flashcard interaction: tap the card to flip; speaker stays independent. */
+.mv-study-card-face {
+  position: relative;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.mv-study-card-face:focus-visible {
+  outline: 3px solid #8b7cf6;
+  outline-offset: 4px;
+}
+.mv-study-card-speaker {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  width: 46px;
+  height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #d9d4f7;
+  border-radius: 50%;
+  color: #6554c0;
+  background: rgba(255,255,255,.94);
+  box-shadow: 0 4px 14px rgba(55,45,110,.10);
+  cursor: pointer;
+}
+.mv-study-card-speaker:active { transform: scale(.94); }
+.mv-study-card-hint {
+  margin-top: 20px;
+  color: #778198;
+  font-size: 13px;
+  font-weight: 500;
+}
+@media (max-width: 700px) {
+  .mv-study-card-speaker { width: 44px; height: 44px; top: 10px; right: 10px; }
+  .mv-study-card-hint { margin-top: 18px; font-size: 12px; }
+}

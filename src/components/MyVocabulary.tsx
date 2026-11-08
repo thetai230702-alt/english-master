@@ -1,5 +1,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   addDoc,
   collection,
@@ -962,8 +963,10 @@ function MyVocabulary() {
             </button>
           </div>
 
-          {showStudy && studyWords.length > 0 && (
-            <div style={{ ...cardStyle, marginBottom: 20 }}>
+          {showStudy && studyWords.length > 0 && createPortal(
+            <div className="mv-study-fullscreen" role="dialog" aria-modal="true" aria-label="Chế độ học tập">
+              <div className="mv-study-fullscreen-inner">
+                <div style={{ ...cardStyle, marginBottom: 20, width: "100%", maxWidth: 1120, margin: "0 auto" }}>
               <div
                 style={{
                   display: "flex",
@@ -1291,7 +1294,10 @@ function MyVocabulary() {
                   </div>
                 </>
               )}
-            </div>
+                </div>
+              </div>
+            </div>,
+            document.body
           )}
 
           {showBulkForm && (

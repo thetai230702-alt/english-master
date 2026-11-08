@@ -20,6 +20,7 @@ import "./Sidebar.css";
 
 export type TabType =
   | "dashboard"
+  | "learning-dashboard"
   | "checklist"
   | "statistics"
   | "units"
@@ -38,6 +39,7 @@ interface SidebarProps {
 }
 
 const learningItems = [
+  { id: "learning-dashboard" as TabType, label: "Tổng quan học tiếng Anh", description: "Không gian học tập", icon: GraduationCap },
   { id: "checklist" as TabType, label: "Tổng quan học tập", description: "Tiến độ và mục tiêu", icon: ClipboardCheck },
   { id: "statistics" as TabType, label: "Báo cáo học tập", description: "Phân tích kết quả học", icon: ChartNoAxesCombined },
   { id: "units" as TabType, label: "Luyện tập 1.500 câu", description: "Thực hành theo Unit", icon: BookOpen },

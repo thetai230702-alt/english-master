@@ -121,3 +121,107 @@
   background:linear-gradient(145deg,#287bc1,#174b86);
   border-color:#287bc1;
 }
+
+/* ATI Technology Platform navigation refinement */
+.sidebar{color:#26374b;background:#fff;border-right:1px solid #e7ebf0;box-shadow:5px 0 24px rgba(20,35,52,.035)}.sidebar-logo:hover{background:#fff7f1}.logo-text strong{color:#1d3045;letter-spacing:.65px}.logo-text small{color:#8995a4}.sidebar-collapse-button,.sidebar-expand-button{color:#728094;background:#f6f8fa;border-color:#e8edf2}.sidebar-collapse-button:hover,.sidebar-expand-button:hover{color:#e66d1c;background:#fff2e8;border-color:#f7d2b8}.menu-heading{color:#9aa5b2;letter-spacing:1.2px}.module-heading{color:#4b5c70}.module-heading:hover{background:#fff7f1}.module-heading.module-active{color:#d96519;background:#fff5ed}.module-heading-icon{color:#e87525}.menu-item{color:#617186;border-radius:10px}.menu-item:hover{color:#d96519;background:#fff7f1}.menu-item.active{color:#d96519;background:linear-gradient(90deg,#fff0e5,#fff8f3);box-shadow:inset 3px 0 0 #f07824}.menu-item.active .menu-icon{color:#e87525}.active-indicator{background:#f07824}.sidebar-platform-section{border-color:#edf0f3}.future-module{background:#f8fafc;border-color:#edf0f3}.future-module-icon{color:#e87525;background:#fff0e5}.sidebar-footer{border-color:#edf0f3}.sidebar-footer-text strong{color:#24364b}.sidebar-footer-text p{color:#9aa5b2}
+
+/* =========================================================
+   ATI OFFICIAL BRAND SYSTEM — BLUE PRIMARY / ORANGE ACCENT
+   White surfaces, blue interaction states, restrained orange highlights.
+========================================================= */
+:root {
+  --ati-blue: #0878C9;
+  --ati-blue-deep: #075FA5;
+  --ati-blue-dark: #16436A;
+  --ati-blue-soft: #EAF4FC;
+  --ati-orange: #FF8500;
+  --ati-orange-soft: #FFF3E5;
+  --ati-white: #FFFFFF;
+  --ati-bg: #F6FAFD;
+  --ati-ink: #18344D;
+  --ati-muted: #6F8293;
+  --ati-border: #DCE8F1;
+  --ntt-primary: var(--ati-blue);
+  --ntt-primary-strong: var(--ati-blue-deep);
+  --ntt-primary-soft: var(--ati-blue-soft);
+  --ntt-green: var(--ati-blue);
+  --ntt-green-dark: var(--ati-blue-deep);
+  --ntt-green-soft: var(--ati-blue-soft);
+  --ntt-ink: var(--ati-ink);
+  --ntt-text: var(--ati-ink);
+  --ntt-muted: var(--ati-muted);
+  --ntt-text-muted: var(--ati-muted);
+  --ntt-border: var(--ati-border);
+  --ntt-focus: rgba(8,120,201,.16);
+  --ntt-shadow: 0 10px 30px rgba(8,65,110,.07);
+  --ntt-shadow-card: 0 10px 30px rgba(8,65,110,.07);
+}
+html, body, #root { background:#fff; color:var(--ati-ink); }
+body { background:#fff; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline:3px solid rgba(8,120,201,.22);
+  outline-offset:2px;
+}
+button:not(:disabled):active { transform:translateY(0); }
+a { color:var(--ati-blue); }
+::selection { background:rgba(8,120,201,.18); color:#123b5c; }
+
+.sidebar { background:#fff;border-right:1px solid #dce8f1;box-shadow:5px 0 24px rgba(8,65,110,.035); }
+.logo-text strong { color:#0878c9; }
+.logo-text small { color:#6f8293; }
+.menu-heading { color:#8a9aaa; }
+.module-heading { color:#46647d; }
+.module-heading:hover { background:#edf6fc; }
+.module-heading.module-active { color:#0878c9;background:#eaf4fc; }
+.module-heading-icon { color:#0878c9; }
+.menu-item { color:#5f7487; }
+.menu-item:hover { color:#0878c9;background:#edf6fc; }
+.menu-item.active { color:#075fa5;background:linear-gradient(90deg,#eaf4fc,#f7fbff);box-shadow:inset 3px 0 0 #0878c9; }
+.menu-item.active .menu-icon,.active-indicator { color:#0878c9;background:#0878c9; }
+.sidebar-logo:hover { background:#f1f8fd; }
+.sidebar-collapse-button,.sidebar-expand-button { color:#6f8293;background:#f4f8fb;border-color:#e0eaf2; }
+.sidebar-collapse-button:hover,.sidebar-expand-button:hover { color:#0878c9;background:#eaf4fc;border-color:#c8dfef; }
+.future-module-icon { color:#ff8500;background:#fff3e5; }
+.sidebar-footer-text strong { color:#0878c9; }
+
+
+/* V39 — single, restrained active state (avoid stacked blue overlays) */
+.sidebar .menu-item {
+  position:relative;
+  border:1px solid transparent;
+  box-shadow:none;
+  transition:background .16s ease,border-color .16s ease,color .16s ease;
+}
+.sidebar .menu-item.active {
+  color:#075fa5 !important;
+  background:#edf6fc !important;
+  border-color:#cfe3f2 !important;
+  box-shadow:none !important;
+}
+.sidebar .menu-item.active .menu-icon {
+  color:#0878c9 !important;
+  background:#ffffff !important;
+  border:1px solid #c9e0f1 !important;
+  box-shadow:none !important;
+}
+.sidebar .menu-item.active .active-indicator {
+  display:none !important;
+}
+.sidebar .menu-item:hover:not(.active) {
+  color:#0878c9 !important;
+  background:#f5faff !important;
+  border-color:#e5f0f8 !important;
+  box-shadow:none !important;
+}
+.sidebar .menu-item:focus,
+.sidebar .menu-item:focus-visible {
+  outline:none !important;
+  box-shadow:none !important;
+}
+.sidebar .menu-item:focus-visible {
+  outline:2px solid rgba(8,120,201,.28) !important;
+  outline-offset:2px !important;
+}
+.sidebar .menu-item.active .menu-item-text small {
+  color:#7895aa !important;
+}

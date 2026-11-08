@@ -4,6 +4,7 @@ import {
   CheckCircle2, XCircle, RotateCcw, SkipForward,
 } from "lucide-react";
 import type { Unit } from "../types/unit";
+import { recordCheckedSentence as recordStudyAttempt } from "../services/studyGoals";
 import "./UnitPractice.css";
 
 interface UnitPracticeProps {
@@ -251,6 +252,9 @@ function UnitPractice({ unit, onBack }: UnitPracticeProps) {
   function handleCheck() {
     setChecked(true);
     if (answer.trim()) {
+      if (!Object.prototype.hasOwnProperty.call(checkedResults, currentIndex)) {
+        recordStudyAttempt();
+      }
       setCheckedResults((current) => {
         const next = { ...current, [currentIndex]: isCorrect };
         saveUnitPracticeProgress(unit.unitNumber, next);

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { User } from "firebase/auth";
 import { doc, onSnapshot, setDoc } from "firebase/firestore";
 import { db } from "../firebase";
@@ -92,12 +92,20 @@ export function notifyLearningProgressChanged() {
   window.dispatchEvent(new CustomEvent(SYNC_EVENT));
 }
 
-export function useLearningProgressSync(user: User | null) {
+export type LearningSyncStatus = "idle" | "syncing" | "synced" | "offline" | "error";
+
+export function useLearningProgressSync(user: User | null): LearningSyncStatus {
+  const [status, setStatus] = useState<LearningSyncStatus>("idle");
   const applyingCloud = useRef(false);
   const lastWritten = useRef("");
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setStatus("idle");
+      return;
+    }
+
+    if (!navigator.onLine) setStatus("offline");
 
     const progressRef = doc(db, "users", user.uid, "learningProgress", "main");
     let active = true;
@@ -105,18 +113,25 @@ export function useLearningProgressSync(user: User | null) {
 
     const uploadLocal = async () => {
       if (!active || applyingCloud.current) return;
+      if (!navigator.onLine) {
+        setStatus("offline");
+        return;
+      }
       const payload = readLocal();
       const signature = JSON.stringify(payload);
       if (signature === lastWritten.current) return;
 
       try {
+        setStatus("syncing");
         await setDoc(progressRef, {
           ...payload,
           updatedAt: Date.now(),
         }, { merge: true });
         lastWritten.current = signature;
+        if (active) setStatus("synced");
       } catch (error) {
         console.error("Không thể đồng bộ tiến độ học tập lên Firestore:", error);
+        if (active) setStatus(navigator.onLine ? "error" : "offline");
       }
     };
 
@@ -141,6 +156,7 @@ export function useLearningProgressSync(user: User | null) {
           } else {
             await uploadLocal();
           }
+          if (active && navigator.onLine) setStatus("synced");
           return;
         }
 
@@ -159,10 +175,12 @@ export function useLearningProgressSync(user: User | null) {
             writeLocal(merged);
             applyingCloud.current = false;
           }
+          if (active) setStatus(navigator.onLine ? "synced" : "offline");
         }
       },
       (error) => {
         console.error("Không thể tải tiến độ học tập từ Firestore:", error);
+        if (active) setStatus(navigator.onLine ? "error" : "offline");
       }
     );
 
@@ -170,14 +188,26 @@ export function useLearningProgressSync(user: User | null) {
       void uploadLocal();
     };
 
+    const handleOnline = () => {
+      setStatus("syncing");
+      void uploadLocal();
+    };
+    const handleOffline = () => setStatus("offline");
+
     window.addEventListener(SYNC_EVENT, handleLocalChange);
     window.addEventListener("storage", handleLocalChange);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
 
     return () => {
       active = false;
       unsubscribe();
       window.removeEventListener(SYNC_EVENT, handleLocalChange);
       window.removeEventListener("storage", handleLocalChange);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
     };
   }, [user]);
+
+  return status;
 }

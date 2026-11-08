@@ -5,7 +5,10 @@ import {
   House,
   Save,
   UserRound,
-  ShieldCheck,
+  Cloud,
+  CloudCheck,
+  CloudOff,
+  LoaderCircle,
 } from "lucide-react";
 import { auth } from "../firebase";
 import "./Profile.css";
@@ -46,7 +49,13 @@ const tabs: { id: ProfileTab; label: string; icon: typeof UserRound }[] = [
   { id: "family", label: "Gia đình", icon: House },
 ];
 
-function Profile() {
+type SyncStatus = "idle" | "syncing" | "synced" | "offline" | "error";
+
+interface ProfileProps {
+  syncStatus: SyncStatus;
+}
+
+function Profile({ syncStatus }: ProfileProps) {
   const user = auth.currentUser;
   const storageKey = `ntt-profile-${user?.uid ?? "guest"}`;
   const [activeTab, setActiveTab] = useState<ProfileTab>("personal");
@@ -126,7 +135,25 @@ function Profile() {
           <h2>{profile.fullName || user?.displayName || "Hồ sơ của tôi"}</h2>
           <p>{user?.email || "Cập nhật thông tin tài khoản và hồ sơ cá nhân của bạn."}</p>
         </div>
-        <div className="profile-verified"><ShieldCheck size={16} /> Tài khoản ATI</div>
+        <div className={`profile-sync-status profile-hero-sync is-${syncStatus}`} title={{
+          idle: "Đang chờ kết nối để đồng bộ",
+          syncing: "Đang đồng bộ dữ liệu học tập",
+          synced: "Dữ liệu học tập đã được đồng bộ",
+          offline: "Thiết bị đang ngoại tuyến",
+          error: "Đồng bộ dữ liệu gặp lỗi",
+        }[syncStatus]} aria-live="polite">
+          {syncStatus === "syncing" ? <LoaderCircle className="sync-spin" size={15} /> :
+           syncStatus === "synced" ? <CloudCheck size={15} /> :
+           syncStatus === "offline" || syncStatus === "error" ? <CloudOff size={15} /> :
+           <Cloud size={15} />}
+          <span>{{
+            idle: "Chờ đồng bộ",
+            syncing: "Đang đồng bộ",
+            synced: "Đã đồng bộ",
+            offline: "Ngoại tuyến",
+            error: "Lỗi đồng bộ",
+          }[syncStatus]}</span>
+        </div>
       </section>
 
       <section className="profile-card">

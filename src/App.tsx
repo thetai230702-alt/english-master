@@ -17,6 +17,7 @@ import MyVocabulary from "./components/MyVocabulary";
 import Information from "./components/Information";
 import Profile from "./components/Profile";
 import Dashboard from "./components/Dashboard";
+import LearningDashboard from "./components/LearningDashboard";
 import Statistics from "./components/Statistics";
 import { useLearningProgressSync } from "./services/learningProgressSync";
 
@@ -28,6 +29,7 @@ import "./App.css";
 
 const VALID_TABS: TabType[] = [
   "dashboard",
+  "learning-dashboard",
   "checklist",
   "statistics",
   "units",
@@ -41,6 +43,7 @@ const VALID_TABS: TabType[] = [
 
 const TAB_ROUTES: Record<TabType, string> = {
   dashboard: "/dashboard",
+  "learning-dashboard": "/hoc-tieng-anh",
   checklist: "/hoc-tieng-anh/tong-quan",
   statistics: "/hoc-tieng-anh/thong-ke",
   units: "/hoc-tieng-anh/luyen-tap-1500-cau",
@@ -73,7 +76,7 @@ function App() {
   const [activeTab, setActiveTab] = useState<TabType>(() => getTabFromUrl());
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
-  useLearningProgressSync(user);
+  const learningSyncStatus = useLearningProgressSync(user);
 
   useEffect(() => {
     let unsubscribe: (() => void) | undefined;
@@ -140,6 +143,7 @@ function App() {
 
   const pageTitles: Record<TabType, string> = {
     dashboard: "Tổng quan ATI Group",
+    "learning-dashboard": "Tổng quan Học tiếng Anh",
     checklist: "Tổng quan học tập",
     statistics: "Báo cáo học tập",
     units: "Luyện tập 1.500 câu",
@@ -235,6 +239,9 @@ function App() {
               onNavigate={setActiveTab}
             />
           )}
+          {activeTab === "learning-dashboard" && (
+            <LearningDashboard displayName={user.displayName || "bạn"} onNavigate={setActiveTab} />
+          )}
           {activeTab === "checklist" && <Checklist onNavigate={setActiveTab} />}
           {activeTab === "statistics" && <Statistics />}
           {activeTab === "units" && <Units />}
@@ -245,7 +252,7 @@ function App() {
           {activeTab === "my-vocabulary" && <MyVocabulary />}
 
           {activeTab === "information" && <Information />}
-          {activeTab === "profile" && <Profile />}
+          {activeTab === "profile" && <Profile syncStatus={learningSyncStatus} />}
         </section>
       </main>
     </div>

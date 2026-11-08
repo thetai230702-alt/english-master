@@ -1,23 +1,17 @@
 import {
   ArrowRight,
-  BookOpen,
-  Headphones,
-  Layers,
-  Award,
-  BookPlus,
-  ClipboardCheck,
-  UserRound,
-  Sparkles,
-  GraduationCap,
-  Compass,
+  Bot,
+  Boxes,
+  Building2,
   Cpu,
-  Cog,
-  Factory,
-  Search,
-  ChartNoAxesCombined,
-  X,
+  GraduationCap,
+  Layers3,
+  Mic2,
+  Network,
+  Settings2,
+  Sparkles,
+  Workflow,
 } from "lucide-react";
-import { useMemo, useState } from "react";
 import type { TabType } from "./Sidebar";
 import "./Dashboard.css";
 
@@ -26,259 +20,157 @@ type DashboardProps = {
   onNavigate: (tab: TabType) => void;
 };
 
-const learningModules: {
-  id: TabType;
-  title: string;
-  description: string;
-  detail: string;
-  icon: typeof BookOpen;
-  tone: string;
-}[] = [
+const modules = [
   {
-    id: "checklist",
-    title: "Tổng quan học tập",
-    description: "Theo dõi mục tiêu và tiến độ học tập.",
-    detail: "LEARNING OVERVIEW",
-    icon: ClipboardCheck,
-    tone: "blue",
+    title: "ATI Learning",
+    subtitle: "Nền tảng học tập & phát triển năng lực",
+    description: "Hệ thống học tiếng Anh, luyện nghe, từ vựng và theo dõi lộ trình cá nhân.",
+    status: "Đang hoạt động",
+    active: true,
+    icon: GraduationCap,
+    tone: "learning",
+    action: "learning-dashboard" as TabType,
+    actionLabel: "Mở phân hệ",
+    tags: ["English Learning", "Learning Analytics"],
   },
   {
-    id: "statistics",
-    title: "Báo cáo học tập",
-    description: "Theo dõi kết quả và tiến độ luyện tập.",
-    detail: "LEARNING ANALYTICS",
-    icon: ChartNoAxesCombined,
-    tone: "blue",
+    title: "ATI Technology",
+    subtitle: "Công nghệ & giải pháp phần mềm",
+    description: "Định hướng phát triển ứng dụng, nền tảng số và các giải pháp công nghệ.",
+    status: "Định hướng phát triển",
+    active: false,
+    icon: Cpu,
+    tone: "technology",
+    tags: ["Software", "Digital Solutions"],
   },
   {
-    id: "units",
-    title: "Luyện tập 1.500 câu",
-    description: "Thực hành dịch câu theo từng Unit.",
-    detail: "1500 SENTENCES",
-    icon: BookOpen,
-    tone: "indigo",
+    title: "ATI Manufacturing",
+    subtitle: "Cơ khí & chế tạo máy",
+    description: "Không gian phát triển công cụ kỹ thuật, thiết kế cơ khí và tự động hóa sản xuất.",
+    status: "Định hướng phát triển",
+    active: false,
+    icon: Boxes,
+    tone: "manufacturing",
+    tags: ["Mechanical Design", "Automation"],
   },
   {
-    id: "listening",
-    title: "Luyện nghe",
-    description: "Nghe câu mẫu và luyện phát âm.",
-    detail: "LISTENING PRACTICE",
-    icon: Headphones,
-    tone: "cyan",
+    title: "ATI Studio",
+    subtitle: "Sáng tạo nội dung & truyền thông",
+    description: "Định hướng xây dựng công cụ hỗ trợ sáng tạo, quản lý và phát triển nội dung.",
+    status: "Sắp ra mắt",
+    active: false,
+    icon: Mic2,
+    tone: "studio",
+    tags: ["Creative", "Media"],
   },
   {
-    id: "flashcards",
-    title: "Flashcard từ vựng",
-    description: "Ghi nhớ từ vựng theo chủ đề.",
-    detail: "VOCABULARY",
-    icon: Layers,
-    tone: "violet",
-  },
-  {
-    id: "cefr",
-    title: "Từ vựng CEFR",
-    description: "Học từ vựng theo cấp độ A1 đến C2.",
-    detail: "CEFR LEVELS",
-    icon: Award,
-    tone: "amber",
-  },
-  {
-    id: "my-vocabulary",
-    title: "Từ vựng của tôi",
-    description: "Quản lý bộ từ vựng cá nhân.",
-    detail: "MY COLLECTION",
-    icon: BookPlus,
-    tone: "teal",
+    title: "ATI Business",
+    subtitle: "Quản trị & vận hành doanh nghiệp",
+    description: "Định hướng tích hợp quy trình, dữ liệu và các công cụ quản lý vận hành.",
+    status: "Sắp ra mắt",
+    active: false,
+    icon: Building2,
+    tone: "business",
+    tags: ["ERP", "Business Operations"],
   },
 ];
 
 function Dashboard({ displayName, onNavigate }: DashboardProps) {
-  const firstName = displayName.trim().split(/\s+/)[0] || "bạn";
-  const [moduleSearch, setModuleSearch] = useState("");
-  const filteredModules = useMemo(() => {
-    const keyword = moduleSearch.trim().toLocaleLowerCase("vi");
-    if (!keyword) return learningModules;
-    return learningModules.filter((module) =>
-      [module.title, module.description, module.detail]
-        .join(" ")
-        .toLocaleLowerCase("vi")
-        .includes(keyword)
-    );
-  }, [moduleSearch]);
+  const firstName = displayName.trim().split(/\s+/).slice(-1)[0] || "bạn";
+  const activeModules = modules.filter((module) => module.active).length;
 
   return (
-    <div className="ntt-dashboard">
-      <section className="dashboard-welcome">
-        <div className="dashboard-welcome-copy">
-          <span className="dashboard-eyebrow">
-            <Sparkles size={13} /> ATI GROUP · TECHNOLOGY ECOSYSTEM
-          </span>
+    <div className="ati-group-overview">
+      <section className="ati-overview-hero">
+        <div className="ati-overview-hero-copy">
+          <span className="ati-overview-eyebrow"><Sparkles size={13} /> ATI GROUP · INTEGRATED PLATFORM</span>
           <h2>Xin chào, {firstName}!</h2>
           <p>
-            Một hệ sinh thái phát triển AI, phần mềm, thiết kế kỹ thuật và công nghệ chế tạo.
-            Bắt đầu từ ATI Learning, mở rộng đến các giải pháp công nghiệp thông minh.
+            Chào mừng bạn đến với hệ sinh thái ATI Group — nơi kết nối công nghệ,
+            trí tuệ nhân tạo, chế tạo máy và các giải pháp phát triển năng lực.
           </p>
-          <button
-            type="button"
-            className="dashboard-primary-action"
-            onClick={() => onNavigate("checklist")}
-          >
-            Khám phá ATI Learning <ArrowRight size={16} />
-          </button>
-        </div>
-        <div className="dashboard-welcome-art" aria-hidden="true">
-          <div className="dashboard-orbit orbit-one" />
-          <div className="dashboard-orbit orbit-two" />
-          <div className="dashboard-art-center">
-            <img src="/ati-approved-logo.png" alt="ATI" />
+          <div className="ati-overview-hero-meta">
+            <span><Network size={14} /> Một nền tảng · Nhiều hệ sinh thái</span>
+            <span><Layers3 size={14} /> Phát triển theo từng phân hệ</span>
           </div>
-          <div className="dashboard-art-chip chip-top"><Cpu size={17} /></div>
-          <div className="dashboard-art-chip chip-bottom"><Cog size={16} /></div>
+        </div>
+        <div className="ati-overview-hero-art" aria-hidden="true">
+          <div className="ati-orbit orbit-a" />
+          <div className="ati-orbit orbit-b" />
+          <div className="ati-orbit orbit-c" />
+          <div className="ati-core"><img src="/ati-approved-logo.png" alt="" /></div>
+          <span className="ati-node node-ai"><Bot size={21} /></span>
+          <span className="ati-node node-tech"><Cpu size={20} /></span>
+          <span className="ati-node node-build"><Workflow size={20} /></span>
         </div>
       </section>
 
-      <section className="dashboard-section">
-        <div className="dashboard-section-heading">
-          <div>
-            <span className="dashboard-section-kicker">ATI ECOSYSTEM</span>
-            <h3>Hệ sinh thái ATI</h3>
-            <p>Các sản phẩm và định hướng phát triển trong hệ sinh thái công nghệ ATI.</p>
-          </div>
-          <span className="dashboard-section-count"><i /> 01 SẢN PHẨM ĐANG HOẠT ĐỘNG</span>
-        </div>
-
-        <div className="dashboard-module-grid">
-          <button
-            type="button"
-            className="dashboard-module-card dashboard-learning-feature"
-            onClick={() => onNavigate("checklist")}
-          >
-            <div className="dashboard-feature-top">
-              <span className="dashboard-module-icon"><GraduationCap size={22} /></span>
-              <span className="dashboard-module-status"><i /> ĐANG HOẠT ĐỘNG</span>
-            </div>
-            <div className="dashboard-feature-copy">
-              <span className="dashboard-module-kicker">ATI LEARNING</span>
-              <h4>Học tiếng Anh</h4>
-              <p>
-                Không gian luyện tập tiếng Anh với bài học, nghe, từ vựng
-                và công cụ theo dõi quá trình học.
-              </p>
-            </div>
-            <span className="dashboard-module-link">Mở phân hệ <ArrowRight size={16} /></span>
-          </button>
-
-          <div className="dashboard-coming-card">
-            <span className="dashboard-coming-icon ai"><Cpu size={20} /></span>
-            <span className="dashboard-module-kicker">AI & SOFTWARE</span>
-            <h4>ATI AI Lab</h4>
-            <p>Nghiên cứu AI, tự động hóa quy trình và phát triển phần mềm thông minh.</p>
-            <span className="dashboard-coming-label">ĐỊNH HƯỚNG PHÁT TRIỂN</span>
-          </div>
-
-          <div className="dashboard-coming-card">
-            <span className="dashboard-coming-icon engineering"><Cog size={20} /></span>
-            <span className="dashboard-module-kicker">ENGINEERING</span>
-            <h4>ATI Engineering</h4>
-            <p>Thiết kế cơ khí, phát triển máy móc và giải pháp kỹ thuật.</p>
-            <span className="dashboard-coming-label">ĐỊNH HƯỚNG PHÁT TRIỂN</span>
-          </div>
-
-          <div className="dashboard-coming-card">
-            <span className="dashboard-coming-icon manufacturing"><Factory size={20} /></span>
-            <span className="dashboard-module-kicker">MANUFACTURING</span>
-            <h4>ATI Manufacturing</h4>
-            <p>Công nghệ chế tạo, gia công và tự động hóa sản xuất.</p>
-            <span className="dashboard-coming-label">ĐỊNH HƯỚNG PHÁT TRIỂN</span>
-          </div>
-
-          <div className="dashboard-coming-card">
-            <span className="dashboard-coming-icon"><Sparkles size={20} /></span>
-            <span className="dashboard-module-kicker">COMING SOON</span>
-            <h4>ATI Business</h4>
-            <p>Giải pháp quản trị, quản lý công việc và vận hành doanh nghiệp.</p>
-            <span className="dashboard-coming-label">SẮP RA MẮT</span>
-          </div>
-
-          <div className="dashboard-coming-card">
-            <span className="dashboard-coming-icon studio"><Compass size={20} /></span>
-            <span className="dashboard-module-kicker">COMING SOON</span>
-            <h4>ATI Studio</h4>
-            <p>Công cụ sáng tạo nội dung, thiết kế và truyền thông số.</p>
-            <span className="dashboard-coming-label">SẮP RA MẮT</span>
-          </div>
-        </div>
+      <section className="ati-overview-summary">
+        <article>
+          <span className="ati-summary-icon"><Layers3 size={19} /></span>
+          <div><small>Hệ sinh thái</small><strong>{modules.length} phân hệ</strong><em>Các mảng phát triển của ATI</em></div>
+        </article>
+        <article>
+          <span className="ati-summary-icon active"><Workflow size={19} /></span>
+          <div><small>Đang vận hành</small><strong>{activeModules} phân hệ</strong><em>ATI Learning hiện đang hoạt động</em></div>
+        </article>
+        <article>
+          <span className="ati-summary-icon"><Settings2 size={19} /></span>
+          <div><small>Định hướng</small><strong>Technology · AI</strong><em>Manufacturing · Business</em></div>
+        </article>
       </section>
 
-      <section className="dashboard-section dashboard-learning-section">
-        <div className="dashboard-section-heading">
+      <section className="ati-overview-section">
+        <div className="ati-overview-section-heading">
           <div>
-            <span className="dashboard-section-kicker">ATI LEARNING</span>
-            <h3>Truy cập nhanh</h3>
-            <p>Mở trực tiếp chức năng bạn muốn sử dụng.</p>
+            <span>ATI ECOSYSTEM</span>
+            <h3>Các phân hệ trong ATI Group</h3>
+            <p>Chọn một phân hệ để truy cập không gian làm việc tương ứng.</p>
           </div>
-          <div className="dashboard-quick-tools">
-            <label className="dashboard-module-search">
-              <Search size={16} />
-              <input
-                value={moduleSearch}
-                onChange={(event) => setModuleSearch(event.target.value)}
-                placeholder="Tìm chức năng học tập..."
-                aria-label="Tìm chức năng học tập"
-              />
-              {moduleSearch && (
-                <button type="button" onClick={() => setModuleSearch("")} aria-label="Xóa tìm kiếm">
-                  <X size={15} />
-                </button>
-              )}
-            </label>
-            <button type="button" className="dashboard-text-link" onClick={() => onNavigate("checklist")}>
-              Tổng quan học tập <ArrowRight size={14} />
-            </button>
-          </div>
+          <span className="ati-module-count">{modules.length} MODULES</span>
         </div>
 
-        <div className="dashboard-quick-grid">
-          {filteredModules.map((module) => {
+        <div className="ati-module-grid">
+          {modules.map((module) => {
             const Icon = module.icon;
             return (
-              <button
-                type="button"
-                className={`dashboard-quick-card tone-${module.tone}`}
-                key={module.id}
-                onClick={() => onNavigate(module.id)}
-              >
-                <span className="dashboard-quick-icon"><Icon size={19} /></span>
-                <span className="dashboard-quick-copy">
-                  <small>{module.detail}</small>
-                  <strong>{module.title}</strong>
-                  <em>{module.description}</em>
-                </span>
-                <ArrowRight className="dashboard-quick-arrow" size={16} />
-              </button>
+              <article className={`ati-module-card ati-module-${module.tone} ${module.active ? "is-active" : "is-planned"}`} key={module.title}>
+                <div className="ati-module-card-top">
+                  <span className="ati-module-icon"><Icon size={23} /></span>
+                  <span className={`ati-module-status ${module.active ? "status-active" : "status-planned"}`}>
+                    <i /> {module.status}
+                  </span>
+                </div>
+                <div className="ati-module-copy">
+                  <h4>{module.title}</h4>
+                  <strong>{module.subtitle}</strong>
+                  <p>{module.description}</p>
+                </div>
+                <div className="ati-module-tags">
+                  {module.tags.map((tag) => <span key={tag}>{tag}</span>)}
+                </div>
+                {module.active && module.action ? (
+                  <button
+                    type="button"
+                    className="ati-module-action"
+                    onClick={() => onNavigate(module.action!)}
+                  >
+                    {module.actionLabel} <ArrowRight size={16} />
+                  </button>
+                ) : (
+                  <div className="ati-module-coming"><span>Đang trong lộ trình phát triển</span><ArrowRight size={15} /></div>
+                )}
+              </article>
             );
           })}
-          {filteredModules.length === 0 && (
-            <div className="dashboard-no-results">
-              <Search size={20} />
-              <strong>Không tìm thấy chức năng phù hợp</strong>
-              <span>Thử tìm bằng tên chức năng hoặc từ khóa khác.</span>
-              <button type="button" onClick={() => setModuleSearch("")}>Xóa tìm kiếm</button>
-            </div>
-          )}
         </div>
       </section>
 
-      <section className="dashboard-account-strip">
-        <div className="dashboard-account-icon"><UserRound size={19} /></div>
-        <div>
-          <strong>Không gian cá nhân</strong>
-          <p>Cập nhật hồ sơ và thông tin tài khoản ATI Group.</p>
-        </div>
-        <button type="button" onClick={() => onNavigate("profile")}>
-          Hồ sơ tài khoản <ArrowRight size={15} />
-        </button>
-      </section>
+      <footer className="ati-overview-footer">
+        <div className="ati-footer-mark"><img src="/ati-approved-logo.png" alt="ATI" /></div>
+        <div><strong>ATI Group</strong><p>Technology · AI · Manufacturing</p></div>
+        <span>Phát triển không giới hạn.</span>
+      </footer>
     </div>
   );
 }

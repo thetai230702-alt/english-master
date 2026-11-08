@@ -133,6 +133,45 @@ export default function Checklist({ onNavigate }: ChecklistProps) {
   const [reviewOnly, setReviewOnly] = useState(false);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
+  // Apply progress received from Firestore to the visible checklist.
+  // The sync service writes localStorage and emits this event after a cloud update.
+  useEffect(() => {
+    const syncFromStorage = () => {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return;
+
+        const parsed: unknown = JSON.parse(saved);
+        if (!Array.isArray(parsed)) return;
+
+        const existing = new Map<number, Partial<Unit>>();
+        for (const item of parsed) {
+          if (item && typeof item === "object" && "id" in item && typeof item.id === "number") {
+            existing.set(item.id, item as Partial<Unit>);
+          }
+        }
+
+        setUnits(initialUnits.map((unit) => {
+          const savedUnit = existing.get(unit.id);
+          if (!savedUnit) return unit;
+          return {
+            ...unit,
+            status: savedUnit.status === "Đã học" || savedUnit.status === "Đang học" ? savedUnit.status : "Chưa học",
+            date: typeof savedUnit.date === "string" ? savedUnit.date : "",
+            exercise: savedUnit.exercise === true,
+            review: savedUnit.review === true,
+            note: typeof savedUnit.note === "string" ? savedUnit.note : "",
+          };
+        }));
+      } catch (error) {
+        console.error("Không thể cập nhật Checklist từ dữ liệu đồng bộ:", error);
+      }
+    };
+
+    window.addEventListener("ntt-unit-progress-updated", syncFromStorage);
+    return () => window.removeEventListener("ntt-unit-progress-updated", syncFromStorage);
+  }, []);
+
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(units));
     window.dispatchEvent(new CustomEvent("ntt-learning-progress-local-updated"));

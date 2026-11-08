@@ -112,7 +112,9 @@ export function useLearningProgressSync(user: User | null): LearningSyncStatus {
     let initialSnapshotHandled = false;
 
     const uploadLocal = async () => {
-      if (!active || applyingCloud.current) return;
+      // Wait for Firestore's first snapshot before uploading local defaults.
+      // Otherwise a fresh device can overwrite progress already saved in the cloud.
+      if (!active || applyingCloud.current || !initialSnapshotHandled) return;
       if (!navigator.onLine) {
         setStatus("offline");
         return;
@@ -148,7 +150,9 @@ export function useLearningProgressSync(user: User | null): LearningSyncStatus {
         if (!initialSnapshotHandled) {
           initialSnapshotHandled = true;
           if (snapshot.exists()) {
-            const merged = mergeProgress(local, cloud);
+            // On a device with no local history, Firestore must win over the
+            // checklist's default 50-unit rows created during component mount.
+            const merged = mergeProgress(local, cloud, false);
             applyingCloud.current = true;
             writeLocal(merged);
             applyingCloud.current = false;

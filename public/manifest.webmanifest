@@ -1,0 +1,24 @@
+{
+  "id": "/",
+  "name": "English Master - ATI Group",
+  "short_name": "English Master",
+  "description": "ATI Group English learning platform",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#0878c9",
+  "icons": [
+    {
+      "src": "/ati-favicon-v40.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

@@ -5,6 +5,7 @@ import {
   Award,
   BookOpen,
   BookPlus,
+  BookMarked,
   CheckCircle2,
   ClipboardCheck,
   Clock3,
@@ -57,6 +58,7 @@ const learningModules: {
   { id: "flashcards", title: "Flashcard từ vựng", description: "Ghi nhớ từ vựng theo chủ đề.", detail: "VOCABULARY", icon: Layers, tone: "violet" },
   { id: "cefr", title: "Từ vựng CEFR", description: "Học từ vựng theo cấp độ A1 đến C2.", detail: "CEFR LEVELS", icon: Award, tone: "amber" },
   { id: "my-vocabulary", title: "Từ vựng của tôi", description: "Quản lý bộ từ vựng cá nhân.", detail: "MY COLLECTION", icon: BookPlus, tone: "teal" },
+  { id: "tenses", title: "12 English Tenses", description: "Học cấu trúc và cách sử dụng 12 thì tiếng Anh.", detail: "ENGLISH GRAMMAR", icon: BookMarked, tone: "blue" },
   { id: "checklist", title: "Tiến độ học tập", description: "Theo dõi trạng thái 50 Unit.", detail: "LEARNING PLAN", icon: ClipboardCheck, tone: "blue" },
   { id: "statistics", title: "Báo cáo học tập", description: "Phân tích kết quả và độ chính xác.", detail: "LEARNING ANALYTICS", icon: ChartNoAxesCombined, tone: "green" },
 ];

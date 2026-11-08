@@ -19,6 +19,7 @@ import Profile from "./components/Profile";
 import Dashboard from "./components/Dashboard";
 import LearningDashboard from "./components/LearningDashboard";
 import Statistics from "./components/Statistics";
+import Tenses from "./components/Tenses";
 import { useLearningProgressSync } from "./services/learningProgressSync";
 
 import Login from "./components/Login";
@@ -34,6 +35,7 @@ const VALID_TABS: TabType[] = [
   "statistics",
   "units",
   "listening",
+  "tenses",
   "flashcards",
   "cefr",
   "my-vocabulary",
@@ -48,6 +50,7 @@ const TAB_ROUTES: Record<TabType, string> = {
   statistics: "/hoc-tieng-anh/thong-ke",
   units: "/hoc-tieng-anh/luyen-tap-1500-cau",
   listening: "/hoc-tieng-anh/luyen-nghe",
+  tenses: "/hoc-tieng-anh/12-thi-tieng-anh",
   flashcards: "/hoc-tieng-anh/flashcard-tu-vung",
   cefr: "/hoc-tieng-anh/tu-vung-cefr",
   "my-vocabulary": "/hoc-tieng-anh/tu-vung-cua-toi",
@@ -148,6 +151,7 @@ function App() {
     statistics: "Báo cáo học tập",
     units: "Luyện tập 1.500 câu",
     listening: "Luyện nghe",
+    tenses: "12 English Tenses",
     flashcards: "Flashcard từ vựng",
     cefr: "Flashcard CEFR",
     "my-vocabulary": "Từ vựng của tôi",
@@ -162,7 +166,16 @@ function App() {
   };
 
   if (checkingAuth) {
-    return <div className="auth-loading">Đang tải ATI Group...</div>;
+    return (
+      <div className="auth-loading" role="status" aria-live="polite">
+        <img
+          className="auth-loading-logo"
+          src="/ati-approved-logo.png"
+          alt="ATI Group"
+        />
+        <span>Đang tải ATI Group...</span>
+      </div>
+    );
   }
 
   if (!user) {
@@ -246,6 +259,7 @@ function App() {
           {activeTab === "statistics" && <Statistics />}
           {activeTab === "units" && <Units />}
           {activeTab === "listening" && <Listening />}
+          {activeTab === "tenses" && <Tenses />}
           {activeTab === "flashcards" && <Flashcards />}
           {activeTab === "cefr" && <CefrFlashcards />}
 

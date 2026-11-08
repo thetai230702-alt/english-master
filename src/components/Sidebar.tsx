@@ -2,6 +2,7 @@ import {
   Award,
   BookOpen,
   BookPlus,
+  BookMarked,
   ChevronDown,
   ClipboardCheck,
   ChartNoAxesCombined,
@@ -27,6 +28,7 @@ export type TabType =
   | "listening"
   | "flashcards"
   | "cefr"
+  | "tenses"
   | "my-vocabulary"
   | "information"
   | "profile";
@@ -39,14 +41,15 @@ interface SidebarProps {
 }
 
 const learningItems = [
-  { id: "learning-dashboard" as TabType, label: "Tổng quan học tiếng Anh", description: "Không gian học tập", icon: GraduationCap },
-  { id: "checklist" as TabType, label: "Tổng quan học tập", description: "Tiến độ và mục tiêu", icon: ClipboardCheck },
-  { id: "statistics" as TabType, label: "Báo cáo học tập", description: "Phân tích kết quả học", icon: ChartNoAxesCombined },
-  { id: "units" as TabType, label: "Luyện tập 1.500 câu", description: "Thực hành theo Unit", icon: BookOpen },
-  { id: "listening" as TabType, label: "Luyện nghe", description: "Nghe và luyện phát âm", icon: Headphones },
-  { id: "flashcards" as TabType, label: "Flashcard từ vựng", description: "Từ vựng theo chủ đề", icon: Layers },
-  { id: "cefr" as TabType, label: "Flashcard CEFR", description: "Từ A1 đến C2", icon: Award },
-  { id: "my-vocabulary" as TabType, label: "Từ vựng của tôi", description: "Bộ từ vựng cá nhân", icon: BookPlus },
+  { id: "learning-dashboard" as TabType, label: "Learning Overview", description: "Your learning space", icon: GraduationCap },
+  { id: "checklist" as TabType, label: "Learning Checklist", description: "Progress and goals", icon: ClipboardCheck },
+  { id: "statistics" as TabType, label: "Learning Statistics", description: "Analyze your results", icon: ChartNoAxesCombined },
+  { id: "units" as TabType, label: "1,500 Sentences", description: "Practice by unit", icon: BookOpen },
+  { id: "listening" as TabType, label: "Listening Practice", description: "Listen and improve pronunciation", icon: Headphones },
+  { id: "flashcards" as TabType, label: "Vocabulary Flashcards", description: "Learn words by topic", icon: Layers },
+  { id: "cefr" as TabType, label: "CEFR Vocabulary", description: "Levels A1 to C2", icon: Award },
+  { id: "my-vocabulary" as TabType, label: "My Vocabulary", description: "Your personal word list", icon: BookPlus },
+  { id: "tenses" as TabType, label: "12 English Tenses", description: "Grammar rules and examples", icon: BookMarked },
 ];
 
 function Sidebar({ activeTab, onTabChange, collapsed, onToggle }: SidebarProps) {
@@ -108,16 +111,16 @@ function Sidebar({ activeTab, onTabChange, collapsed, onToggle }: SidebarProps) 
           type="button"
           className={`module-heading ${isLearningActive ? "module-active" : ""}`}
           onClick={() => collapsed ? onToggle() : setLearningOpen((value) => !value)}
-          title={collapsed ? "Học tiếng Anh" : undefined}
+          title={collapsed ? "English Learning" : undefined}
           aria-expanded={learningOpen}
         >
           <span className="module-heading-icon"><GraduationCap size={19} /></span>
-          {!collapsed && <span className="module-heading-label">HỌC TIẾNG ANH</span>}
+          {!collapsed && <span className="module-heading-label">ENGLISH LEARNING</span>}
           {!collapsed && <ChevronDown size={16} className={`module-chevron ${learningOpen ? "open" : ""}`} />}
         </button>
 
         {learningOpen && (
-          <nav className="sidebar-menu" aria-label="Các chức năng học tiếng Anh">
+          <nav className="sidebar-menu" aria-label="English learning features">
             {learningItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;

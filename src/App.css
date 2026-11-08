@@ -1867,3 +1867,27 @@ a { color:var(--ati-blue); }
   border-top: 0 !important;
   border-bottom: 2px solid #0878c9 !important;
 }
+
+
+/* ATI Group — branded authentication loading screen */
+.auth-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  min-height: 100vh;
+  padding: 24px;
+  box-sizing: border-box;
+  background: #fff;
+  color: #0878c9;
+  font-weight: 700;
+  text-align: center;
+}
+
+.auth-loading-logo {
+  display: block;
+  width: min(180px, 42vw);
+  height: auto;
+  object-fit: contain;
+}

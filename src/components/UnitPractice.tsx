@@ -291,7 +291,7 @@ function UnitPractice({ unit, onBack }: UnitPracticeProps) {
         <div className="practice-progress-info">
           <div className="practice-progress-labels">
             <span>Tiến độ luyện tập</span>
-            <small>{attemptedCount} câu đã kiểm tra · {correctCount} câu chính xác</small>
+            <small>{attemptedCount} câu đã làm · {correctCount} câu chính xác</small>
           </div>
           <strong>{currentIndex + 1} / {total}</strong>
         </div>
@@ -304,7 +304,7 @@ function UnitPractice({ unit, onBack }: UnitPracticeProps) {
       <nav className="practice-question-map" aria-label="Chọn câu luyện tập">
         <div className="practice-question-map-heading">
           <span>TIẾN ĐỘ CÂU HỎI</span>
-          <small>{attemptedCount}/{total} đã kiểm tra</small>
+          <small>{attemptedCount}/{total} đã làm</small>
         </div>
         <div className="practice-question-map-list">
           {unit.sentences.map((item, index) => {
@@ -366,8 +366,24 @@ function UnitPractice({ unit, onBack }: UnitPracticeProps) {
         <div className="practice-answer-section">
           <textarea id="english-answer" value={answer}
             onChange={event => {
-              setAnswer(event.target.value);
+              const nextAnswer = event.target.value;
+              setAnswer(nextAnswer);
               setChecked(false);
+
+              // Automatically mark a sentence correct as soon as the typed
+              // answer matches the reference sentence. No manual check needed.
+              const matches = nextAnswer.trim().length > 0 &&
+                normalizeText(nextAnswer) === normalizeText(sentence?.english ?? "");
+              if (matches && checkedResults[currentIndex] !== true) {
+                if (!Object.prototype.hasOwnProperty.call(checkedResults, currentIndex)) {
+                  recordStudyAttempt();
+                }
+                setCheckedResults(current => {
+                  const next = { ...current, [currentIndex]: true };
+                  saveUnitPracticeProgress(unit.unitNumber, next);
+                  return next;
+                });
+              }
             }}
             onKeyDown={event => {
               if ((event.ctrlKey || event.metaKey) && event.key === "Enter") setChecked(true);
@@ -393,8 +409,9 @@ function UnitPractice({ unit, onBack }: UnitPracticeProps) {
           )}
 
           <div className="practice-actions">
-            <button className="practice-check-button" type="button" onClick={handleCheck}>
-              <CheckCircle2 size={18} /> Kiểm tra đáp án
+            <button className="practice-check-button" type="button" onClick={handleCheck}
+              disabled={isCorrect}>
+              <CheckCircle2 size={18} /> {isCorrect ? "Đã trả lời chính xác" : "Kiểm tra đáp án"}
             </button>
             <button className="practice-skip-button" type="button" onClick={skipQuestion}>
               <SkipForward size={18} /> Bỏ qua
@@ -446,7 +463,7 @@ function UnitPractice({ unit, onBack }: UnitPracticeProps) {
             </div>
             <div className="practice-summary-stats">
               <div><strong>{total}</strong><span>Tổng số câu</span></div>
-              <div><strong>{attemptedCount}</strong><span>Đã kiểm tra</span></div>
+              <div><strong>{attemptedCount}</strong><span>Đã làm</span></div>
               <div><strong>{correctCount}</strong><span>Chính xác</span></div>
             </div>
             <div className="practice-summary-actions">

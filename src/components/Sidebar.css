@@ -225,3 +225,87 @@ a { color:var(--ati-blue); }
 .sidebar .menu-item.active .menu-item-text small {
   color:#7895aa !important;
 }
+
+
+/* V40 — clearer learning navigation: grouped by the learner's task */
+.sidebar .module-menu-heading { margin-top: 16px; margin-bottom: 8px; }
+.sidebar .learning-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 8px 0 0;
+  padding: 0;
+  border: 0;
+}
+.sidebar .learning-nav-group {
+  padding: 5px 0 7px;
+  border-bottom: 1px solid #edf2f7;
+}
+.sidebar .learning-nav-group:last-child { border-bottom: 0; }
+.sidebar .learning-group-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 27px;
+  padding: 3px 10px 5px;
+  color: #8999a9;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  text-align: left;
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: .9px;
+  cursor: pointer;
+}
+.sidebar .learning-group-toggle:hover {
+  color: #0878c9;
+  background: #f5faff;
+}
+.sidebar .group-chevron {
+  color: #9aabba;
+  transition: transform .18s ease;
+}
+.sidebar .group-chevron.open { transform: rotate(180deg); }
+.sidebar .learning-group-items {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.sidebar .learning-nav-group .menu-item {
+  min-height: 45px;
+  padding: 6px 9px;
+}
+.sidebar .learning-nav-group .menu-item-text { gap: 2px; }
+.sidebar .learning-nav-group .menu-item-text > span {
+  font-size: 11px;
+  line-height: 1.3;
+}
+.sidebar .learning-nav-group .menu-item-text small {
+  font-size: 9px;
+  line-height: 1.3;
+}
+.sidebar .learning-nav-group .menu-icon {
+  width: 31px;
+  height: 31px;
+  flex-basis: 31px;
+}
+.sidebar .learning-nav-group .menu-item.active {
+  background: #edf6fc !important;
+  border-color: #cfe3f2 !important;
+}
+.sidebar .learning-nav-group .menu-item:focus-visible,
+.sidebar .learning-group-toggle:focus-visible,
+.sidebar .module-heading:focus-visible {
+  outline: 2px solid rgba(8,120,201,.35);
+  outline-offset: 2px;
+}
+.sidebar.collapsed .learning-groups { gap: 5px; }
+.sidebar.collapsed .learning-nav-group { padding: 3px 0; }
+.sidebar.collapsed .learning-nav-group .menu-item { min-height: 43px; }
+@media (max-width:768px) {
+  .sidebar .learning-groups { gap: 5px; }
+  .sidebar .learning-nav-group { padding: 3px 0 5px; }
+  .sidebar .learning-nav-group .menu-item { min-height: 44px; }
+}

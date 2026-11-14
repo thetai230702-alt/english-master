@@ -2035,3 +2035,222 @@ a { color:var(--ati-blue); }
   .mv-study-card-speaker { width: 44px; height: 44px; top: 10px; right: 10px; }
   .mv-study-card-hint { margin-top: 18px; font-size: 12px; }
 }
+
+
+
+/* =========================================================
+   UI REFINEMENT — V40
+   Layout, readability, responsive behavior and accessibility.
+   Keeps existing routes, learning logic and Firebase integration.
+========================================================= */
+:root {
+  --ati-bg: #f5f8fc;
+  --ati-surface: #ffffff;
+  --ati-ink: #18344d;
+  --ati-muted: #71859a;
+  --ati-border: #e2eaf2;
+  --ati-blue: #0878c9;
+  --ati-blue-deep: #075fa5;
+  --ati-blue-soft: #edf6fc;
+  --ati-orange: #ff8500;
+  --ati-radius: 16px;
+  --ati-shadow: 0 8px 24px rgba(24, 65, 103, .055);
+}
+html { scroll-behavior: smooth; }
+body { background: var(--ati-bg); color: var(--ati-ink); }
+.app-container { background: var(--ati-bg); }
+.main-content {
+  min-height: 100dvh;
+  padding: 96px clamp(16px, 2.2vw, 34px) 32px;
+  background: var(--ati-bg);
+}
+.page-content { max-width: 1680px; margin-inline: auto; }
+.page-content > * { min-width: 0; }
+.topbar {
+  min-height: 72px;
+  padding: 9px clamp(14px, 2vw, 28px);
+  border-radius: 0 0 14px 14px;
+  box-shadow: 0 5px 20px rgba(12, 66, 112, .13);
+}
+.topbar-page-info h1 { font-size: clamp(14px, 1.2vw, 17px); }
+.topbar-user-info strong { font-size: 11px; }
+.topbar-user-info span { font-size: 10px; }
+.auth-logout { min-height: 36px; padding-inline: 12px; }
+
+/* Shared page rhythm and surfaces */
+.page-content h1, .page-content h2, .page-content h3 {
+  text-wrap: pretty;
+}
+.page-content button, .page-content select,
+.page-content input, .page-content textarea {
+  transition: border-color .18s ease, background-color .18s ease,
+    box-shadow .18s ease, color .18s ease;
+}
+.page-content button:disabled { cursor: not-allowed; opacity: .55; }
+.page-content :focus-visible {
+  outline: 3px solid rgba(8,120,201,.22);
+  outline-offset: 2px;
+}
+.page-content .dashboard-panel,
+.page-content .dashboard-kpi-card,
+.page-content .ati-overview-section,
+.page-content .ati-overview-summary article,
+.page-content .ati-module-card,
+.page-content .welcome-card {
+  box-shadow: 0 5px 18px rgba(20, 65, 105, .045);
+}
+.page-content .dashboard-panel,
+.page-content .ati-overview-section { border-radius: 16px; }
+.page-content .dashboard-kpi-card { border-radius: 14px; }
+.page-content .dashboard-welcome-premium,
+.page-content .ati-overview-hero { border-radius: 18px; }
+
+/* Sidebar visual consistency */
+.sidebar {
+  border-right-color: #e2eaf2;
+  box-shadow: 4px 0 22px rgba(18, 55, 88, .035);
+}
+.sidebar .menu-item { min-height: 44px; }
+.sidebar .menu-item-text > span { font-size: 11px; }
+.sidebar .menu-item-text small { font-size: 9px; }
+
+/* Listening: keep controls legible and prevent squeezed player rows */
+.listening-page { gap: 18px; }
+.listening-main-card,
+.listening-settings-card,
+.listening-progress-card,
+.listening-sentence-card,
+.listening-player-card {
+  border-color: var(--ati-border);
+  border-radius: var(--ati-radius);
+  box-shadow: 0 5px 18px rgba(20, 65, 105, .045);
+}
+.listening-english p { line-height: 1.5; }
+.listening-player-card { flex-wrap: wrap; }
+.listening-player-left { flex-wrap: wrap; gap: 16px; }
+.listening-player-meta { min-width: 0; }
+.listening-select-wrap select { min-height: 46px; }
+
+/* Unit practice: more comfortable reading and writing */
+.practice-combined-card,
+.practice-progress-card,
+.practice-question-card,
+.practice-audio,
+.practice-detail-card {
+  border-color: var(--ati-border);
+  border-radius: var(--ati-radius);
+  box-shadow: 0 5px 18px rgba(20, 65, 105, .045);
+}
+.practice-answer-section textarea { min-height: 124px; }
+.practice-actions button,
+.practice-nav-button { min-height: 44px; }
+
+/* Flashcards and vocabulary: consistent tap behavior */
+.flashcards-page button,
+.cefr-page button,
+.my-vocabulary button { -webkit-tap-highlight-color: transparent; }
+
+/* Tablet */
+@media (max-width: 900px) {
+  .main-content,
+  .app-container.sidebar-collapsed .main-content {
+    width: calc(100% - 72px);
+    margin-left: 72px;
+    padding: 84px 16px 24px;
+  }
+  .topbar { min-height: 66px; }
+  .dashboard-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dashboard-focus-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ati-module-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Phone */
+@media (max-width: 600px) {
+  .main-content,
+  .app-container.sidebar-collapsed .main-content {
+    width: calc(100% - 64px);
+    margin-left: 64px;
+    padding: 72px 10px 18px;
+  }
+  .topbar {
+    min-height: 60px;
+    height: 60px;
+    padding: 6px 9px;
+    border-radius: 0 0 11px 11px;
+  }
+  .topbar-brand { flex-basis: auto !important; min-width: 0; }
+  .topbar-logo-button { width: 42px !important; height: 42px !important; padding: 2px !important; }
+  .topbar-ati-logo { width: 40px !important; height: 38px !important; }
+  .topbar-page-info { padding-left: 8px !important; }
+  .topbar-page-info h1 { max-width: 42vw; font-size: 11px !important; }
+  .topbar-user { gap: 5px; }
+  .topbar-user-info { display: none !important; }
+  .auth-logout { min-height: 31px; padding: 5px 7px; font-size: 9px; }
+  .topbar-avatar { width: 30px !important; height: 30px !important; flex-basis: 30px !important; }
+
+  .dashboard-welcome-premium,
+  .ati-overview-hero {
+    min-height: 0;
+    padding: 20px 17px;
+    border-radius: 15px;
+  }
+  .dashboard-welcome-visual,
+  .ati-overview-hero-art { display: none; }
+  .dashboard-welcome-premium h2,
+  .ati-overview-hero h2 { font-size: 22px; }
+  .dashboard-welcome-premium p,
+  .ati-overview-hero p { font-size: 12px; }
+  .dashboard-kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .dashboard-kpi-card { gap: 9px; padding: 12px 10px; border-radius: 12px; }
+  .dashboard-kpi-icon { width: 36px; height: 36px; flex-basis: 36px; }
+  .dashboard-kpi-card strong { font-size: 19px; }
+  .dashboard-kpi-card small { font-size: 9px; }
+  .dashboard-focus-grid,
+  .ati-module-grid { grid-template-columns: minmax(0, 1fr); }
+  .ati-overview-summary { grid-template-columns: 1fr; gap: 8px; }
+  .dashboard-panel,
+  .ati-overview-section { padding: 14px; border-radius: 13px; }
+
+  .listening-page { gap: 12px; }
+  .listening-main-card { padding: 13px; }
+  .listening-settings-card { gap: 13px; }
+  .listening-sentence-card { padding: 17px; }
+  .listening-english p { font-size: 20px; }
+  .listening-ipa p { font-size: 15px; }
+  .listening-player-card { align-items: flex-start; gap: 13px; }
+  .listening-player-left { width: 100%; justify-content: space-between; gap: 10px; }
+  .listening-player-title { font-size: 13px; }
+  .listening-controls { gap: 8px; }
+  .listening-control-button.primary { width: 50px; height: 50px; }
+  .listening-control-button.secondary { width: 38px; height: 38px; }
+  .listening-player-meta { justify-content: flex-start; width: 100%; }
+
+  .practice-combined-card { padding: 16px; }
+  .practice-combined-heading { flex-direction: column; gap: 8px; }
+  .practice-combined-heading .practice-vietnamese { font-size: 21px; }
+  .practice-actions button { flex: 1 1 calc(50% - 6px); }
+  .page-content { padding-bottom: 16px; }
+}
+
+/* Narrow phones */
+@media (max-width: 380px) {
+  .main-content,
+  .app-container.sidebar-collapsed .main-content {
+    width: calc(100% - 60px);
+    margin-left: 60px;
+    padding-inline: 8px;
+  }
+  .dashboard-kpi-card { align-items: flex-start; flex-direction: column; }
+  .dashboard-kpi-card strong { font-size: 18px; }
+  .topbar-page-info h1 { max-width: 37vw; }
+}
+
+/* Align fixed navigation with the refined header heights */
+.sidebar { top:72px !important; height:calc(100dvh - 72px) !important; }
+@media (max-width:900px) {
+  .sidebar { top:66px !important; height:calc(100dvh - 66px) !important; }
+}
+@media (max-width:600px) {
+  .topbar { height:60px !important; min-height:60px !important; }
+  .sidebar { top:60px !important; height:calc(100dvh - 60px) !important; }
+}

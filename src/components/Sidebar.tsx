@@ -16,7 +16,7 @@ import {
   PanelLeftOpen,
   UserRound,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./Sidebar.css";
 
 export type TabType =
@@ -40,21 +40,95 @@ interface SidebarProps {
   onToggle: () => void;
 }
 
-const learningItems = [
-  { id: "learning-dashboard" as TabType, label: "Learning Overview", description: "Your learning space", icon: GraduationCap },
-  { id: "checklist" as TabType, label: "Learning Checklist", description: "Progress and goals", icon: ClipboardCheck },
-  { id: "statistics" as TabType, label: "Learning Statistics", description: "Analyze your results", icon: ChartNoAxesCombined },
-  { id: "units" as TabType, label: "1,500 Sentences", description: "Practice by unit", icon: BookOpen },
-  { id: "listening" as TabType, label: "Listening Practice", description: "Listen and improve pronunciation", icon: Headphones },
-  { id: "flashcards" as TabType, label: "Vocabulary Flashcards", description: "Learn words by topic", icon: Layers },
-  { id: "cefr" as TabType, label: "CEFR Vocabulary", description: "Levels A1 to C2", icon: Award },
-  { id: "my-vocabulary" as TabType, label: "My Vocabulary", description: "Your personal word list", icon: BookPlus },
-  { id: "tenses" as TabType, label: "12 English Tenses", description: "Grammar rules and examples", icon: BookMarked },
+type LearningItem = {
+  id: TabType;
+  label: string;
+  description: string;
+  icon: typeof GraduationCap;
+};
+
+type LearningGroup = {
+  id: "overview" | "practice" | "vocabulary";
+  label: string;
+  items: LearningItem[];
+};
+
+const learningGroups: LearningGroup[] = [
+  {
+    id: "overview",
+    label: "OVERVIEW",
+    items: [
+      { id: "learning-dashboard", label: "Learning Overview", description: "Your learning dashboard", icon: GraduationCap },
+      { id: "checklist", label: "Learning Checklist", description: "Progress and daily goals", icon: ClipboardCheck },
+      { id: "statistics", label: "Learning Statistics", description: "Track your results", icon: ChartNoAxesCombined },
+    ],
+  },
+  {
+    id: "practice",
+    label: "PRACTICE",
+    items: [
+      { id: "units", label: "1,500 Sentences", description: "Practice English by unit", icon: BookOpen },
+      { id: "listening", label: "Listening Practice", description: "Listening and pronunciation", icon: Headphones },
+      { id: "tenses", label: "12 English Tenses", description: "Grammar rules and examples", icon: BookMarked },
+    ],
+  },
+  {
+    id: "vocabulary",
+    label: "VOCABULARY",
+    items: [
+      { id: "flashcards", label: "Vocabulary Flashcards", description: "Learn words by topic", icon: Layers },
+      { id: "cefr", label: "CEFR Vocabulary", description: "Build A1–C2 vocabulary", icon: Award },
+      { id: "my-vocabulary", label: "My Vocabulary", description: "Your saved words", icon: BookPlus },
+    ],
+  },
 ];
 
 function Sidebar({ activeTab, onTabChange, collapsed, onToggle }: SidebarProps) {
   const [learningOpen, setLearningOpen] = useState(true);
-  const isLearningActive = learningItems.some((item) => item.id === activeTab);
+  const [openGroups, setOpenGroups] = useState<Record<LearningGroup["id"], boolean>>({
+    overview: true,
+    practice: true,
+    vocabulary: true,
+  });
+
+  const activeGroup = learningGroups.find((group) =>
+    group.items.some((item) => item.id === activeTab)
+  );
+
+  useEffect(() => {
+    if (activeGroup) {
+      setLearningOpen(true);
+      setOpenGroups((current) => ({ ...current, [activeGroup.id]: true }));
+    }
+  }, [activeTab]);
+
+  const toggleGroup = (groupId: LearningGroup["id"]) => {
+    setOpenGroups((current) => ({ ...current, [groupId]: !current[groupId] }));
+  };
+
+  const renderLearningItem = (item: LearningItem) => {
+    const Icon = item.icon;
+    const isActive = activeTab === item.id;
+    return (
+      <button
+        key={item.id}
+        className={`menu-item ${isActive ? "active" : ""}`}
+        onClick={() => onTabChange(item.id)}
+        title={collapsed ? item.label : undefined}
+        aria-current={isActive ? "page" : undefined}
+        type="button"
+      >
+        <span className="menu-icon"><Icon size={18} strokeWidth={2} /></span>
+        {!collapsed && (
+          <span className="menu-item-text">
+            <span>{item.label}</span>
+            <small>{item.description}</small>
+          </span>
+        )}
+        {isActive && <span className="active-indicator" />}
+      </button>
+    );
+  };
 
   return (
     <aside className={`sidebar ${collapsed ? "collapsed" : ""}`}>
@@ -88,7 +162,6 @@ function Sidebar({ activeTab, onTabChange, collapsed, onToggle }: SidebarProps) 
 
       <div className="sidebar-scroll">
         {!collapsed && <p className="menu-heading">KHÔNG GIAN LÀM VIỆC</p>}
-
         <button
           type="button"
           className={`menu-item dashboard-nav-item ${activeTab === "dashboard" ? "active" : ""}`}
@@ -106,10 +179,10 @@ function Sidebar({ activeTab, onTabChange, collapsed, onToggle }: SidebarProps) 
           {activeTab === "dashboard" && <span className="active-indicator" />}
         </button>
 
-        {!collapsed && <p className="menu-heading module-menu-heading">PHÂN HỆ</p>}
+        {!collapsed && <p className="menu-heading module-menu-heading">HỌC TIẾNG ANH</p>}
         <button
           type="button"
-          className={`module-heading ${isLearningActive ? "module-active" : ""}`}
+          className={`module-heading ${activeGroup ? "module-active" : ""}`}
           onClick={() => collapsed ? onToggle() : setLearningOpen((value) => !value)}
           title={collapsed ? "English Learning" : undefined}
           aria-expanded={learningOpen}
@@ -120,28 +193,29 @@ function Sidebar({ activeTab, onTabChange, collapsed, onToggle }: SidebarProps) 
         </button>
 
         {learningOpen && (
-          <nav className="sidebar-menu" aria-label="English learning features">
-            {learningItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeTab === item.id;
+          <nav className="sidebar-menu learning-groups" aria-label="English learning features">
+            {learningGroups.map((group) => {
+              const groupIsActive = group.items.some((item) => item.id === activeTab);
+              const groupIsOpen = openGroups[group.id];
               return (
-                <button
-                  key={item.id}
-                  className={`menu-item ${isActive ? "active" : ""}`}
-                  onClick={() => onTabChange(item.id)}
-                  title={collapsed ? item.label : undefined}
-                  aria-current={isActive ? "page" : undefined}
-                  type="button"
-                >
-                  <span className="menu-icon"><Icon size={18} strokeWidth={2} /></span>
+                <section className={`learning-nav-group ${groupIsActive ? "has-active-item" : ""}`} key={group.id}>
                   {!collapsed && (
-                    <span className="menu-item-text">
-                      <span>{item.label}</span>
-                      <small>{item.description}</small>
-                    </span>
+                    <button
+                      type="button"
+                      className="learning-group-toggle"
+                      onClick={() => toggleGroup(group.id)}
+                      aria-expanded={groupIsOpen}
+                    >
+                      <span>{group.label}</span>
+                      <ChevronDown size={13} className={groupIsOpen ? "group-chevron open" : "group-chevron"} />
+                    </button>
                   )}
-                  {isActive && <span className="active-indicator" />}
-                </button>
+                  {(collapsed || groupIsOpen) && (
+                    <div className="learning-group-items">
+                      {group.items.map(renderLearningItem)}
+                    </div>
+                  )}
+                </section>
               );
             })}
           </nav>

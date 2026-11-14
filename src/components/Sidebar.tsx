@@ -11,7 +11,6 @@ import {
   LayoutDashboard,
   Info,
   Layers,
-  Mic,
   PanelLeftClose,
   PanelLeftOpen,
   UserRound,
@@ -56,7 +55,7 @@ type LearningGroup = {
 const learningGroups: LearningGroup[] = [
   {
     id: "overview",
-    label: "OVERVIEW",
+    label: "TỔNG QUAN",
     items: [
       { id: "learning-dashboard", label: "Learning Overview", description: "Your learning dashboard", icon: GraduationCap },
       { id: "checklist", label: "Learning Checklist", description: "Progress and daily goals", icon: ClipboardCheck },
@@ -65,7 +64,7 @@ const learningGroups: LearningGroup[] = [
   },
   {
     id: "practice",
-    label: "PRACTICE",
+    label: "LUYỆN TẬP",
     items: [
       { id: "units", label: "1,500 Sentences", description: "Practice English by unit", icon: BookOpen },
       { id: "listening", label: "Listening Practice", description: "Listening and pronunciation", icon: Headphones },
@@ -74,7 +73,7 @@ const learningGroups: LearningGroup[] = [
   },
   {
     id: "vocabulary",
-    label: "VOCABULARY",
+    label: "TỪ VỰNG",
     items: [
       { id: "flashcards", label: "Vocabulary Flashcards", description: "Learn words by topic", icon: Layers },
       { id: "cefr", label: "CEFR Vocabulary", description: "Build A1–C2 vocabulary", icon: Award },
@@ -122,7 +121,6 @@ function Sidebar({ activeTab, onTabChange, collapsed, onToggle }: SidebarProps) 
         {!collapsed && (
           <span className="menu-item-text">
             <span>{item.label}</span>
-            <small>{item.description}</small>
           </span>
         )}
         {isActive && <span className="active-indicator" />}
@@ -172,28 +170,29 @@ function Sidebar({ activeTab, onTabChange, collapsed, onToggle }: SidebarProps) 
           <span className="menu-icon"><LayoutDashboard size={18} strokeWidth={2} /></span>
           {!collapsed && (
             <span className="menu-item-text">
-              <span>Tổng quan ATI Group</span>
-              <small>Trung tâm điều hành</small>
+              <span>Trang chủ ATI Group</span>
+              <small>Mở trang chủ hệ sinh thái</small>
             </span>
           )}
           {activeTab === "dashboard" && <span className="active-indicator" />}
         </button>
 
-        {!collapsed && <p className="menu-heading module-menu-heading">HỌC TIẾNG ANH</p>}
-        <button
-          type="button"
-          className={`module-heading ${activeGroup ? "module-active" : ""}`}
-          onClick={() => collapsed ? onToggle() : setLearningOpen((value) => !value)}
-          title={collapsed ? "English Learning" : undefined}
-          aria-expanded={learningOpen}
-        >
-          <span className="module-heading-icon"><GraduationCap size={19} /></span>
-          {!collapsed && <span className="module-heading-label">ENGLISH LEARNING</span>}
-          {!collapsed && <ChevronDown size={16} className={`module-chevron ${learningOpen ? "open" : ""}`} />}
-        </button>
+        {!collapsed && <p className="menu-heading module-menu-heading">PHÂN HỆ</p>}
+        <div className={`module-tree ${learningOpen ? "module-tree-open" : ""}`}>
+          <button
+            type="button"
+            className={`module-heading ${activeGroup ? "module-active" : ""}`}
+            onClick={() => collapsed ? onToggle() : setLearningOpen((value) => !value)}
+            title={collapsed ? "English Master" : undefined}
+            aria-expanded={learningOpen}
+          >
+            <span className="module-heading-icon"><GraduationCap size={19} /></span>
+            {!collapsed && <span className="module-heading-label">ENGLISH MASTER</span>}
+            {!collapsed && <ChevronDown size={16} className={`module-chevron ${learningOpen ? "open" : ""}`} />}
+          </button>
 
-        {learningOpen && (
-          <nav className="sidebar-menu learning-groups" aria-label="English learning features">
+          {learningOpen && (
+            <nav className="sidebar-menu learning-groups" aria-label="English Master features">
             {learningGroups.map((group) => {
               const groupIsActive = group.items.some((item) => item.id === activeTab);
               const groupIsOpen = openGroups[group.id];
@@ -218,8 +217,9 @@ function Sidebar({ activeTab, onTabChange, collapsed, onToggle }: SidebarProps) 
                 </section>
               );
             })}
-          </nav>
-        )}
+            </nav>
+          )}
+        </div>
 
         <div className="sidebar-account-section">
           {!collapsed && <p className="menu-heading account-heading">TÀI KHOẢN</p>}
@@ -242,7 +242,7 @@ function Sidebar({ activeTab, onTabChange, collapsed, onToggle }: SidebarProps) 
         </div>
 
         <div className="sidebar-platform-section">
-          {!collapsed && <p className="menu-heading platform-heading">NỀN TẢNG</p>}
+          {!collapsed && <p className="menu-heading platform-heading">ATI GROUP</p>}
           <button
             type="button"
             className={`menu-item ${activeTab === "information" ? "active" : ""}`}
@@ -253,24 +253,15 @@ function Sidebar({ activeTab, onTabChange, collapsed, onToggle }: SidebarProps) 
             <span className="menu-icon"><Info size={18} strokeWidth={2} /></span>
             {!collapsed && (
               <span className="menu-item-text">
-                <span>Về ATI Group</span>
-                <small>Giới thiệu nền tảng</small>
+                <span>Giới thiệu ATI Group</span>
+                <small>Thông tin hệ sinh thái</small>
               </span>
             )}
             {activeTab === "information" && <span className="active-indicator" />}
           </button>
         </div>
 
-        {!collapsed && (
-          <>
-            <p className="menu-heading future-heading">CÁC PHÂN HỆ KHÁC</p>
-            <div className="future-module">
-              <span className="future-module-icon"><Mic size={17} /></span>
-              <span><strong>ATI Studio</strong><small>Sáng tạo nội dung</small></span>
-              <em>Sắp ra mắt</em>
-            </div>
-          </>
-        )}
+
       </div>
 
       {!collapsed && (

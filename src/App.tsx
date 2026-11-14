@@ -212,6 +212,9 @@ function App() {
               <img className="topbar-ati-logo" src="/ati-approved-logo.png" alt="ATI" />
             </button>
             <div className="topbar-page-info">
+              {activeTab !== "dashboard" && activeTab !== "profile" && activeTab !== "information" && (
+                <span className="topbar-module-context">ATI GROUP <span>/</span> ENGLISH MASTER</span>
+              )}
               <h1>{pageTitles[activeTab]}</h1>
             </div>
           </div>
